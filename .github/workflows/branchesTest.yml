@@ -46,24 +46,31 @@ jobs:
           fi
 
 
-      - name: Validate branch name
+      - name: Validate branch name on create
+        if: github.event_name == 'create'
+        run: |
+          BRANCH_NAME="${GITHUB_REF#refs/heads/}"
+          echo "Checking branch name: $BRANCH_NAME"
+          if [[ ! "$BRANCH_NAME" =~ ^(hot-fix-)?[A-Z]{3}-[a-zA-Z0-9]+-ERP-[0-9]{5}$ ]]; then
+            echo "❌ Invalid branch name: $BRANCH_NAME"
+            exit 1
+          fi
+
+      - name: Validate branch name on push
+        if: github.event_name == 'push'
         uses: deepakputhraya/action-branch-name@master
         with:
-          regex: '^(hot-fix-)?[A-Z]{3}-[a-zA-Z0-9]+-ERP-\d{5}$'
+          regex: '^(hot-fix-)?[A-Z]{3}-[a-zA-Z0-9]+-ERP-[0-9]{5}$'
           min_length: 10
           max_length: 100
 
-
-       
       - name: Comment on PR if branch name is invalid
         if: failure() && github.event_name == 'pull_request'
         uses: marocchino/sticky-pull-request-comment@v2
         with:
           message: |
             ⚠️ **Branch name does not follow the convention!**
-            Please rename your branch to match:
-            - `feature/<name>`
-            - `bugfix/<name>`
-            - `hotfix/<name>`
-            - `release/<name>`
-            - `docs/<name>`
+            Please rename your branch to match one of the following formats:
+            - `hot-fix/ABC-login-ERP-12345`
+            - `ABC-login-ERP-12345`
+
