@@ -2,11 +2,16 @@ name: Branch naming
 
 #on:
  # create:
+
 on:
   push:
-    branches: ["**"]
+    branches-ignore:
+      - main
+      - develop
   create:
-    branches: ["**"] 
+    branches-ignore:
+      - main
+      - develop
 
 #on:
 #  push:
