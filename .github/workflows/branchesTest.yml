@@ -22,14 +22,24 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Ensure branch is based on main
+      - name: Ensure branch is based on any remote branch
         run: |
-          git fetch origin main
-          BASE=$(git merge-base HEAD origin/main)
-          if [ "$BASE" != "$(git rev-parse origin/main)" ]; then
-            echo "❌ Branch is not based on main"
+          BRANCH_NAME="${GITHUB_REF#refs/heads/}"
+          git fetch --all
+          VALID_BASE=false
+          for REMOTE_BRANCH in $(git branch -r | sed 's/origin\///'); do
+            BASE=$(git merge-base HEAD "origin/$REMOTE_BRANCH" || true)
+            if [ "$BASE" = "$(git rev-parse origin/$REMOTE_BRANCH)" ]; then
+              VALID_BASE=true
+              break
+            fi
+          done
+
+          if [ "$VALID_BASE" = false ]; then
+            echo "❌ Branch '$BRANCH_NAME' is not based on any remote branch."
             exit 1
           fi
+
 
       - name: Validate branch name
         uses: deepakputhraya/action-branch-name@master
