@@ -15,6 +15,8 @@ jobs:
   branch-naming-rules:
     runs-on: ubuntu-latest
     steps:
+      - name: Check branch name
+        id: branch-check
       - uses: deepakputhraya/action-branch-name@master
         with:
           regex: '^(feature|bugfix|hotfix|release|docs)\/([A-Za-z0-9]+-)?[a-z0-9\-]+$'
@@ -22,3 +24,17 @@ jobs:
           ignore: main,develop
           min_length: 5
           max_length: 50
+
+       
+      - name: Comment on PR if branch name is invalid
+        if: failure() && github.event_name == 'pull_request'
+        uses: marocchino/sticky-pull-request-comment@v2
+        with:
+          message: |
+            ⚠️ **Branch name does not follow the convention!**
+            Please rename your branch to match:
+            - `feature/<name>`
+            - `bugfix/<name>`
+            - `hotfix/<name>`
+            - `release/<name>`
+            - `docs/<name>`
