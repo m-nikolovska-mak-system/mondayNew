@@ -1,0 +1,23 @@
+#!/bin/sh
+
+
+branch_name=$(git rev-parse --abbrev-ref HEAD)
+
+
+# Regex for allowed branch names
+
+regex='^(feature|fix|hotfix|release|chore)//([A-Za-z0-9]+-)?[a-z0-9/-]+$'
+
+
+if ! echo "$branch_name" | grep -Eq "$regex"; then
+
+  echo "❌ Branch name '$branch_name' does not follow naming convention!"
+
+  echo "✅ Use: feature/<name>, fix/<name>, hotfix/<name>, release/<name>, chore/<name>"
+
+  exit 1
+
+fi
+
+
+exit 0
