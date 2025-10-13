@@ -17,7 +17,7 @@ jobs:
     steps:
       - name: Check branch name
         id: branch-check
-      - uses: deepakputhraya/action-branch-name@master
+        uses: deepakputhraya/action-branch-name@master
         with:
           regex: '^(feature|bugfix|hotfix|release|docs)\/([A-Za-z0-9]+-)?[a-z0-9\-]+$'
           allowed_prefixes: 'feature,bugfix,hotfix,release,docs'
