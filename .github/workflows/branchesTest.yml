@@ -17,8 +17,8 @@ jobs:
     steps:
       - uses: deepakputhraya/action-branch-name@master
         with:
-          regex: '^(feature|fix|hotfix|release|chore)\/[a-z0-9\-]+$'
-          allowed_prefixes: 'feature,fix,hotfix,release,chore'
+          regex: '^(feature|fix|hotfix|release|chore)\/([A-Za-z0-9]+-)?[a-z0-9\-]+$'
+          allowed_prefixes: 'feature,bugfix,fix,hotfix,release,chore,docs'
           ignore: master,develop
           min_length: 5
           max_length: 50
