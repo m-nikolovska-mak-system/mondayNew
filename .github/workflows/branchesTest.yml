@@ -2,23 +2,41 @@ name: Branch naming
 
 #on:
  # create:
-
-
 on:
   push:
-    branches-ignore:
-      - main
-      - develop
-  pull_request:
+    branches: ["**"]
+  create:
+    branches: ["**"] 
+
+#on:
+#  push:
+#    branches-ignore:
+ #     - main
+  #    - develop
+ # pull_request:
 
 jobs:
   branch-naming-rules:
     runs-on: ubuntu-latest
     steps:
-      - uses: deepakputhraya/action-branch-name@master
+      - name: Check branch name
+        id: branch-check
+        uses: deepakputhraya/action-branch-name@master
         with:
-          regex: '^(feature|fix|hotfix|release|chore)\/[a-z0-9\-]+$'
-          allowed_prefixes: 'feature,fix,hotfix,release,chore'
-          ignore: master,develop
-          min_length: 5
-          max_length: 50
+          regex: '^(hot-fix-)?[A-Z]{3}-[a-zA-Z0-9]+-ERP-\d{5}$'
+          min_length: 10
+          max_length: 100
+
+       
+      - name: Comment on PR if branch name is invalid
+        if: failure() && github.event_name == 'pull_request'
+        uses: marocchino/sticky-pull-request-comment@v2
+        with:
+          message: |
+            ⚠️ **Branch name does not follow the convention!**
+            Please rename your branch to match:
+            - `feature/<name>`
+            - `bugfix/<name>`
+            - `hotfix/<name>`
+            - `release/<name>`
+            - `docs/<name>`
