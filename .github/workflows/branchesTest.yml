@@ -2,14 +2,18 @@ name: Branch naming
 
 #on:
  # create:
-
-
 on:
   push:
-    branches-ignore:
-      - main
-      - develop
-  pull_request:
+    branches: ["**"]
+  create:
+    branches: ["**"] 
+
+#on:
+#  push:
+#    branches-ignore:
+ #     - main
+  #    - develop
+ # pull_request:
 
 jobs:
   branch-naming-rules:
