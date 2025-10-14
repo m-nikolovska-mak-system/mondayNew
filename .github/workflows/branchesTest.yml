@@ -81,6 +81,7 @@ jobs:
             -X GET \
             -H "Accept: application/json" \
             "${{ secrets.JIRA_BASE_URL }}/rest/api/3/issue/${{ steps.extract.outputs.ticket }}")
+            echo "HTTP response code: $RESPONSE_CODE"
 
           if [ "$RESPONSE" -ne 200 ]; then
             echo "❌ Jira ticket not found: ${{ steps.extract.outputs.ticket }}"
