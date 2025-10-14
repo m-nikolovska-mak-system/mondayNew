@@ -38,6 +38,18 @@ jobs:
           min_length: 10
           max_length: 100
 
+      - name: Debug extracted ticket
+        run: |
+          BRANCH_NAME="${GITHUB_REF#refs/heads/}"
+          TICKET=$(echo "$BRANCH_NAME" | grep -oE '[A-Z0-9]+-[0-9]+')
+          echo "Branch name: $BRANCH_NAME"
+          echo "Extracted ticket: $TICKET"
+          if [ -z "$TICKET" ]; then
+            echo "❌ No Jira ticket found in branch name."
+            exit 1
+          fi
+
+
       - name: Debug Jira API call
         run: |
           BRANCH_NAME="${GITHUB_REF#refs/heads/}"
