@@ -43,7 +43,7 @@ jobs:
         id: extract
         run: |
           env:
-          BRANCH_NAME: ${{ github.ref_name }}
+            BRANCH_NAME: ${{ github.ref_name }}
           echo "Branch: $BRANCH_NAME"
           TICKET=$(echo "$BRANCH_NAME" | grep -oE '[A-Z]{2,}-[0-9]{5}')
           echo "Extracted ticket: $TICKET"
