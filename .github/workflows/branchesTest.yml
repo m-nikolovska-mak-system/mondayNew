@@ -18,31 +18,12 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Ensure branch is based on any remote branch
-        run: |
-          env:
-           BRANCH_NAME: ${{ github.ref_name }}
-          git fetch --all
-          VALID_BASE=false
-          for REMOTE_BRANCH in $(git branch -r | sed 's/origin\///'); do
-            BASE=$(git merge-base HEAD "origin/$REMOTE_BRANCH" || true)
-            if [ "$BASE" = "$(git rev-parse origin/$REMOTE_BRANCH)" ]; then
-              VALID_BASE=true
-              break
-            fi
-          done
-
-          if [ "$VALID_BASE" = false ]; then
-            echo "❌ Branch '$BRANCH_NAME' is not based on any remote branch."
-            exit 1
-          fi
 
 
       - name: Validate branch name on create
         if: github.event_name == 'create'
         run: |
-          env:
-           BRANCH_NAME: ${{ github.ref_name }}
+          BRANCH_NAME="${GITHUB_REF#refs/heads/}"
           echo "Checking branch name: $BRANCH_NAME"
           if [[ ! "$BRANCH_NAME" =~ ^(hot-fix-)?[A-Z]{3}-[a-zA-Z0-9]+-ERP-[0-9]{5}$ ]]; then
             echo "❌ Invalid branch name: $BRANCH_NAME"
@@ -72,15 +53,17 @@ jobs:
 		     JIRA_API_TOKEN: ${{ secrets.JIRA_API_TOKEN }}
 		     JIRA_BASE_URL: ${{ secrets.JIRA_BASE_URL }}  
 
+
       - name: Extract Jira Ticket Key
         id: extract
         run: |
-          env:
-          BRANCH_NAME: ${{ github.ref_name }}
           echo "Branch: $BRANCH_NAME"
           TICKET=$(echo "$BRANCH_NAME" | grep -oE '[A-Z]{2,}-[0-9]{5}')
           echo "Extracted ticket: $TICKET"
           echo "ticket=$TICKET" >> $GITHUB_OUTPUT
+        env:
+          BRANCH_NAME: ${{ github.ref_name }}
+
 
       - name: Validate Jira Ticket Exists
         run: |
