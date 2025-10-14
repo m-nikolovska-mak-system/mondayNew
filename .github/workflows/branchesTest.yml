@@ -29,7 +29,8 @@ jobs:
 
       - name: Ensure branch is based on any remote branch
         run: |
-          BRANCH_NAME="${GITHUB_REF#refs/heads/}"
+          env:
+           BRANCH_NAME: ${{ github.ref_name }}
           git fetch --all
           VALID_BASE=false
           for REMOTE_BRANCH in $(git branch -r | sed 's/origin\///'); do
@@ -49,7 +50,8 @@ jobs:
       - name: Validate branch name on create
         if: github.event_name == 'create'
         run: |
-          BRANCH_NAME="${GITHUB_REF#refs/heads/}"
+          env:
+           BRANCH_NAME: ${{ github.ref_name }}
           echo "Checking branch name: $BRANCH_NAME"
           if [[ ! "$BRANCH_NAME" =~ ^(hot-fix-)?[A-Z]{3}-[a-zA-Z0-9]+-ERP-[0-9]{5}$ ]]; then
             echo "❌ Invalid branch name: $BRANCH_NAME"
