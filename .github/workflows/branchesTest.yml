@@ -41,7 +41,7 @@ jobs:
       - name: Debug extracted ticket
         run: |
           BRANCH_NAME="${GITHUB_REF#refs/heads/}"
-          TICKET=$(echo "$BRANCH_NAME" | grep -oE '[A-Z0-9]+-[0-9]+')
+          TICKET=$(echo "$BRANCH_NAME" | grep -oE '[A-Z0-9]+-[0-9]+' | tail -n1)
           echo "Branch name: $BRANCH_NAME"
           echo "Extracted ticket: $TICKET"
           if [ -z "$TICKET" ]; then
@@ -53,7 +53,7 @@ jobs:
       - name: Debug Jira API call
         run: |
           BRANCH_NAME="${GITHUB_REF#refs/heads/}"
-          TICKET=$(echo "$BRANCH_NAME" | grep -oE '[A-Z0-9]+-[0-9]+')
+          TICKET=$(echo "$BRANCH_NAME" | grep -oE '[A-Z0-9]+-[0-9]+' | tail -n1)
           echo "Checking Jira ticket: $TICKET"
 
           RESPONSE=$(curl -s -u "${{ secrets.JIRA_USER }}:${{ secrets.JIRA_API_TOKEN }}" \
@@ -69,7 +69,7 @@ jobs:
         run: |
           BRANCH_NAME="${GITHUB_REF#refs/heads/}"
           echo "Branch: $BRANCH_NAME"
-          TICKET=$(echo "$BRANCH_NAME" | grep -oE '[A-Z0-9]+-[0-9]+')
+          TICKET=$(echo "$BRANCH_NAME" | grep -oE '[A-Z0-9]+-[0-9]+' | tail -n1)
           echo "Extracted ticket: $TICKET"
           echo "ticket=$TICKET" >> $GITHUB_OUTPUT
 
