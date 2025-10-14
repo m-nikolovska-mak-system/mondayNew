@@ -64,6 +64,7 @@ jobs:
                exit 1
              else
                echo "✅ Jira ticket exists: ${{ steps.extract.outputs.ticket }}"
+             fi
    
 
       - name: Comment on PR if branch name is invalid
