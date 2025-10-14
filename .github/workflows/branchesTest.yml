@@ -39,15 +39,17 @@ jobs:
           min_length: 10
           max_length: 100
 
+
       - name: Extract Jira Ticket Key
         id: extract
         run: |
-          env:
-            BRANCH_NAME: ${{ github.ref_name }}
           echo "Branch: $BRANCH_NAME"
           TICKET=$(echo "$BRANCH_NAME" | grep -oE '[A-Z]{2,}-[0-9]{5}')
           echo "Extracted ticket: $TICKET"
           echo "ticket=$TICKET" >> $GITHUB_OUTPUT
+        env:
+          BRANCH_NAME: ${{ github.ref_name }}
+
 
       - name: Validate Jira Ticket Exists
         run: |
