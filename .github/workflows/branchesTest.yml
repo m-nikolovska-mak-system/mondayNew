@@ -56,14 +56,13 @@ jobs:
           TICKET=$(echo "$BRANCH_NAME" | grep -oE '[A-Z0-9]+-[0-9]+')
           echo "Checking Jira ticket: $TICKET"
 
-          curl -u "${{ secrets.JIRA_USER }}:${{ secrets.JIRA_API_TOKEN }}" \
-            -X GET \
-            -H "Accept: application/json" \
-            "${{ secrets.JIRA_BASE_URL }}/rest/api/3/issue/$TICKET" -v
-        env:
-          JIRA_USER: ${{ secrets.JIRA_USER }}
-          JIRA_API_TOKEN: ${{ secrets.JIRA_API_TOKEN }}
-          JIRA_BASE_URL: ${{ secrets.JIRA_BASE_URL }}
+          RESPONSE=$(curl -s -u "${{ secrets.JIRA_USER }}:${{ secrets.JIRA_API_TOKEN }}" \
+          -X GET \
+          -H "Accept: application/json" \
+           "${{ secrets.JIRA_BASE_URL }}/rest/api/3/issue/$TICKET")
+
+          echo "Response from Jira:"
+          echo "$RESPONSE"
 
       - name: Extract Jira Ticket Key
         id: extract
