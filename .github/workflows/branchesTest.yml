@@ -10,15 +10,12 @@ on:
       - main
       - develop
 
-
 jobs:
   branch-naming-rules:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
-
-
 
       - name: Validate branch name on create
         if: github.event_name == 'create'
@@ -37,49 +34,50 @@ jobs:
           regex: '^(hot-fix-)?[A-Z]{3}-[a-zA-Z0-9]+-ERP-[0-9]{5}$'
           min_length: 10
           max_length: 100
-		  
-	  - name: Debug Jira API call
-		   run: |
-		     BRANCH_NAME="${GITHUB_REF#refs/heads/}"
-		     TICKET=$(echo "$BRANCH_NAME" | grep -oE '[A-Z]{2,}-[0-9]{5}')
-		     echo "Checking Jira ticket: $TICKET"
 
-		     curl -u "${{ secrets.JIRA_USER }}:${{ secrets.JIRA_API_TOKEN }}" \
-		       -X GET \
-		       -H "Accept: application/json" \
-		       "${{ secrets.JIRA_BASE_URL }}/rest/api/3/issue/$TICKET" -v
-		   env:
-		     JIRA_USER: ${{ secrets.JIRA_USER }}
-		     JIRA_API_TOKEN: ${{ secrets.JIRA_API_TOKEN }}
-		     JIRA_BASE_URL: ${{ secrets.JIRA_BASE_URL }}  
+      - name: Debug Jira API call
+        run: |
+          BRANCH_NAME="${GITHUB_REF#refs/heads/}"
+          TICKET=$(echo "$BRANCH_NAME" | grep -oE '[A-Z]{2,}-[0-9]{5}')
+          echo "Checking Jira ticket: $TICKET"
 
+          curl -u "${{ secrets.JIRA_USER }}:${{ secrets.JIRA_API_TOKEN }}" \
+            -X GET \
+            -H "Accept: application/json" \
+            "${{ secrets.JIRA_BASE_URL }}/rest/api/3/issue/$TICKET" -v
+        env:
+          JIRA_USER: ${{ secrets.JIRA_USER }}
+          JIRA_API_TOKEN: ${{ secrets.JIRA_API_TOKEN }}
+          JIRA_BASE_URL: ${{ secrets.JIRA_BASE_URL }}
 
       - name: Extract Jira Ticket Key
         id: extract
         run: |
+          BRANCH_NAME="${GITHUB_REF#refs/heads/}"
           echo "Branch: $BRANCH_NAME"
           TICKET=$(echo "$BRANCH_NAME" | grep -oE '[A-Z]{2,}-[0-9]{5}')
           echo "Extracted ticket: $TICKET"
           echo "ticket=$TICKET" >> $GITHUB_OUTPUT
-        env:
-          BRANCH_NAME: ${{ github.ref_name }}
-
 
       - name: Validate Jira Ticket Exists
         run: |
-             echo "Checking Jira ticket: ${{ steps.extract.outputs.ticket }}"
-             RESPONSE=$(curl -s -o /dev/null -w "%{http_code}" \
-               -u "${{ secrets.JIRA_USER }}:${{ secrets.JIRA_API_TOKEN }}" \
-               -X GET \
-               -H "Accept: application/json" \
-               "${{ secrets.JIRA_BASE_URL }}/rest/api/3/issue/${{ steps.extract.outputs.ticket }}")
-   
-             if [ "$RESPONSE" -ne 200 ]; then
-               echo "❌ Jira ticket not found: ${{ steps.extract.outputs.ticket }}"
-               exit 1
-             else
-               echo "✅ Jira ticket exists: ${{ steps.extract.outputs.ticket }}"
-   
+          echo "Checking Jira ticket: ${{ steps.extract.outputs.ticket }}"
+          RESPONSE=$(curl -s -o /dev/null -w "%{http_code}" \
+            -u "${{ secrets.JIRA_USER }}:${{ secrets.JIRA_API_TOKEN }}" \
+            -X GET \
+            -H "Accept: application/json" \
+            "${{ secrets.JIRA_BASE_URL }}/rest/api/3/issue/${{ steps.extract.outputs.ticket }}")
+
+          if [ "$RESPONSE" -ne 200 ]; then
+            echo "❌ Jira ticket not found: ${{ steps.extract.outputs.ticket }}"
+            exit 1
+          else
+            echo "✅ Jira ticket exists: ${{ steps.extract.outputs.ticket }}"
+          fi
+        env:
+          JIRA_USER: ${{ secrets.JIRA_USER }}
+          JIRA_API_TOKEN: ${{ secrets.JIRA_API_TOKEN }}
+          JIRA_BASE_URL: ${{ secrets.JIRA_BASE_URL }}
 
       - name: Comment on PR if branch name is invalid
         if: failure() && github.event_name == 'pull_request'
@@ -90,4 +88,3 @@ jobs:
             Please rename your branch to match one of the following formats:
             - `hot-fix/ABC-login-ERP-12345`
             - `ABC-login-ERP-12345`
-
