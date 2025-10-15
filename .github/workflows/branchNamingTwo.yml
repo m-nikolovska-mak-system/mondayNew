@@ -68,7 +68,7 @@ jobs:
 
 
       - name: Comment on PR if branch name is invalid
-        if: failure() && github.event_name == 'pull_request'
+        if: failure() && github.event.pull_request.head.ref != ''
         uses: marocchino/sticky-pull-request-comment@v2
         with:
           message: |
