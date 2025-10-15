@@ -14,6 +14,7 @@ public class App {
 	public static void main(String[] args) {
 		System.out.println("Hello!!!");
 		System.out.println("Hello too!!");
+		System.out.println("Wednesday test to see if jira works!!");
 
 
 
