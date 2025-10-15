@@ -28,7 +28,7 @@ jobs:
           fi
 
       - name: Validate branch name on push
-        if: github.event_name == 'push'
+        if: github.event_name == 'push' && github.event.before != '0000000000000000000000000000000000000000'
         uses: deepakputhraya/action-branch-name@master
         with:
           regex: '^(hot-fix-)?[a-zA-Z0-9]+(-[a-zA-Z0-9]+)*-ERP-[0-9]+$'  
