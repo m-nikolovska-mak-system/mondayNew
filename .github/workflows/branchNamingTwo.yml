@@ -67,6 +67,22 @@ jobs:
           JIRA_BASE_URL: ${{ secrets.JIRA_BASE_URL }}
 
 
+      - name: Notify Microsoft Teams on failure
+        if: failure()
+        run: |
+          curl -H 'Content-Type: application/json' \
+          -d '
+          {
+            "@type": "MessageCard",
+            "@context": "https://schema.org/extensions",
+            "summary": "Branch Validation Failed",
+            "themeColor": "FF0000",
+            "title": "❌ Invalid Branch Name",
+            "text": "Branch: ${{ github.ref }}\nPlease use:\n- INT-feature-login-ERP-12345\n- hot-fix-INT-login-ERP-12345"
+          }
+          ' \
+          ${{ secrets.TEAMS_WEBHOOK_URL }}
+
       - name: Comment on PR if branch name is invalid
         if: failure() && github.event_name == 'pull_request'
         uses: marocchino/sticky-pull-request-comment@v2
