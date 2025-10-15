@@ -22,7 +22,7 @@ jobs:
         run: |
           BRANCH_NAME="${GITHUB_REF#refs/heads/}"
           echo "Checking branch name: $BRANCH_NAME"
-          if [[ ! "$BRANCH_NAME" =~ ^(hot-fix-)?[A-Z]{3}-[a-zA-Z0-9]+-ERP-[0-9]{5,}$ ]]; then
+          if [[ ! "$BRANCH_NAME" =~ ^(hot-fix-)?[a-zA-Z0-9]+(-[a-zA-Z0-9]+)*-ERP-[0-9]+$ ]]; then
             echo "❌ Invalid branch name: $BRANCH_NAME"
             exit 1
           fi
