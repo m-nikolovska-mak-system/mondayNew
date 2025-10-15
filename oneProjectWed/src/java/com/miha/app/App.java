@@ -15,6 +15,7 @@ public class App {
 		System.out.println("Hello!!!");
 		System.out.println("Hello this is a test for jira automation on codechecker!!");
 		System.out.println("this is NOT supposed to fail and NOT notify teams");
+		System.out.println("this is to test jira automation on codechecker");
 
 
 
