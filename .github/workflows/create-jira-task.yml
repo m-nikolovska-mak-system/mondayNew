@@ -1,6 +1,7 @@
 name: Create Jira Task on App Change
 
 on:
+  workflow_dispatch:
   push:
     # Only run when files under any src/.../com/miha/app/ change (beginner-friendly)
     paths:
