@@ -32,7 +32,7 @@ jobs:
 
       - name: Send Teams reminder
         if: env.changed == 'true'
-        uses: Ilshidur/action-slack@v3
+        uses: Ilshidur/action-slack@v2
         with:
           webhook_url: ${{ secrets.TEAMS_WEBHOOK_URL }}
           msg: "🚀 A new release includes updates to Calbesoi_dDefault.java. Please prepare a new installer for the Template Designer."
