@@ -1,0 +1,38 @@
+name: Create Jira Task on Release
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  create-jira:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Get release author
+        run: echo "Release created by ${{ github.actor }}"
+
+      - name: Create Jira Task
+        env:
+          JIRA_API_TOKEN: ${{ secrets.JIRA_API_TOKEN }}
+          JIRA_EMAIL: ${{ secrets.JIRA_EMAIL }}
+          JIRA_URL: https://your-domain.atlassian.net
+        run: |
+          curl -X POST \
+            -H "Authorization: Basic $(echo -n $JIRA_EMAIL:$JIRA_API_TOKEN | base64)" \
+            -H "Content-Type: application/json" \
+            --data '{
+              "fields": {
+                "project": {
+                  "key": "PROJ"
+                },
+                "summary": "Reminder: Prepare new installer for template designer",
+                "description": "Triggered by release from '${{ github.actor }}'",
+                "issuetype": {
+                  "name": "Task"
+                },
+                "assignee": {
+                  "name": "jira_username_for_${{ github.actor }}"
+                }
+              }
+            }' \
+            $JIRA_URL/rest/api/2/issue
