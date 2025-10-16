@@ -1,9 +1,7 @@
 name: Release Reminder for Installer
 
-
 on:
   workflow_dispatch:
-
   release:
     types: [created]
 
@@ -11,10 +9,10 @@ jobs:
   notify_new_installer:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
+      - name: Checkout repository
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0  # needed to compare commits
+          fetch-depth: 0  # required to compare commits across tags
 
       - name: Get previous tag
         id: previoustag
@@ -30,13 +28,6 @@ jobs:
             echo "changed=false" >> $GITHUB_ENV
           fi
 
-      - name: Send Teams reminder
-        if: env.changed == 'true'
-        uses: Ilshidur/action-slack@V1
-        with:
-          webhook_url: ${{ secrets.TEAMS_WEBHOOK_URL }}
-          msg: "🚀 A new release includes updates to Calbesoi_dDefault.java. Please prepare a new installer for the Template Designer."
-
       - name: Create Jira task
         if: env.changed == 'true'
         uses: atlassian/gajira-create@v3
@@ -48,5 +39,4 @@ jobs:
           project: PROG
           issuetype: Task
           summary: "Prepare new installer for Template Designer"
-          description: "File Calbesoi_dDefault.java was modified in the latest release. Please update the installer."
-          assignee: ${{ github.actor }}
+          description: "File Calbesoi_dDefault.java was modified in the latest release. Pl_
