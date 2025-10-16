@@ -68,38 +68,14 @@ jobs:
             sudo apt-get install -y jq >/dev/null
           fi
 
-          PUSHER_EMAIL="${{ github.event.pusher.email }}"
           FILES="${{ steps.changes.outputs.files }}"
-
-          echo "Pusher: $GITHUB_ACTOR, email: $PUSHER_EMAIL"
-
-          # Try to find Jira accountId for the pusher by email; if email missing, fallback to searching by GitHub actor
-          ASSIGNEE_ID=""
-          SEARCH_JSON=""
-          if [ -n "$PUSHER_EMAIL" ]; then
-            echo "Looking up Jira user by email: $PUSHER_EMAIL"
-            QUERY_ENC=$(python3 -c "import urllib.parse,sys; print(urllib.parse.quote(sys.argv[1]))" "$PUSHER_EMAIL")
-            SEARCH_JSON=$(curl -s -u "$JIRA_EMAIL:$JIRA_API_TOKEN" "$JIRA_URL/rest/api/3/user/search?query=$QUERY_ENC")
-          else
-            echo "No pusher email available in payload; trying search by GitHub actor: $GITHUB_ACTOR"
-            QUERY_ENC=$(python3 -c "import urllib.parse,sys; print(urllib.parse.quote(sys.argv[1]))" "$GITHUB_ACTOR")
-            SEARCH_JSON=$(curl -s -u "$JIRA_EMAIL:$JIRA_API_TOKEN" "$JIRA_URL/rest/api/3/user/search?query=$QUERY_ENC")
-          fi
-
-          ASSIGNEE_ID=$(echo "$SEARCH_JSON" | jq -r '.[0].accountId // empty') || true
-          echo "Found assignee accountId: $ASSIGNEE_ID"
+          echo "Creating an UNASSIGNED Jira issue (we'll assign later)."
 
           SUMMARY="Automated task: install/update after app source change"
-          DESCRIPTION="Files changed:\n$FILES\n\nTriggered by GitHub user: $GITHUB_ACTOR\nCommit: https://github.com/${{ github.repository }}/commit/$GITHUB_SHA"
+          DESCRIPTION="Files changed:\n$FILES\n\nTriggered by GitHub user: $GITHUB_ACTOR\nCommit: https://github.com/${{ github.repository }}/commit/$GITHUB_SHA\n\nNote: issue created unassigned; please assign to the responsible person later."
 
-          if [ -n "$ASSIGNEE_ID" ]; then
-            echo "Creating Jira issue assigned to accountId: $ASSIGNEE_ID"
-            PAYLOAD=$(jq -n --arg proj "$JIRA_PROJECT_KEY" --arg sum "$SUMMARY" --arg desc "$DESCRIPTION" --arg acc "$ASSIGNEE_ID" '{fields: {project: {key: $proj}, summary: $sum, description: $desc, issuetype: {name: "Task"}, assignee: {accountId: $acc}}}')
-          else
-            echo "Creating Jira issue without assignee (will mention GitHub actor in description)"
-            DESCRIPTION="$DESCRIPTION\n\nNote: could not map GitHub user to a Jira account automatically. @${GITHUB_ACTOR}"
-            PAYLOAD=$(jq -n --arg proj "$JIRA_PROJECT_KEY" --arg sum "$SUMMARY" --arg desc "$DESCRIPTION" '{fields: {project: {key: $proj}, summary: $sum, description: $desc, issuetype: {name: "Task"}}}')
-          fi
+          # Create issue without assignee to avoid mapping/lookup errors
+          PAYLOAD=$(jq -n --arg proj "$JIRA_PROJECT_KEY" --arg sum "$SUMMARY" --arg desc "$DESCRIPTION" '{fields: {project: {key: $proj}, summary: $sum, description: $desc, issuetype: {name: "Task"}}}')
 
           echo "Payload: $PAYLOAD"
 
