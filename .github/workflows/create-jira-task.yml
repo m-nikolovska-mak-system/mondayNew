@@ -1,38 +1,125 @@
-name: Create Jira Task on Release
+name: Create Jira Task on App Change
 
 on:
-  release:
-    types: [published]
+  push:
+    # Only run when files under any src/.../com/miha/app/ change (beginner-friendly)
+    paths:
+      - '**/src/**/com/miha/app/**'
 
 jobs:
   create-jira:
     runs-on: ubuntu-latest
     steps:
-      - name: Get release author
-        run: echo "Release created by ${{ github.actor }}"
+      - name: Checkout repository (full)
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
-      - name: Create Jira Task
-        env:
-          JIRA_API_TOKEN: ${{ secrets.JIRA_API_TOKEN }}
-          JIRA_EMAIL: ${{ secrets.JIRA_EMAIL }}
-          JIRA_URL: https://your-domain.atlassian.net
+      - name: Gather changed files
+        id: changes
         run: |
-          curl -X POST \
-            -H "Authorization: Basic $(echo -n $JIRA_EMAIL:$JIRA_API_TOKEN | base64)" \
-            -H "Content-Type: application/json" \
-            --data '{
-              "fields": {
-                "project": {
-                  "key": "PROJ"
-                },
-                "summary": "Reminder: Prepare new installer for template designer",
-                "description": "Triggered by release from '${{ github.actor }}'",
-                "issuetype": {
-                  "name": "Task"
-                },
-                "assignee": {
-                  "name": "jira_username_for_${{ github.actor }}"
-                }
-              }
-            }' \
-            $JIRA_URL/rest/api/2/issue
+          # If this is the first push (no before SHA) list all files in the commit
+          if [ "${{ github.event.before }}" = "0000000000000000000000000000000000000000" ]; then
+            echo "Initial commit or branch created - listing files in ${GITHUB_SHA}"
+            git ls-tree -r --name-only ${GITHUB_SHA} > files.txt
+            CHANGED=$(cat files.txt)
+          else
+            # Ensure we have the history needed for diff
+            git fetch --no-tags --prune origin +refs/heads/*:refs/remotes/origin/* || true
+            CHANGED=$(git diff --name-only ${{ github.event.before }} ${{ github.sha }} || true)
+          fi
+
+          echo "files<<EOF" >> $GITHUB_OUTPUT
+          echo "$CHANGED" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
+      - name: Check for app file changes
+        id: check
+        run: |
+          FILES="${{ steps.changes.outputs.files }}"
+          echo "Changed files:\n$FILES"
+          if echo "$FILES" | grep -qE 'com/miha/app/'; then
+            echo "found=true" >> $GITHUB_OUTPUT
+          else
+            echo "found=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Create Jira issue when app files changed
+        if: steps.check.outputs.found == 'true'
+        env:
+          JIRA_EMAIL: ${{ secrets.JIRA_EMAIL }}
+          JIRA_API_TOKEN: ${{ secrets.JIRA_API_TOKEN }}
+          JIRA_URL: ${{ secrets.JIRA_URL }}
+          JIRA_PROJECT_KEY: ${{ secrets.JIRA_PROJECT_KEY }}
+          GITHUB_ACTOR: ${{ github.actor }}
+          GITHUB_SHA: ${{ github.sha }}
+        run: |
+          set -e
+          # Basic validation of required secrets
+          if [ -z "$JIRA_EMAIL" ] || [ -z "$JIRA_API_TOKEN" ] || [ -z "$JIRA_URL" ] || [ -z "$JIRA_PROJECT_KEY" ]; then
+            echo "Missing one of required secrets: JIRA_EMAIL, JIRA_API_TOKEN, JIRA_URL, JIRA_PROJECT_KEY"
+            exit 1
+          fi
+
+          # Ensure jq is available for JSON parsing and payload creation
+          if ! command -v jq >/dev/null 2>&1; then
+            echo "Installing jq"
+            sudo apt-get update -y >/dev/null
+            sudo apt-get install -y jq >/dev/null
+          fi
+
+          PUSHER_EMAIL="${{ github.event.pusher.email }}"
+          FILES="${{ steps.changes.outputs.files }}"
+
+          echo "Pusher: $GITHUB_ACTOR, email: $PUSHER_EMAIL"
+
+          # Try to find Jira accountId for the pusher by email; if email missing, fallback to searching by GitHub actor
+          ASSIGNEE_ID=""
+          SEARCH_JSON=""
+          if [ -n "$PUSHER_EMAIL" ]; then
+            echo "Looking up Jira user by email: $PUSHER_EMAIL"
+            QUERY_ENC=$(python3 -c "import urllib.parse,sys; print(urllib.parse.quote(sys.argv[1]))" "$PUSHER_EMAIL")
+            SEARCH_JSON=$(curl -s -u "$JIRA_EMAIL:$JIRA_API_TOKEN" "$JIRA_URL/rest/api/3/user/search?query=$QUERY_ENC")
+          else
+            echo "No pusher email available in payload; trying search by GitHub actor: $GITHUB_ACTOR"
+            QUERY_ENC=$(python3 -c "import urllib.parse,sys; print(urllib.parse.quote(sys.argv[1]))" "$GITHUB_ACTOR")
+            SEARCH_JSON=$(curl -s -u "$JIRA_EMAIL:$JIRA_API_TOKEN" "$JIRA_URL/rest/api/3/user/search?query=$QUERY_ENC")
+          fi
+
+          ASSIGNEE_ID=$(echo "$SEARCH_JSON" | jq -r '.[0].accountId // empty') || true
+          echo "Found assignee accountId: $ASSIGNEE_ID"
+
+          SUMMARY="Automated task: install/update after app source change"
+          DESCRIPTION="Files changed:\n$FILES\n\nTriggered by GitHub user: $GITHUB_ACTOR\nCommit: https://github.com/${{ github.repository }}/commit/$GITHUB_SHA"
+
+          if [ -n "$ASSIGNEE_ID" ]; then
+            echo "Creating Jira issue assigned to accountId: $ASSIGNEE_ID"
+            PAYLOAD=$(jq -n --arg proj "$JIRA_PROJECT_KEY" --arg sum "$SUMMARY" --arg desc "$DESCRIPTION" --arg acc "$ASSIGNEE_ID" '{fields: {project: {key: $proj}, summary: $sum, description: $desc, issuetype: {name: "Task"}, assignee: {accountId: $acc}}}')
+          else
+            echo "Creating Jira issue without assignee (will mention GitHub actor in description)"
+            DESCRIPTION="$DESCRIPTION\n\nNote: could not map GitHub user to a Jira account automatically. @${GITHUB_ACTOR}"
+            PAYLOAD=$(jq -n --arg proj "$JIRA_PROJECT_KEY" --arg sum "$SUMMARY" --arg desc "$DESCRIPTION" '{fields: {project: {key: $proj}, summary: $sum, description: $desc, issuetype: {name: "Task"}}}')
+          fi
+
+          echo "Payload: $PAYLOAD"
+
+          RESPONSE=$(curl -s -u "$JIRA_EMAIL:$JIRA_API_TOKEN" -X POST -H "Content-Type: application/json" --data "$PAYLOAD" "$JIRA_URL/rest/api/3/issue")
+          echo "Response: $RESPONSE"
+
+          # Try to extract created issue key
+          ISSUE_KEY=$(echo "$RESPONSE" | jq -r '.key // empty') || true
+
+          if [ -n "$ISSUE_KEY" ]; then
+            echo "Created Jira issue: $ISSUE_KEY"
+            echo "Issue: $ISSUE_KEY" > issue_info.txt
+          else
+            echo "Failed to create Jira issue or could not parse response. See response above."
+            exit 1
+          fi
+
+      - name: Upload created issue metadata
+        if: steps.check.outputs.found == 'true' && always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: jira-issue-info
+          path: issue_info.txt
