@@ -83,12 +83,16 @@ jobs:
         if: failure()
         run: |
           BRANCH_NAME="${GITHUB_REF#refs/heads/}"
-          gh issue create \
-            --title "Branch Naming Violation: $BRANCH_NAME" \
-            --body "Branch \`$BRANCH_NAME\` created by @${{ github.actor }} does not follow naming rules or has an invalid Jira ticket. Please fix it." \
-            --label "branch-policy"
+          curl -X POST \
+            -H "Authorization: token ${{ secrets.GH_PAT }}" \
+            -H "Accept: application/vnd.github.v3+json" \
+            https://api.github.com/repos/${{ github.repository }}/issues \
+            -d "$(jq -n --arg title "Branch Naming Violation: $BRANCH_NAME" \
+                      --arg body "Branch \`$BRANCH_NAME\` created by @${{ github.actor }} does not follow naming rules or has an invalid Jira ticket. Please fix it." \
+                      --argjson labels ["branch-policy"] \
+                      '{title: $title, body: $body, labels: $labels}')"
         env:
-          GITHUB_TOKEN: ${{ secrets.GH_PAT }}
+          GH_PAT: ${{ secrets.GH_PAT }}
 
       - name: Comment on PR if branch name is invalid
         if: failure() && github.event.pull_request.head.ref != ''
