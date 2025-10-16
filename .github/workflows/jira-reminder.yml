@@ -1,0 +1,68 @@
+name: Create Jira Task on Release
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  create-jira-task:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Get release creator
+        id: get_actor
+        run: echo "actor=${{ github.actor }}" >> $GITHUB_OUTPUT
+
+      - name: Lookup Jira user by email
+        id: jira_user
+        env:
+          JIRA_API_TOKEN: ${{ secrets.JIRA_API_TOKEN }}
+          JIRA_EMAIL: ${{ secrets.JIRA_EMAIL }}
+          JIRA_URL: ${{ secrets.JIRA_URL }}
+        run: |
+          # Replace this with a real mapping if needed
+          GITHUB_USER="${{ steps.get_actor.outputs.actor }}"
+          echo "GitHub user: $GITHUB_USER"
+
+          # Example mapping GitHub username to email
+          # You can replace this with a smarter lookup later
+          if [ "$GITHUB_USER" = "mihaela-nikolovska" ]; then
+            USER_EMAIL="mihaela.nikolovska@students.finki.ukim.mk"
+          else
+            USER_EMAIL="default@yourcompany.com"
+          fi
+
+          echo "Looking up Jira user for $USER_EMAIL"
+
+          RESPONSE=$(curl -s -X GET \
+            -H "Authorization: Basic $(echo -n $JIRA_EMAIL:$JIRA_API_TOKEN | base64)" \
+            -H "Content-Type: application/json" \
+            "$JIRA_URL/rest/api/3/user/search?query=$USER_EMAIL")
+
+          ACCOUNT_ID=$(echo $RESPONSE | jq -r '.[0].accountId')
+          echo "account_id=$ACCOUNT_ID" >> $GITHUB_OUTPUT
+      - name: Create Jira Task
+        env:
+          JIRA_API_TOKEN: ${{ secrets.JIRA_API_TOKEN }}
+          JIRA_EMAIL: ${{ secrets.JIRA_EMAIL }}
+          JIRA_URL: ${{ secrets.JIRA_URL }}
+        run: |
+          ACCOUNT_ID="${{ steps.jira_user.outputs.account_id }}"
+          curl -X POST \
+            -H "Authorization: Basic $(echo -n $JIRA_EMAIL:$JIRA_API_TOKEN | base64)" \
+            -H "Content-Type: application/json" \
+            --data '{
+              "fields": {
+                "project": {
+                  "key": "PROJ"
+                },
+                "summary": "Reminder: Prepare new installer for template designer",
+                "description": "Triggered by release from '${{ github.actor }}'",
+                "issuetype": {
+                  "name": "Task"
+                },
+                "assignee": {
+                  "accountId": "'"$ACCOUNT_ID"'"
+                }
+              }
+            }' \
+            "$JIRA_URL/rest/api/3/issue"
