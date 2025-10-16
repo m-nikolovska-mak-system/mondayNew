@@ -1,0 +1,49 @@
+name: Release Reminder for Installer
+
+on:
+  release:
+    types: [created]
+
+jobs:
+  notify_new_installer:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # needed to compare commits
+
+      - name: Get previous tag
+        id: previoustag
+        run: |
+          echo "prev_tag=$(git describe --tags --abbrev=0 HEAD^)" >> $GITHUB_ENV
+
+      - name: Check if Calbesoi_dDefault.java changed
+        id: check_file
+        run: |
+          if git diff $prev_tag HEAD --name-only | grep -q 'ProgesaLibRoutines/src/main/java/com/maksystem/progesa/server/calbesoi_d/Calbesoi_dDefault.java'; then
+            echo "changed=true" >> $GITHUB_ENV
+          else
+            echo "changed=false" >> $GITHUB_ENV
+          fi
+
+      - name: Send Teams reminder
+        if: env.changed == 'true'
+        uses: Ilshidur/action-slack@v3
+        with:
+          webhook_url: ${{ secrets.TEAMS_WEBHOOK_URL }}
+          msg: "🚀 A new release includes updates to Calbesoi_dDefault.java. Please prepare a new installer for the Template Designer."
+
+      - name: Create Jira task
+        if: env.changed == 'true'
+        uses: atlassian/gajira-create@v3
+        env:
+          JIRA_BASE_URL: ${{ secrets.JIRA_BASE_URL }}
+          JIRA_USER_EMAIL: ${{ secrets.JIRA_EMAIL }}
+          JIRA_API_TOKEN: ${{ secrets.JIRA_API_TOKEN }}
+        with:
+          project: PROG
+          issuetype: Task
+          summary: "Prepare new installer for Template Designer"
+          description: "File Calbesoi_dDefault.java was modified in the latest release. Please update the installer."
+          assignee: ${{ github.actor }}
