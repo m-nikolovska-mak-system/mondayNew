@@ -1,43 +1,37 @@
-name: Release Reminder for Installer
+name: Test Release Reminder
 
 on:
+  workflow_dispatch:
   release:
     types: [created]
 
 jobs:
-  notify_new_installer:
+  check_app_change:
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0  # we need history to compare tags
+          fetch-depth: 0  # fetch history so we can compare tags
 
       - name: Get previous tag
         id: previoustag
         run: |
           echo "prev_tag=$(git describe --tags --abbrev=0 HEAD^)" >> $GITHUB_ENV
 
-      - name: Check if Calbesoi_dDefault.java changed
+      - name: Check if App.java changed
         id: check_file
         run: |
-          if git diff $prev_tag HEAD --name-only | grep -q 'ProgesaLibRoutines/src/main/java/com/maksystem/progesa/server/calbesoi_d/Calbesoi_dDefault.java'; then
+          if git diff $prev_tag HEAD --name-only | grep -q 'oneProjectWed/src/java/com/miha/app/App.java'; then
+            echo "✅ App.java changed since last release!"
             echo "changed=true" >> $GITHUB_ENV
           else
+            echo "ℹ️ App.java not changed since last release."
             echo "changed=false" >> $GITHUB_ENV
           fi
 
-      - name: Create Jira task
+      - name: Print reminder
         if: env.changed == 'true'
-        uses: atlassian/gajira-create@v3
-        env:
-          JIRA_BASE_URL: ${{ secrets.JIRA_BASE_URL }}
-          JIRA_USER_EMAIL: ${{ secrets.JIRA_USER }}
-          JIRA_API_TOKEN: ${{ secrets.JIRA_API_TOKEN }}
-        with:
-          project: PROG
-          issuetype: Task
-          summary: "Prepare new installer for Template Designer"
-          description: "File Calbesoi_dDefault.java was modified in the latest release. Please update the installer."
-          assignee: ${{ github.actor }}
+        run: |
+          echo "🚀 Reminder: App.java was updated in this release. Trigger your next action here (e.g., create Jira task, notify team, etc.)"
