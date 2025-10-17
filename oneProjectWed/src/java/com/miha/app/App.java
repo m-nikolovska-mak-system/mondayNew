@@ -12,7 +12,7 @@ public class App {
 */
 
 	public static void main(String[] args) {
-		System.out.println("Heellooooo!!!");
+		System.out.println("Heellooo0oo!!!");
 		System.out.println("Hello this is a test for jira automation on codechecker!!");
 		System.out.println("this is CHANGE HI supposed to fail and NOT notify teams");
 
