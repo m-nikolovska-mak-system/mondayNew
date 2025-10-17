@@ -76,7 +76,30 @@ jobs:
           DESCRIPTION="Files changed:\n$FILES\n\nTriggered by GitHub user: $GITHUB_ACTOR\nCommit: https://github.com/${{ github.repository }}/commit/$GITHUB_SHA\n\nNote: issue created unassigned; please assign to the responsible person later."
 
           # Create issue without assignee to avoid mapping/lookup errors
-          PAYLOAD=$(jq -n --arg proj "$JIRA_PROJECT_KEY" --arg sum "$SUMMARY" --arg desc "$DESCRIPTION" '{fields: {project: {key: $proj}, summary: $sum, description: $desc, issuetype: {name: "Task"}}}')
+          PAYLOAD=$(jq -n \
+            --arg proj "$JIRA_PROJECT_KEY" \
+            --arg sum "$SUMMARY" \
+            --arg desc "Files changed:\n$FILES\n\nTriggered by GitHub user: $GITHUB_ACTOR\nCommit: https://github.com/${{ github.repository }}/commit/$GITHUB_SHA\n\nNote: issue created unassigned; please assign to the responsible person later." \
+            '{
+              fields: {
+                project: { key: $proj },
+                summary: $sum,
+                issuetype: { name: "Task" },
+                description: {
+                  type: "doc",
+                  version: 1,
+                  content: [
+                    {
+                      type: "paragraph",
+                      content: [
+                        { type: "text", text: $desc }
+                      ]
+                    }
+                  ]
+                }
+              }
+            }'
+          )
 
           echo "Payload: $PAYLOAD"
 
