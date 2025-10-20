@@ -37,15 +37,17 @@ jobs:
           ACTOR="${{ github.actor }}"
           REPO="${{ github.repository }}"
           SHA="${{ github.sha }}"
-
-          
-          DISPLAY_ACTOR=${ACTOR:-"Uknown user"}
-          
+      
+          # Fallback for unknown actor
+          DISPLAY_ACTOR=${ACTOR:-"Unknown user"}
+      
+          # Add timestamp
           TIMESTAMP=$(date -u +"%Y-%m-%d %H:%M UTC")
-
-          MESSAGE="🚀 **App Source Files Updated**\n\n**📂 Files Changed:**\n\`\`\`\n$FILES\n\`\`\`\n**👤 Pushed by:** [$DISPLAY_ACTOR](https://github[View Commit](https://github.com/$REPO/commit/$       echo "Preparing Teams payload..."
+      
+          # Format message with Markdown
+          MESSAGE="🚀 **App Source Files Updated**\n\n**📂 Files Changed:**\n\`\`\`\n$FILES\n\`\`\`\n**👤 Pushed by:** [$DISPLAY_ACTOR](https://github.comw Commit](https://github.com/$REPO/commit   echo "Preparing Teams payload..."
           PAYLOAD=$(jq -n --arg text "$MESSAGE" '{text: $text}')
-
+      
           echo "Sending message to Teams..."
-          curl -s -H "Content-Type: application/json" -d "$PAYLOAD" "$TEAMS_WEBHOOK_URL"
+          curl -s -H "Content-Type: application/json" -d "$PAYLOAD
 
