@@ -37,7 +37,7 @@ jobs:
           SHA="${{ github.sha }}"
           SHORT_SHA="${SHA:0:7}"
           DISPLAY_ACTOR=${ACTOR:-"Unknown user"}
-          TIMESTAMP=$(date -u +"%Y-%m-%d %H:%M UTC")
+          TIMESTAMP=$(TZ='Europe/Belgrade' date +"%Y-%m-%d %H:%M %Z")
           
           # Escape newlines for JSON
           FILES_ESCAPED=$(echo "$FILES" | sed 's/$/\\n/' | tr -d '\n')
