@@ -103,17 +103,15 @@ jobs:
                       ]
                     },
                     {
-                      "type": "FactSet",
-                      "facts": [
-                        {
-                          "title": "Commit:",
-                          "value": "${SHORT_SHA}"
-                        },
-                        {
-                          "title": "Timestamp:",
-                          "value": "${TIMESTAMP}"
-                        }
-                      ]
+                      "type": "TextBlock",
+                      "text": "🔗 **Commit:** [${SHORT_SHA}](https://github.com/${REPO}/commit/${SHA})",
+                      "wrap": true
+                    },
+                    {
+                      "type": "TextBlock",
+                      "text": "🕒 **Timestamp:** ${TIMESTAMP}",
+                      "wrap": true,
+                      "spacing": "Small"
                     },
                     {
                       "type": "TextBlock",
