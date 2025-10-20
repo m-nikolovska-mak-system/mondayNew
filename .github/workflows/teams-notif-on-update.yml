@@ -37,7 +37,16 @@ jobs:
           ACTOR="${{ github.actor }}"
           REPO="${{ github.repository }}"
           SHA="${{ github.sha }}"
-          MESSAGE="🚀 *App source files updated*\n\n📂 Files changed:\n$FILES\n\n👤 Pushed by: $ACTOR\n🔗 Commit: https://github.com/$REPO/commit/$SHA"
+
+          
+          DISPLAY_ACTOR=${ACTOR:-"Uknown user"}
+          
+          TIMESTAMP=$(date -u +"%Y-%m-%d %H:%M UTC")
+
+          
+
+          MESSAGE="🚀 **App Source Files Updated**\n\n**📂 Files Changed:**\n\`\`\`\n$FILES\n\`\`\`\n**👤 Pushed by:** [$DISPLAY_ACTOR](https://github[View Commit](https://github.com/$REPO/commit         echo "Preparing Teams payload..."
+          PAYLOAD=$(jq -n --arg text "$MESSAGE" '{text: $text}')
 
           echo "Preparing Teams payload..."
           PAYLOAD=$(jq -n --arg text "$MESSAGE" '{text: $text}')
