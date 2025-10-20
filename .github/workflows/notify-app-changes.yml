@@ -1,0 +1,18 @@
+name: Notify App Changes
+
+on:
+  push:
+    paths:
+      - '**/src/**/com/miha/app/**'
+  workflow_dispatch:
+
+jobs:
+  notify:
+    uses: ./.github/workflows/teams-notify-template.yml
+    with:
+      file_path: '**/src/**/com/miha/app/**'
+      notification_title: '🚀 App Source Files Updated'
+      action_required_message: '⚠️ **Action Required:** New installer needs to be prepared for Template Designer'
+      card_color: 'Accent'
+    secrets:
+      teams_webhook_url: ${{ secrets.TEAMS_WEBHOOK_INSTALLER_URL }}
