@@ -35,48 +35,106 @@ jobs:
           ACTOR="${{ github.actor }}"
           REPO="${{ github.repository }}"
           SHA="${{ github.sha }}"
+          SHORT_SHA="${SHA:0:7}"
           DISPLAY_ACTOR=${ACTOR:-"Unknown user"}
           TIMESTAMP=$(date -u +"%Y-%m-%d %H:%M UTC")
           
-          # Create MessageCard payload
+          # Escape newlines for JSON
+          FILES_ESCAPED=$(echo "$FILES" | sed 's/$/\\n/' | tr -d '\n')
+          
+          # Create Adaptive Card payload
           PAYLOAD=$(cat <<EOF
           {
-            "@type": "MessageCard",
-            "@context": "https://schema.org/extensions",
-            "summary": "App Source Files Updated - Installer Needed",
-            "themeColor": "FF6B35",
-            "title": "🚀 App Source Files Updated",
-            "sections": [
+            "type": "message",
+            "attachments": [
               {
-                "activityTitle": "${DISPLAY_ACTOR}",
-                "activitySubtitle": "pushed changes to ${REPO}",
-                "activityImage": "https://github.com/${ACTOR}.png",
-                "facts": [
-                  {
-                    "name": "🔗 Commit:",
-                    "value": "[View Commit](https://github.com/${REPO}/commit/${SHA})"
-                  },
-                  {
-                    "name": "🕒 Timestamp:",
-                    "value": "${TIMESTAMP}"
-                  }
-                ],
-                "text": "**📂 Files Changed:**\n\n\`\`\`\n${FILES}\n\`\`\`"
-              },
-              {
-                "text": "⚠️ **Action Required:** New installer needs to be prepared for Template Designer"
-              }
-            ],
-            "potentialAction": [
-              {
-                "@type": "OpenUri",
-                "name": "View Changes",
-                "targets": [
-                  {
-                    "os": "default",
-                    "uri": "https://github.com/${REPO}/commit/${SHA}"
-                  }
-                ]
+                "contentType": "application/vnd.microsoft.card.adaptive",
+                "content": {
+                  "type": "AdaptiveCard",
+                  "version": "1.4",
+                  "\$schema": "http://adaptivecards.io/schemas/adaptive-card.json",
+                  "body": [
+                    {
+                      "type": "ColumnSet",
+                      "columns": [
+                        {
+                          "type": "Column",
+                          "width": "auto",
+                          "items": [
+                            {
+                              "type": "Image",
+                              "url": "https://github.com/${ACTOR}.png",
+                              "size": "Small",
+                              "style": "Person"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "Column",
+                          "width": "stretch",
+                          "items": [
+                            {
+                              "type": "TextBlock",
+                              "text": "🚀 App Source Files Updated",
+                              "weight": "Bolder",
+                              "size": "Large",
+                              "color": "Accent"
+                            },
+                            {
+                              "type": "TextBlock",
+                              "text": "${DISPLAY_ACTOR} pushed to ${REPO}",
+                              "spacing": "None",
+                              "isSubtle": true
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Container",
+                      "style": "attention",
+                      "items": [
+                        {
+                          "type": "TextBlock",
+                          "text": "⚠️ **Action Required:** New installer needs to be prepared for Template Designer",
+                          "wrap": true,
+                          "weight": "Bolder"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "FactSet",
+                      "facts": [
+                        {
+                          "title": "Commit:",
+                          "value": "${SHORT_SHA}"
+                        },
+                        {
+                          "title": "Timestamp:",
+                          "value": "${TIMESTAMP}"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TextBlock",
+                      "text": "📂 **Files Changed:**",
+                      "weight": "Bolder"
+                    },
+                    {
+                      "type": "TextBlock",
+                      "text": "${FILES}",
+                      "fontType": "Monospace",
+                      "wrap": true
+                    }
+                  ],
+                  "actions": [
+                    {
+                      "type": "Action.OpenUrl",
+                      "title": "View Commit",
+                      "url": "https://github.com/${REPO}/commit/${SHA}"
+                    }
+                  ]
+                }
               }
             ]
           }
