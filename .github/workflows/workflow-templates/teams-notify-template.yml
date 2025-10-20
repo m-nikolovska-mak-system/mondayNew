@@ -1,0 +1,166 @@
+name: Reusable Teams Notifier
+
+on:
+  workflow_call:
+    inputs:
+      file_path:
+        description: 'Path pattern to watch (e.g., **/src/**/app/**)'
+        required: true
+        type: string
+      notification_title:
+        description: 'Title for the Teams card'
+        required: false
+        type: string
+        default: '🚀 Files Updated'
+      action_required_message:
+        description: 'Custom action message'
+        required: false
+        type: string
+        default: '⚠️ **Action Required:** Please review changes'
+      card_color:
+        description: 'Accent color theme (Accent, Good, Warning, Attention)'
+        required: false
+        type: string
+        default: 'Accent'
+    secrets:
+      teams_webhook_url:
+        required: true
+
+jobs:
+  notify-teams:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Get changed files
+        id: changes
+        run: |
+          if [ "${{ github.event.before }}" = "0000000000000000000000000000000000000000" ]; then
+            CHANGED=$(git ls-tree -r --name-only ${GITHUB_SHA})
+          else
+            git fetch --no-tags --prune origin +refs/heads/*:refs/remotes/origin/* || true
+            CHANGED=$(git diff --name-only ${{ github.event.before }} ${{ github.sha }})
+          fi
+          echo "files<<EOF" >> $GITHUB_OUTPUT
+          echo "$CHANGED" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+    
+      - name: Send Microsoft Teams notification
+        env:
+          TEAMS_WEBHOOK_URL: ${{ secrets.teams_webhook_url }}
+        run: |
+          FILES="${{ steps.changes.outputs.files }}"
+          ACTOR="${{ github.actor }}"
+          REPO="${{ github.repository }}"
+          SHA="${{ github.sha }}"
+          SHORT_SHA="${SHA:0:7}"
+          DISPLAY_ACTOR=${ACTOR:-"Unknown user"}
+          TIMESTAMP=$(TZ='Europe/Belgrade' date +"%Y-%m-%d %H:%M %Z")
+          
+          PAYLOAD=$(cat <<EOF
+          {
+            "type": "message",
+            "attachments": [
+              {
+                "contentType": "application/vnd.microsoft.card.adaptive",
+                "content": {
+                  "type": "AdaptiveCard",
+                  "version": "1.4",
+                  "\$schema": "http://adaptivecards.io/schemas/adaptive-card.json",
+                  "body": [
+                    {
+                      "type": "ColumnSet",
+                      "columns": [
+                        {
+                          "type": "Column",
+                          "width": "auto",
+                          "items": [
+                            {
+                              "type": "Image",
+                              "url": "https://github.com/${ACTOR}.png",
+                              "size": "Small",
+                              "style": "Person"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "Column",
+                          "width": "stretch",
+                          "items": [
+                            {
+                              "type": "TextBlock",
+                              "text": "${{ inputs.notification_title }}",
+                              "weight": "Bolder",
+                              "size": "Large",
+                              "color": "${{ inputs.card_color }}"
+                            },
+                            {
+                              "type": "TextBlock",
+                              "text": "${DISPLAY_ACTOR} pushed to ${REPO}",
+                              "spacing": "None",
+                              "isSubtle": true
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Container",
+                      "style": "attention",
+                      "items": [
+                        {
+                          "type": "TextBlock",
+                          "text": "${{ inputs.action_required_message }}",
+                          "wrap": true,
+                          "weight": "Bolder"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TextBlock",
+                      "text": "🔗 **Commit:** [${SHORT_SHA}](https://github.com/${REPO}/commit/${SHA})",
+                      "wrap": true
+                    },
+                    {
+                      "type": "TextBlock",
+                      "text": "🕒 **Timestamp:** ${TIMESTAMP}",
+                      "wrap": true,
+                      "spacing": "Small"
+                    },
+                    {
+                      "type": "TextBlock",
+                      "text": "📂 **Files Changed:**",
+                      "weight": "Bolder"
+                    },
+                    {
+                      "type": "TextBlock",
+                      "text": "${FILES}",
+                      "fontType": "Monospace",
+                      "wrap": true
+                    }
+                  ],
+                  "actions": [
+                    {
+                      "type": "Action.OpenUrl",
+                      "title": "View Commit",
+                      "url": "https://github.com/${REPO}/commit/${SHA}"
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+          EOF
+          )
+          
+          echo "📤 Sending notification to Teams..."
+          HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" -H "Content-Type: application/json" -d "$PAYLOAD" "$TEAMS_WEBHOOK_URL")
+          if [ "$HTTP_CODE" = "200" ] || [ "$HTTP_CODE" = "202" ]; then
+            echo "✅ Teams notification sent successfully!"
+          else
+            echo "❌ Error: Teams webhook failed with status $HTTP_CODE"
+            exit 1
+          fi
