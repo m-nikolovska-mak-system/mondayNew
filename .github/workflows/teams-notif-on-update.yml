@@ -43,16 +43,15 @@ jobs:
           {
             "@type": "MessageCard",
             "@context": "https://schema.org/extensions",
-            "summary": "App Source Files Updated",
-            "themeColor": "0076D7",
+            "summary": "App Source Files Updated - Installer Needed",
+            "themeColor": "FF6B35",
             "title": "🚀 App Source Files Updated",
             "sections": [
               {
+                "activityTitle": "${DISPLAY_ACTOR}",
+                "activitySubtitle": "pushed changes to ${REPO}",
+                "activityImage": "https://github.com/${ACTOR}.png",
                 "facts": [
-                  {
-                    "name": "👤 Pushed by:",
-                    "value": "[${DISPLAY_ACTOR}](https://github.com/${ACTOR})"
-                  },
                   {
                     "name": "🔗 Commit:",
                     "value": "[View Commit](https://github.com/${REPO}/commit/${SHA})"
@@ -63,6 +62,21 @@ jobs:
                   }
                 ],
                 "text": "**📂 Files Changed:**\n\n\`\`\`\n${FILES}\n\`\`\`"
+              },
+              {
+                "text": "⚠️ **Action Required:** New installer needs to be prepared for Template Designer"
+              }
+            ],
+            "potentialAction": [
+              {
+                "@type": "OpenUri",
+                "name": "View Changes",
+                "targets": [
+                  {
+                    "os": "default",
+                    "uri": "https://github.com/${REPO}/commit/${SHA}"
+                  }
+                ]
               }
             ]
           }
