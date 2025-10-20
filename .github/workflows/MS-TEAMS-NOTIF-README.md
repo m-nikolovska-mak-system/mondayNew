@@ -17,14 +17,19 @@ A flexible GitHub Actions workflow that sends beautifully formatted Microsoft Te
 
 Save `teams-notify-template.yml` to `.github/workflows/` in your repository.
 
-### 2. Create a Teams Webhook
+### 2. Get a Teams Webhook URL
 
-1. Go to your Microsoft Teams channel
-2. Click `⋯` (More options) → **Connectors** → **Incoming Webhook**
-3. Click **Configure**, give it a name, and copy the webhook URL
-4. In your GitHub repo: **Settings** → **Secrets and variables** → **Actions** → **New repository secret**
-5. Name it something like `TEAMS_WEBHOOK_URL` and paste the webhook URL
+#### Method 1: Incoming Webhook Connector (Classic)
+1. Teams channel → `⋯` → **Connectors**
+2. Find **Incoming Webhook** → **Configure**
+3. Copy the webhook URL
 
+#### Method 2: Power Automate Workflow (New)
+1. Teams channel → `⋯` → **Workflows**
+2. Search "Post to a channel when a webhook request is received"
+3. Set it up and copy the HTTP POST URL
+
+Both work with this GitHub Action!
 ### 3. Create Your Notification Workflow
 
 Create a new file like `.github/workflows/notify-my-changes.yml`:
