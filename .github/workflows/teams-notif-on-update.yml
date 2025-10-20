@@ -47,5 +47,5 @@ jobs:
           PAYLOAD=$(jq -n --arg text "$MESSAGE" '{text: $text}')
 
           echo "Sending message to Teams..."
-          curl -s -H "Content-Type: application/json" -d "$PAYLOAD" "$TEAMS_WEBHOOK_URL"``
+          curl -s -H "Content-Type: application/json" -d "$PAYLOAD" "$TEAMS_WEBHOOK_URL"
 
