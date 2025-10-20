@@ -37,18 +37,39 @@ jobs:
           ACTOR="${{ github.actor }}"
           REPO="${{ github.repository }}"
           SHA="${{ github.sha }}"
-      
-          # Fallback for unknown actor
           DISPLAY_ACTOR=${ACTOR:-"Unknown user"}
-      
-          # Add timestamp
           TIMESTAMP=$(date -u +"%Y-%m-%d %H:%M UTC")
       
-          # Format message with Markdown
-          MESSAGE="🚀 **App Source Files Updated**\n\n**📂 Files Changed:**\n\`\`\`\n$FILES\n\`\`\`\n**👤 Pushed by:** [$DISPLAY_ACTOR](https://github[View Commitn**🕒 Timestamp:** $TIMESTAMP"
+          # Escape file list for JSON
+          FILES_ESCAPED=$(echo "$FILES" | jq -R -s '.')
       
-          echo "Preparing Teams payload..."
-          PAYLOAD=$(jq -n --arg text "$MESSAGE" '{text: $text}')
+          # Create MessageCard payload
+          PAYLOAD=$(cat <<EOF
+      {
+        "@type": "MessageCard",
+        "@context": "https://schema.org/extensions",
+        "summary": "App Source Files Updated",
+        "themeColor": "0076D7",
+        "title": "🚀 App Source Files Updated",
+        "sections": [
+          {
+            "facts": [
+              {
+                "name": "👤 Pushed by:",
+                "value": "[${DISPLAY_ACTOR}](https://github.com{
+                "name": "🔗 Commit:",
+                "value": "[View Commit](https://,
+              {
+                "name": "🕒 Timestamp:",
+                "value": "${TIMESTAMP}"
+              }
+            ],
+            "text": "**📂 Files Changed:**\n\n\`\`\`\n${FILES}\n\`\`\`"
+          }
+        ]
+      }
+      EOF
+      )
       
           echo "Sending message to Teams..."
           curl -s -H "Content-Type: application/json" -d "$PAYLOAD" "$TEAMS_WEBHOOK_URL"
