@@ -1,0 +1,46 @@
+name: App Source Change to Notify Teams
+
+on:
+  push:
+    paths:
+      - '**/src/**/com/miha/app/**'
+  workflow_dispatch:
+
+jobs:
+  notify-teams:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Get changed files
+        id: changes
+        run: |
+          if [ "${{ github.event.before }}" = "0000000000000000000000000000000000000000" ]; then
+            CHANGED=$(git ls-tree -r --name-only ${GITHUB_SHA})
+          else
+            git fetch --no-tags --prune origin +refs/heads/*:refs/remotes/origin/* || true
+            CHANGED=$(git diff --name-only ${{ github.event.before }} ${{ github.sha }})
+          fi
+          echo "files<<EOF" >> $GITHUB_OUTPUT
+          echo "$CHANGED" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
+      - name: Send Microsoft Teams notification
+        env:
+          TEAMS_WEBHOOK_URL: ${{ secrets.TEAMS_WEBHOOK_INSTALLER_URL }}
+        run: |
+          FILES="${{ steps.changes.outputs.files }}"
+          ACTOR="${{ github.actor }}"
+          REPO="${{ github.repository }}"
+          SHA="${{ github.sha }}"
+          MESSAGE="🚀 *App source files updated*\n\n📂 Files changed:\n$FILES\n\n👤 Pushed by: $ACTOR\n🔗 Commit: https://github.com/$REPO/commit/$SHA"
+
+          echo "Preparing Teams payload..."
+          PAYLOAD=$(jq -n --arg text "$MESSAGE" '{text: $text}')
+
+          echo "Sending message to Teams..."
+          curl -s -H "Content-Type: application/json" -d "$PAYLOAD" "$TEAMS_WEBHOOK_URL"
