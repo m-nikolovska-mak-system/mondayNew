@@ -43,12 +43,9 @@ jobs:
           
           TIMESTAMP=$(date -u +"%Y-%m-%d %H:%M UTC")
 
-          
-
-          MESSAGE="🚀 **App Source Files Updated**\n\n**📂 Files Changed:**\n\`\`\`\n$FILES\n\`\`\`\n**👤 Pushed by:** [$DISPLAY_ACTOR](https://github[View Commit](https://github.com/$REPO/commit"     
-
-          echo "Preparing Teams payload..."
+          MESSAGE="🚀 **App Source Files Updated**\n\n**📂 Files Changed:**\n\`\`\`\n$FILES\n\`\`\`\n**👤 Pushed by:** [$DISPLAY_ACTOR](https://github[View Commit](https://github.com/$REPO/commit/$       echo "Preparing Teams payload..."
           PAYLOAD=$(jq -n --arg text "$MESSAGE" '{text: $text}')
 
           echo "Sending message to Teams..."
-          curl -s -H "Content-Type: application/json" -d "$PAYLOAD" "$TEAMS_WEBHOOK_URL"
+          curl -s -H "Content-Type: application/json" -d "$PAYLOAD" "$TEAMS_WEBHOOK_URL"``
+
