@@ -1,5 +1,4 @@
 name: App Source Change to Notify Teams
-
 on:
   push:
     paths:
@@ -9,7 +8,6 @@ on:
 jobs:
   notify-teams:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -28,7 +26,7 @@ jobs:
           echo "files<<EOF" >> $GITHUB_OUTPUT
           echo "$CHANGED" >> $GITHUB_OUTPUT
           echo "EOF" >> $GITHUB_OUTPUT
-
+    
       - name: Send Microsoft Teams notification
         env:
           TEAMS_WEBHOOK_URL: ${{ secrets.TEAMS_WEBHOOK_INSTALLER_URL }}
@@ -39,37 +37,37 @@ jobs:
           SHA="${{ github.sha }}"
           DISPLAY_ACTOR=${ACTOR:-"Unknown user"}
           TIMESTAMP=$(date -u +"%Y-%m-%d %H:%M UTC")
-      
-          # Escape file list for JSON
-          FILES_ESCAPED=$(echo "$FILES" | jq -R -s '.')
-      
+          
           # Create MessageCard payload
           PAYLOAD=$(cat <<EOF
-      {
-        "@type": "MessageCard",
-        "@context": "https://schema.org/extensions",
-        "summary": "App Source Files Updated",
-        "themeColor": "0076D7",
-        "title": "🚀 App Source Files Updated",
-        "sections": [
           {
-            "facts": [
+            "@type": "MessageCard",
+            "@context": "https://schema.org/extensions",
+            "summary": "App Source Files Updated",
+            "themeColor": "0076D7",
+            "title": "🚀 App Source Files Updated",
+            "sections": [
               {
-                "name": "👤 Pushed by:",
-                "value": "[${DISPLAY_ACTOR}](https://github.com{
-                "name": "🔗 Commit:",
-                "value": "[View Commit](https://,
-              {
-                "name": "🕒 Timestamp:",
-                "value": "${TIMESTAMP}"
+                "facts": [
+                  {
+                    "name": "👤 Pushed by:",
+                    "value": "[${DISPLAY_ACTOR}](https://github.com/${ACTOR})"
+                  },
+                  {
+                    "name": "🔗 Commit:",
+                    "value": "[View Commit](https://github.com/${REPO}/commit/${SHA})"
+                  },
+                  {
+                    "name": "🕒 Timestamp:",
+                    "value": "${TIMESTAMP}"
+                  }
+                ],
+                "text": "**📂 Files Changed:**\n\n\`\`\`\n${FILES}\n\`\`\`"
               }
-            ],
-            "text": "**📂 Files Changed:**\n\n\`\`\`\n${FILES}\n\`\`\`"
+            ]
           }
-        ]
-      }
-      EOF
-      )
-      
+          EOF
+          )
+          
           echo "Sending message to Teams..."
           curl -s -H "Content-Type: application/json" -d "$PAYLOAD" "$TEAMS_WEBHOOK_URL"
