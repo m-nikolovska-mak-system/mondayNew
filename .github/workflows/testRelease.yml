@@ -1,0 +1,88 @@
+name: Notify App Release
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+
+jobs:
+  check-and-notify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Get full history
+      
+      - name: Check if app files changed in this release
+        id: check_files
+        run: |
+          set -e
+          echo "🔍 Checking if app files changed in release..."
+          
+          # Get the previous release tag
+          PREV_TAG=$(git tag --sort=-creatordate | grep -v "${{ github.event.release.tag_name }}" | head -n 1)
+          CURRENT_TAG="${{ github.event.release.tag_name }}"
+          
+          echo "📊 Comparing $PREV_TAG → $CURRENT_TAG"
+          
+          # Get changed files between releases
+          if [ -z "$PREV_TAG" ]; then
+            echo "⚠️  No previous release found, checking all files"
+            CHANGED=$(git ls-tree -r --name-only "${CURRENT_TAG}")
+          else
+            CHANGED=$(git diff --name-only "${PREV_TAG}" "${CURRENT_TAG}")
+          fi
+          
+          # Filter for your specific path
+          APP_FILES=$(echo "$CHANGED" | grep -E '.*src.*/com/miha/app/.*' || true)
+          
+          if [ -z "$APP_FILES" ]; then
+            echo "✅ No app source files changed in this release"
+            echo "should_notify=false" >> $GITHUB_OUTPUT
+          else
+            echo "🚨 App source files changed:"
+            echo "$APP_FILES"
+            echo "should_notify=true" >> $GITHUB_OUTPUT
+            echo "changed_files<<EOF" >> $GITHUB_OUTPUT
+            echo "$APP_FILES" >> $GITHUB_OUTPUT
+            echo "EOF" >> $GITHUB_OUTPUT
+          fi
+      
+      - name: Call notification workflow
+        if: steps.check_files.outputs.should_notify == 'true'
+        uses: m-nikolovska-mak-system/reusable-actions-library/.github/workflows/teams-notify.yml@main
+        with:
+          notification_title: '🎉 App Release ${{ github.event.release.tag_name }}'
+          action_required_message: '⚠️ **Action Required:** New installer needed for Template Designer'
+          card_color: 'Good'
+          show_files: false  # Or true to show the changed app files
+          skip_if_no_changes: false
+        secrets:
+          teams_webhook_url: ${{ secrets.TEAMS_WEBHOOK_INSTALLER_URL }}
+```
+
+## 🎯 What This Does:
+
+1. **Triggers on release** creation
+2. **Compares** current release tag with previous release tag
+3. **Filters** for files matching `**/src/**/com/miha/app/**`
+4. **Only notifies** if those specific files changed
+5. **Skips notification** if release doesn't touch app files
+
+## 📊 Example Scenarios:
+
+### Scenario 1: Release with app changes ✅
+```
+Release v2.0.0 includes:
+- src/main/com/miha/app/Service.java  ← MATCH!
+- docs/README.md
+- config/settings.xml
+```
+**Result:** Notification sent! 🚀
+
+### Scenario 2: Release without app changes ❌
+```
+Release v2.0.1 includes:
+- docs/README.md
+- frontend/index.html
+- tests/test.js
