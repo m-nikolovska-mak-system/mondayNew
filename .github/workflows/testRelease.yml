@@ -59,15 +59,9 @@ jobs:
           skip_if_no_changes: false
         secrets:
           teams_webhook_url: ${{ secrets.TEAMS_WEBHOOK_INSTALLER_URL }}
-```
 
-## 🎯 What This Does:
 
-1. **Triggers on release** creation
-2. **Compares** current release tag with previous release tag
-3. **Filters** for files matching `**/src/**/com/miha/app/**`
-4. **Only notifies** if those specific files changed
-5. **Skips notification** if release doesn't touch app files
+
 
 ## 📊 Example Scenarios:
 
