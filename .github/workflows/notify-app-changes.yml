@@ -8,7 +8,7 @@ on:
 
 jobs:
   notify:
-    uses: ./.github/workflows/teams-notify-template.yml
+    uses: ./.github/workflows/teams-notif-on-update.yml
     with:
       # file_path: '**/src/**/com/miha/app/**'
       notification_title: '🚀 App Source Files Updated'
