@@ -20,7 +20,7 @@ jobs:
   notify:
     needs: detect
     if: needs.detect.outputs.found == 'true'
-    uses: ./.github/workflows/reusable-teams-notifier.yml
+    uses: ./.github/workflows/teams-notif-simple.yml
     with:
       notification_title: "🚀 Files Updated in New Release"
       action_required_message: "⚠️ Prepare new installer for Template Designer"
