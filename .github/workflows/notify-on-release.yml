@@ -16,4 +16,5 @@ jobs:
       action_required_message: "⚠️ Prepare new installer for Template Designer"
       watched_path: "oneProjectWed/src/java/com/miha/app/App.java"
     secrets:
-      teams_webhook_url: ${{ secrets.TEAMS_WEBHOOK_INSTALLER_URL }}
+      TEAMS_WEBHOOK_URL: ${{ secrets.TEAMS_WEBHOOK_INSTALLER_URL }}
+
