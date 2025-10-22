@@ -1,28 +1,25 @@
+name: Send Teams Notification
 
-name: Simple Teams Notification
 on:
   workflow_call:
     inputs:
-      watched_path:
-        required: false
-        type: string
-        default: ''
       notification_title:
-        required: true
-        type: string
-      action_required_message:
+        description: 'Title for the Teams card'
         required: false
         type: string
-        default: '⚠️ Reminder: Changes detected that may require action'
+        default: '🚀 Files Updated'
+      action_required_message:
+        description: 'Custom action message'
+        required: false
+        type: string
+        default: '⚠️ **Action Required:** Please review changes'
       card_color:
+        description: 'Accent color theme (Accent, Good, Warning, Attention)'
         required: false
         type: string
         default: 'Accent'
-      show_files:
-        required: false
-        type: boolean
-        default: true
       files:
+        description: 'List of changed files'
         required: false
         type: string
     secrets:
@@ -30,7 +27,7 @@ on:
         required: true
 
 jobs:
-  notify:
+  notify-teams:
     runs-on: ubuntu-latest
     steps:
       - name: Send Microsoft Teams notification
@@ -39,141 +36,62 @@ jobs:
           NOTIFICATION_TITLE: ${{ inputs.notification_title }}
           ACTION_MESSAGE: ${{ inputs.action_required_message }}
           CARD_COLOR: ${{ inputs.card_color }}
-          SHOW_FILES: ${{ inputs.show_files }}
           FILES: ${{ inputs.files }}
         run: |
           set -e
-
-          # Validate webhook URL
+      
           if [ -z "$TEAMS_WEBHOOK_URL" ]; then
             echo "❌ Missing teams_webhook_url secret."
             exit 1
           fi
-
-          # Gather commit information
-          FILES="${FILES}"
+      
           ACTOR="${{ github.actor }}"
           REPO="${{ github.repository }}"
           SHA="${{ github.sha }}"
           SHORT_SHA="${SHA:0:7}"
-          DISPLAY_ACTOR="${ACTOR:-Unknown user}"
           TIMESTAMP=$(TZ='Europe/Belgrade' date +"%Y-%m-%d %H:%M %Z")
-          BRANCH="${{ github.ref_name }}"
-
-          # Escape dangerous JSON characters
-          SAFE_FILES=$(echo "$FILES" | sed 's/"/\\"/g' | sed 's/\\/\\\\/g')
-          SAFE_TITLE=$(echo "$NOTIFICATION_TITLE" | sed 's/"/\\"/g')
-          SAFE_ACTION=$(echo "$ACTION_MESSAGE" | sed 's/"/\\"/g')
-
-          # Build files section (conditionally)
-          if [ "$SHOW_FILES" = "true" ]; then
-            FILES_SECTION=$(cat <<EOF
-                    {
-                      "type": "TextBlock",
-                      "text": "📂 **Files Changed:**",
-                      "weight": "Bolder",
-                      "spacing": "Medium"
-                    },
-                    {
-                      "type": "TextBlock",
-                      "text": "${SAFE_FILES}",
-                      "fontType": "Monospace",
-                      "wrap": true
-                    },
-          EOF
-          )
-          else
-            FILES_SECTION=""
-          fi
-
-          # Create Adaptive Card payload
-          PAYLOAD=$(cat <<EOF
+      
+          PAYLOAD=$(cat <<'EOF'
           {
             "type": "message",
             "attachments": [
               {
                 "contentType": "application/vnd.microsoft.card.adaptive",
                 "content": {
-                  "\$schema": "http://adaptivecards.io/schemas/adaptive-card.json",
+                  "$schema": "http://adaptivecards.io/schemas/adaptive-card.json",
                   "type": "AdaptiveCard",
                   "version": "1.4",
                   "body": [
                     {
-                      "type": "ColumnSet",
-                      "columns": [
-                        {
-                          "type": "Column",
-                          "width": "auto",
-                          "items": [
-                            {
-                              "type": "Image",
-                              "url": "https://github.com/${ACTOR}.png",
-                              "size": "Small",
-                              "style": "Person"
-                            }
-                          ]
-                        },
-                        {
-                          "type": "Column",
-                          "width": "stretch",
-                          "items": [
-                            {
-                              "type": "TextBlock",
-                              "text": "${SAFE_TITLE}",
-                              "weight": "Bolder",
-                              "size": "Large",
-                              "color": "${CARD_COLOR}"
-                            },
-                            {
-                              "type": "TextBlock",
-                              "text": "${DISPLAY_ACTOR} pushed to ${REPO} (${BRANCH})",
-                              "isSubtle": true,
-                              "wrap": true
-                            }
-                          ]
-                        }
-                      ]
-                    },
-                    {
-                      "type": "Container",
-                      "style": "attention",
-                      "items": [
-                        {
-                          "type": "TextBlock",
-                          "text": "${SAFE_ACTION}",
-                          "wrap": true,
-                          "weight": "Bolder"
-                        }
-                      ]
+                      "type": "TextBlock",
+                      "text": "$NOTIFICATION_TITLE",
+                      "weight": "Bolder",
+                      "size": "Large",
+                      "color": "$CARD_COLOR"
                     },
                     {
                       "type": "TextBlock",
-                      "text": "🔗 **Commit:** [${SHORT_SHA}](https://github.com/${REPO}/commit/${SHA})",
-                      "wrap": true,
-                      "spacing": "Medium"
-                    },
-                    {
-                      "type": "TextBlock",
-                      "text": "🕒 **Timestamp:** ${TIMESTAMP}",
+                      "text": "$ACTION_MESSAGE",
                       "wrap": true
                     },
-                    ${FILES_SECTION}
                     {
                       "type": "TextBlock",
-                      "text": " ",
-                      "spacing": "None"
-                    }
-                  ],
-                  "actions": [
-                    {
-                      "type": "Action.OpenUrl",
-                      "title": "View Commit",
-                      "url": "https://github.com/${REPO}/commit/${SHA}"
+                      "text": "🔗 Commit: https://github.com/$REPO/commit/$SHA"
                     },
                     {
-                      "type": "Action.OpenUrl",
-                      "title": "View Repository",
-                      "url": "https://github.com/${REPO}"
+                      "type": "TextBlock",
+                      "text": "🕒 Timestamp: $TIMESTAMP"
+                    },
+                    {
+                      "type": "TextBlock",
+                      "text": "📂 Files Changed:",
+                      "weight": "Bolder"
+                    },
+                    {
+                      "type": "TextBlock",
+                      "text": "$FILES",
+                      "fontType": "Monospace",
+                      "wrap": true
                     }
                   ]
                 }
@@ -182,19 +100,26 @@ jobs:
           }
           EOF
           )
-
-          # Send to Teams
+      
+          # Substitute variables in the payload
+          PAYLOAD=$(echo "$PAYLOAD" | \
+            sed "s|\$NOTIFICATION_TITLE|$NOTIFICATION_TITLE|g" | \
+            sed "s|\$ACTION_MESSAGE|$ACTION_MESSAGE|g" | \
+            sed "s|\$CARD_COLOR|$CARD_COLOR|g" | \
+            sed "s|\$REPO|$REPO|g" | \
+            sed "s|\$SHA|$SHA|g" | \
+            sed "s|\$TIMESTAMP|$TIMESTAMP|g" | \
+            sed "s|\$FILES|$FILES|g")
+      
           echo "📤 Sending notification to Teams..."
           HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" \
             -H "Content-Type: application/json" \
             -d "$PAYLOAD" "$TEAMS_WEBHOOK_URL")
-
+      
           if [ "$HTTP_CODE" = "200" ] || [ "$HTTP_CODE" = "202" ]; then
             echo "✅ Teams notification sent successfully!"
           else
-            echo "❌ Teams webhook failed (HTTP $HTTP_CODE)"
-            echo ""
-            echo "📋 Payload was:"
+            echo "❌ Error: Teams webhook failed with status $HTTP_CODE"
             echo "$PAYLOAD"
             exit 1
           fi
