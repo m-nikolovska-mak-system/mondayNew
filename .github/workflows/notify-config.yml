@@ -1,0 +1,27 @@
+name: Notify App Changes on Release
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    uses: ./.github/workflows/check-file-changes.yml
+    with:
+      file_pattern: 'oneProjectWed/src/java/com/miha/app/App\.java'
+
+  notify:
+    needs: check
+    if: needs.check.outputs.changed == 'true'
+    uses: ./.github/workflows/teams-notif-simple.yml
+    with:
+      notification_title: "🚀 App.java Changed in Release ${{ needs.check.outputs.current_ref }}"
+      action_required_message: "⚠️ **Action Required:** Prepare new installer for Template Designer"
+      card_color: "Attention"
+      files: ${{ needs.check.outputs.files }}
+    secrets:
+      teams_webhook_url: ${{ secrets.TEAMS_WEBHOOK_INSTALLER_URL }}
