@@ -1,4 +1,4 @@
-name: Notify on Release Changes
+name: Notify on Release
 
 on:
   release:
@@ -7,76 +7,17 @@ on:
 
 jobs:
   detect:
-    name: Detect changed files
     runs-on: ubuntu-latest
     outputs:
-      found: ${{ steps.check.outputs.found }}
-      files: ${{ steps.check.outputs.files }}
+      found: ${{ steps.detect.outputs.found }}
+      files: ${{ steps.detect.outputs.files }}
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+      - id: detect
+        uses: ./.github/actions/detect-file-change
         with:
-          fetch-depth: 0  # we need full history + tags
-
-      - name: Detect file changes between tags or commits
-        id: check
-        run: |
-          set -e
-          echo "🔍 Detecting changed files..."
-
-          WATCHED_PATH="oneProjectWed/src/java/com/miha/app/App.java"
-
-          if [ "${GITHUB_EVENT_NAME}" = "release" ]; then
-            AFTER_TAG="${{ github.event.release.tag_name }}"
-            echo "Event: release, tag: $AFTER_TAG"
-
-            git fetch --tags --quiet
-
-            # Find the previous tag by creation date
-            PREV_TAG=$(git tag --sort=-creatordate | awk -v tag="$AFTER_TAG" '
-              { tags[++n]=$0 }
-              END {
-                for(i=1;i<=n;i++) if(tags[i]==tag) { if(i<n) print tags[i+1]; else print "" }
-              }' || true)
-
-            if [ -z "$PREV_TAG" ]; then
-              echo "ℹ️ No previous tag found — treating as initial release."
-              CHANGED=$(git ls-tree -r --name-only "refs/tags/$AFTER_TAG")
-            else
-              echo "🔁 Comparing $PREV_TAG → $AFTER_TAG"
-              CHANGED=$(git diff --name-only "refs/tags/$PREV_TAG" "refs/tags/$AFTER_TAG")
-            fi
-
-          else
-            echo "Event: ${GITHUB_EVENT_NAME}"
-            if [ -n "${{ github.event.before }}" ] && [ "${{ github.event.before }}" != "0000000000000000000000000000000000000000" ]; then
-              CHANGED=$(git diff --name-only "${{ github.event.before }}" "${{ github.sha }}")
-            else
-              CHANGED=$(git diff --name-only HEAD~1 HEAD || true)
-            fi
-          fi
-
-          echo "Changed files list:"
-          echo "$CHANGED" || true
-
-          if [ -z "$CHANGED" ]; then
-            echo "found=false" >> $GITHUB_OUTPUT
-            exit 0
-          fi
-
-          if echo "$CHANGED" | grep -qF "$WATCHED_PATH"; then
-            echo "✅ Watched path changed: $WATCHED_PATH"
-            echo "found=true" >> $GITHUB_OUTPUT
-            echo "files<<EOF" >> $GITHUB_OUTPUT
-            echo "$CHANGED" >> $GITHUB_OUTPUT
-            echo "EOF" >> $GITHUB_OUTPUT
-          else
-            echo "ℹ️ Watched path not changed."
-            echo "found=false" >> $GITHUB_OUTPUT
-          fi
+          watched_path: "oneProjectWed/src/java/com/miha/app/App.java"
 
   notify:
-    name: Send Teams notification
     needs: detect
     if: needs.detect.outputs.found == 'true'
     uses: ./.github/workflows/reusable-teams-notifier.yml
