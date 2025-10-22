@@ -32,7 +32,7 @@ jobs:
         run: |
           git diff --name-only ${{ steps.get_prev_tag.outputs.prev_tag }} ${{ steps.get_tag.outputs.tag }} | grep 'oneProjectWed/src/java/com/miha/app/App.java' && echo "should_notify=true" >> $GITHUB_OUTPUT || echo "should_notify=false" >> $GITHUB_OUTPUT
   notify:
-    uses: ./.github/workflows/teams-notif-on-update.yml
+    uses: ./.github/workflows/teams-notif-simple.yml
     with:
       notification_title: "🚀 New Release Published"
       action_required_message: "⚠️ Prepare new installer for Template Designer"
