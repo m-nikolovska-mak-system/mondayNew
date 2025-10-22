@@ -12,6 +12,10 @@ jobs:
       found: ${{ steps.detect.outputs.found }}
       files: ${{ steps.detect.outputs.files }}
     steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
       - id: detect
         uses: ./.github/actions/detect-file-change
         with:
@@ -20,11 +24,10 @@ jobs:
   notify:
     needs: detect
     if: needs.detect.outputs.found == 'true'
-    uses: ./.github/workflows/teams-notif-simple.yml
+    uses: m-nikolovska-mak-system/composite-actions@main
     with:
       notification_title: "🚀 Files Updated in New Release"
       action_required_message: "⚠️ Prepare new installer for Template Designer"
-      card_color: "Accent"
       files: ${{ needs.detect.outputs.files }}
-    secrets:
-      teams_webhook_url: ${{ secrets.TEAMS_WEBHOOK_INSTALLER_URL }}
+    env:
+      TEAMS_WEBHOOK_URL: ${{ secrets.TEAMS_WEBHOOK_INSTALLER_URL }}
