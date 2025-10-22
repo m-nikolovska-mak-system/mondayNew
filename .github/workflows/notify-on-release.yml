@@ -1,44 +1,57 @@
 name: Notify on Release
+
 on:
   release:
     types: [published]
   workflow_dispatch:
 
+permissions:
+  contents: read
+
 jobs:
-  check_app_change:
+  check_changes:
     runs-on: ubuntu-latest
     outputs:
-      should_notify: ${{ steps.check.outputs.should_notify }}
+      found: ${{ steps.detect.outputs.found }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0
+          fetch-depth: 2
 
-      - name: Get current and previous tags
-        id: tags
+      - name: Detect file changes
+        id: detect
         run: |
-          current_tag="${{ github.event.release.tag_name }}"
-          prev_tag=$(git tag --sort=-creatordate | grep -B1 "$current_tag" | head -n1 || true)
-          echo "current_tag=$current_tag" >> $GITHUB_OUTPUT
-          echo "prev_tag=$prev_tag" >> $GITHUB_OUTPUT
+          echo "🔍 Checking for file changes..."
+          BEFORE=$(git rev-parse HEAD^ || echo "")
+          AFTER=$(git rev-parse HEAD)
+          WATCHED_PATH="oneProjectWed/src/java/com/miha/app/App.java"
 
-      - name: Check if App.java changed
-        id: check
-        run: |
-          if git diff --name-only ${{ steps.tags.outputs.prev_tag }} ${{ steps.tags.outputs.current_tag }} | grep -q 'oneProjectWed/src/java/com/miha/app/App.java'; then
-            echo "should_notify=true" >> $GITHUB_OUTPUT
+          if [ -z "$BEFORE" ]; then
+            echo "⚙️ Initial commit, listing all files..."
+            CHANGED=$(git ls-tree -r --name-only "$AFTER")
           else
-            echo "should_notify=false" >> $GITHUB_OUTPUT
+            CHANGED=$(git diff --name-only "$BEFORE" "$AFTER")
+          fi
+
+          echo "Changed files:"
+          echo "$CHANGED"
+
+          if echo "$CHANGED" | grep -q "$WATCHED_PATH"; then
+            echo "✅ File changed: $WATCHED_PATH"
+            echo "found=true" >> $GITHUB_OUTPUT
+          else
+            echo "ℹ️ Watched path not changed — skipping notification."
+            echo "found=false" >> $GITHUB_OUTPUT
           fi
 
   notify:
-    needs: check_app_change
-    if: needs.check_app_change.outputs.should_notify == 'true'
-    uses: ./.github/workflows/teams-notif-template.yml
+    needs: check_changes
+    if: needs.check_changes.outputs.found == 'true'
+    uses: ./.github/workflows/teams-notify-template.yml
     with:
       notification_title: "🚀 New Release Published"
       action_required_message: "⚠️ Prepare new installer for Template Designer"
-      files: "oneProjectWed/src/java/com/miha/app/App.java"
+      card_color: "Accent"
     secrets:
       teams_webhook_url: ${{ secrets.TEAMS_WEBHOOK_INSTALLER_URL }}
