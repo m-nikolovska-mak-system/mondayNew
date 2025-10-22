@@ -9,6 +9,28 @@ permissions:
   contents: read
 
 jobs:
+  check_file_change:
+    runs-on: ubuntu-latest
+    outputs:
+      should_notify: ${{ steps.check.outputs.should_notify }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Important to get full history
+      - name: Get release tag
+        id: get_tag
+        run: echo "tag=${{ github.event.release.tag_name }}" >> $GITHUB_OUTPUT
+
+      - name: Get previous tag
+        id: get_prev_tag
+        run: |
+          prev_tag=$(git tag --sort=-creatordate | grep -B1 "${{ steps.get_tag.outputs.tag }}" | head -n1)
+          echo "prev_tag=$prev_tag" >> $GITHUB_OUTPUT
+      - name: Check if App.java changed
+        id: check
+        run: |
+          git diff --name-only ${{ steps.get_prev_tag.outputs.prev_tag }} ${{ steps.get_tag.outputs.tag }} | grep 'oneProjectWed/src/java/com/miha/app/App.java' && echo "should_notify=true" >> $GITHUB_OUTPUT || echo "should_notify=false" >> $GITHUB_OUTPUT
   notify:
     uses: ./.github/workflows/teams-notif-on-update.yml
     with:
