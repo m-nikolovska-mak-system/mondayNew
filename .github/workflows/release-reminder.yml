@@ -2,8 +2,8 @@ name: Release Reminder with Jira Task
 
 on:
   workflow_dispatch:
-  release:
-    types: [created]
+#  release:
+ #   types: [created]
 
 jobs:
   check_app_change:
