@@ -2,7 +2,7 @@ name: Notify on Release
 
 on:
   release:
-    types: [published, edited, created]
+    types: [published]
   workflow_dispatch:
 
 permissions:
@@ -12,10 +12,8 @@ jobs:
   notify:
     uses: ./.github/workflows/teams-notif-on-update.yml
     with:
-      notification_title: '🚀 New Release Published'
-      action_required_message: '⚠️ **Action Required:** Prepare new installer for Template Designer'
-      card_color: 'Accent'
-      show_files: true
-      watched_path: 'oneProjectWed/src/java/com/miha/app/App.java' 
+      notification_title: "🚀 New Release Published"
+      action_required_message: "⚠️ Prepare new installer for Template Designer"
+      watched_path: "oneProjectWed/src/java/com/miha/app/App.java"
     secrets:
       teams_webhook_url: ${{ secrets.TEAMS_WEBHOOK_INSTALLER_URL }}
