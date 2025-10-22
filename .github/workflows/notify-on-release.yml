@@ -5,6 +5,9 @@ on:
     types: [published]
   workflow_dispatch:
 
+permissions:
+  contents: read  
+
 jobs:
   notify:
     uses: ./.github/workflows/teams-notif-on-update.yml
