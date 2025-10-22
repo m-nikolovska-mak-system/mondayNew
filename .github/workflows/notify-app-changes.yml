@@ -1,9 +1,9 @@
 name: Notify App Changes
 
 on:
-  push:
-    paths:
-      - '**/src/**/com/miha/app/**'
+#  push:
+ #   paths:
+  #    - '**/src/**/com/miha/app/**'
   workflow_dispatch:
 
 jobs:
