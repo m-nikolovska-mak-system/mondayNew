@@ -1,4 +1,4 @@
-name: Teams Notification Template THIS IS THE GOOD ONE
+name: Teams Notification Template
 
 on:
   workflow_call:
@@ -22,6 +22,11 @@ on:
         required: false
         type: boolean
         default: true
+      watched_path:
+        description: 'Optional file or directory path to monitor (only trigger notification if this path changes)'
+        required: false
+        type: string
+        default: ''
     secrets:
       teams_webhook_url:
         description: 'Microsoft Teams webhook URL'
@@ -42,19 +47,34 @@ jobs:
         run: |
           set -e
           echo "🔍 Detecting changed files..."
-          
-          if [ "${{ github.event.before }}" = "0000000000000000000000000000000000000000" ]; then
-            echo "📦 Initial commit detected — listing all files in ${GITHUB_SHA}"
-            CHANGED=$(git ls-tree -r --name-only "${GITHUB_SHA}")
+
+          BEFORE="${{ github.event.before }}"
+          AFTER="${{ github.sha }}"
+          WATCHED_PATH="${{ inputs.watched_path }}"
+
+          if [ "$BEFORE" = "0000000000000000000000000000000000000000" ]; then
+            echo "📦 Initial commit detected — listing all files in ${AFTER}"
+            CHANGED=$(git ls-tree -r --name-only "${AFTER}")
           else
             git fetch --no-tags --prune origin +refs/heads/*:refs/remotes/origin/* || true
-            CHANGED=$(git diff --name-only "${{ github.event.before }}" "${{ github.sha }}")
+            CHANGED=$(git diff --name-only "$BEFORE" "$AFTER")
           fi
 
           if [ -z "$CHANGED" ]; then
             echo "⚠️  No files changed — skipping notification."
             echo "found=false" >> $GITHUB_OUTPUT
             exit 0
+          fi
+
+          if [ -n "$WATCHED_PATH" ]; then
+            echo "🎯 Checking if '$WATCHED_PATH' changed..."
+            if echo "$CHANGED" | grep -q "$WATCHED_PATH"; then
+              echo "✅ Path '$WATCHED_PATH' changed!"
+            else
+              echo "ℹ️ Path '$WATCHED_PATH' not changed — skipping notification."
+              echo "found=false" >> $GITHUB_OUTPUT
+              exit 0
+            fi
           fi
 
           echo "✅ Found $(echo "$CHANGED" | wc -l) changed file(s)"
