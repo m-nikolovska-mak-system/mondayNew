@@ -1,5 +1,5 @@
-name: Simple Teams Notification
 
+name: Simple Teams Notification
 on:
   workflow_call:
     inputs:
