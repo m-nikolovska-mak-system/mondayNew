@@ -15,6 +15,6 @@ jobs:
       action_required_message: '⚠️ **Action Required:** New installer needs to be prepared for Template Designer'
       card_color: 'Accent'
       show_files: true
-      teams_webhook_url: ${{ secrets.TEAMS_WEBHOOK_INSTALLER_URL }}
-  #  secrets:
-  #   teams_webhook_url: ${{ secrets.TEAMS_WEBHOOK_INSTALLER_URL }}
+   #   teams_webhook_url: ${{ secrets.TEAMS_WEBHOOK_INSTALLER_URL }}
+    secrets:
+     teams_webhook_url: ${{ secrets.TEAMS_WEBHOOK_INSTALLER_URL }}
