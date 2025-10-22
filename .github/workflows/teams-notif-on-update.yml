@@ -48,20 +48,24 @@ jobs:
           set -e
           echo "🔍 Detecting changed files..."
 
-          BEFORE="${{ github.event.before }}"
-          AFTER="${{ github.sha }}"
+          AFTER="${{ github.event.release.tag_name }}"
           WATCHED_PATH="${{ inputs.watched_path }}"
 
-          if [ "$BEFORE" = "0000000000000000000000000000000000000000" ]; then
-            echo "📦 Initial commit detected — listing all files in ${AFTER}"
-            CHANGED=$(git ls-tree -r --name-only "${AFTER}")
+          git fetch --tags --quiet
+
+          # Get previous tag if it exists
+          PREV_TAG=$(git tag --sort=-creatordate | grep -A1 "$AFTER" | tail -n1 || true)
+
+          if [ -z "$PREV_TAG" ] || [ "$PREV_TAG" = "$AFTER" ]; then
+            echo "ℹ️ No previous tag found — treating as initial release."
+            CHANGED=$(git ls-tree -r --name-only "$AFTER")
           else
-            git fetch --no-tags --prune origin +refs/heads/*:refs/remotes/origin/* || true
-            CHANGED=$(git diff --name-only "$BEFORE" "$AFTER")
+            echo "🔁 Comparing changes between $PREV_TAG → $AFTER"
+            CHANGED=$(git diff --name-only "$PREV_TAG" "$AFTER")
           fi
 
           if [ -z "$CHANGED" ]; then
-            echo "⚠️  No files changed — skipping notification."
+            echo "⚠️ No files changed between tags — skipping notification."
             echo "found=false" >> $GITHUB_OUTPUT
             exit 0
           fi
