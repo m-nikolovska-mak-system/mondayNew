@@ -1,0 +1,153 @@
+name: Teams Notification Template
+
+on:
+  workflow_call:
+    inputs:
+      notification_title:
+        required: true
+        type: string
+      action_required_message:
+        required: false
+        type: string
+        default: '⚠️ Reminder: Changes detected that may require action'
+      card_color:
+        required: false
+        type: string
+        default: 'Accent'
+      show_files:
+        required: false
+        type: boolean
+        default: true
+      files:
+        required: false
+        type: string
+    secrets:
+      teams_webhook_url:
+        required: true
+
+jobs:
+  send-notification:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Send Microsoft Teams notification
+        env:
+          TEAMS_WEBHOOK_URL: ${{ secrets.teams_webhook_url }}
+          NOTIFICATION_TITLE: ${{ inputs.notification_title }}
+          ACTION_MESSAGE: ${{ inputs.action_required_message }}
+          CARD_COLOR: ${{ inputs.card_color }}
+          SHOW_FILES: ${{ inputs.show_files }}
+          FILES: ${{ inputs.files }}
+        run: |
+          
+          FILES="$FILES
+          ACTOR="${{ github.actor }}"
+          REPO="${{ github.repository }}"
+          SHA="${{ github.sha }}"
+          SHORT_SHA="${SHA:0:7}"
+          DISPLAY_ACTOR=${ACTOR:-"Unknown user"}
+          TIMESTAMP=$(TZ='Europe/Belgrade' date +"%Y-%m-%d %H:%M %Z")
+          
+          PAYLOAD=$(cat <<EOF
+          {
+            "type": "message",
+            "attachments": [
+              {
+                "contentType": "application/vnd.microsoft.card.adaptive",
+                "content": {
+                  "type": "AdaptiveCard",
+                  "version": "1.4",
+                  "\$schema": "http://adaptivecards.io/schemas/adaptive-card.json",
+                  "body": [
+                    {
+                      "type": "ColumnSet",
+                      "columns": [
+                        {
+                          "type": "Column",
+                          "width": "auto",
+                          "items": [
+                            {
+                              "type": "Image",
+                              "url": "https://github.com/${ACTOR}.png",
+                              "size": "Small",
+                              "style": "Person"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "Column",
+                          "width": "stretch",
+                          "items": [
+                            {
+                              "type": "TextBlock",
+                              "text": "${{ inputs.notification_title }}",
+                              "weight": "Bolder",
+                              "size": "Large",
+                              "color": "${{ inputs.card_color }}"
+                            },
+                            {
+                              "type": "TextBlock",
+                              "text": "${DISPLAY_ACTOR} pushed to ${REPO}",
+                              "spacing": "None",
+                              "isSubtle": true
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Container",
+                      "style": "attention",
+                      "items": [
+                        {
+                          "type": "TextBlock",
+                          "text": "${{ inputs.action_required_message }}",
+                          "wrap": true,
+                          "weight": "Bolder"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TextBlock",
+                      "text": "🔗 **Commit:** [${SHORT_SHA}](https://github.com/${REPO}/commit/${SHA})",
+                      "wrap": true
+                    },
+                    {
+                      "type": "TextBlock",
+                      "text": "🕒 **Timestamp:** ${TIMESTAMP}",
+                      "wrap": true,
+                      "spacing": "Small"
+                    },
+                    {
+                      "type": "TextBlock",
+                      "text": "📂 **Files Changed:**",
+                      "weight": "Bolder"
+                    },
+                    {
+                      "type": "TextBlock",
+                      "text": "${FILES}",
+                      "fontType": "Monospace",
+                      "wrap": true
+                    }
+                  ],
+                  "actions": [
+                    {
+                      "type": "Action.OpenUrl",
+                      "title": "View Commit",
+                      "url": "https://github.com/${REPO}/commit/${SHA}"
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+          EOF
+          )
+          
+          echo "📤 Sending notification to Teams..."
+          HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" -H "Content-Type: application/json" -d "$PAYLOAD" "$TEAMS_WEBHOOK_URL")
+          if [ "$HTTP_CODE" = "200" ] || [ "$HTTP_CODE" = "202" ]; then
+            echo "✅ Teams notification sent successfully!"
+          else
+            echo "❌ Error: Teams webhook failed with status $HTTP_CODE"
+            exit 1
+          fi
