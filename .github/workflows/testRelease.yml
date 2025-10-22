@@ -1,82 +1,230 @@
-name: Notify App Release
+name: Teams Notification Template THIS IS THE GOOD ONE
+
 on:
-  release:
-    types: [published]
-  workflow_dispatch:
+  workflow_call:
+    inputs:
+      notification_title:
+        description: 'Title of the notification card'
+        required: true
+        type: string
+      action_required_message:
+        description: 'Message to display in the attention container'
+        required: false
+        type: string
+        default: '⚠️ **Reminder:** Changes detected that may require action'
+      card_color:
+        description: 'Color accent for the card title (Accent, Good, Warning, Attention)'
+        required: false
+        type: string
+        default: 'Accent'
+      show_files:
+        description: 'Whether to show changed files in the notification'
+        required: false
+        type: boolean
+        default: true
+    secrets:
+      teams_webhook_url:
+        description: 'Microsoft Teams webhook URL'
+        required: true
 
 jobs:
-  check-and-notify:
+  send-notification:
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0  # Get full history
-      
-      - name: Check if app files changed in this release
-        id: check_files
+          fetch-depth: 0
+
+      - name: Detect changed files
+        id: changes
         run: |
           set -e
-          echo "🔍 Checking if app files changed in release..."
+          echo "🔍 Detecting changed files..."
           
-          # Get the previous release tag
-          PREV_TAG=$(git tag --sort=-creatordate | grep -v "${{ github.event.release.tag_name }}" | head -n 1)
-          CURRENT_TAG="${{ github.event.release.tag_name }}"
-          
-          echo "📊 Comparing $PREV_TAG → $CURRENT_TAG"
-          
-          # Get changed files between releases
-          if [ -z "$PREV_TAG" ]; then
-            echo "⚠️  No previous release found, checking all files"
-            CHANGED=$(git ls-tree -r --name-only "${CURRENT_TAG}")
+          if [ "${{ github.event.before }}" = "0000000000000000000000000000000000000000" ]; then
+            echo "📦 Initial commit detected — listing all files in ${GITHUB_SHA}"
+            CHANGED=$(git ls-tree -r --name-only "${GITHUB_SHA}")
           else
-            CHANGED=$(git diff --name-only "${PREV_TAG}" "${CURRENT_TAG}")
+            git fetch --no-tags --prune origin +refs/heads/*:refs/remotes/origin/* || true
+            CHANGED=$(git diff --name-only "${{ github.event.before }}" "${{ github.sha }}")
           fi
-          
-          # Filter for your specific path
-          APP_FILES=$(echo "$CHANGED" | grep -E '.*src.*/com/miha/app/.*' || true)
-          
-          if [ -z "$APP_FILES" ]; then
-            echo "✅ No app source files changed in this release"
-            echo "should_notify=false" >> $GITHUB_OUTPUT
+
+          if [ -z "$CHANGED" ]; then
+            echo "⚠️  No files changed — skipping notification."
+            echo "found=false" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+
+          echo "✅ Found $(echo "$CHANGED" | wc -l) changed file(s)"
+          echo "found=true" >> $GITHUB_OUTPUT
+          echo "files<<EOF" >> $GITHUB_OUTPUT
+          echo "$CHANGED" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
+      - name: Send Microsoft Teams notification
+        if: steps.changes.outputs.found == 'true'
+        env:
+          TEAMS_WEBHOOK_URL: ${{ secrets.teams_webhook_url }}
+          NOTIFICATION_TITLE: ${{ inputs.notification_title }}
+          ACTION_MESSAGE: ${{ inputs.action_required_message }}
+          CARD_COLOR: ${{ inputs.card_color }}
+          SHOW_FILES: ${{ inputs.show_files }}
+        run: |
+          set -e
+
+          # Validate webhook URL
+          if [ -z "$TEAMS_WEBHOOK_URL" ]; then
+            echo "❌ Missing teams_webhook_url secret."
+            exit 1
+          fi
+
+          # Gather commit information
+          FILES="${{ steps.changes.outputs.files }}"
+          ACTOR="${{ github.actor }}"
+          REPO="${{ github.repository }}"
+          SHA="${{ github.sha }}"
+          SHORT_SHA="${SHA:0:7}"
+          DISPLAY_ACTOR="${ACTOR:-Unknown user}"
+          TIMESTAMP=$(TZ='Europe/Belgrade' date +"%Y-%m-%d %H:%M %Z")
+          BRANCH="${{ github.ref_name }}"
+
+          # Escape dangerous JSON characters
+          SAFE_FILES=$(echo "$FILES" | sed 's/"/\\"/g' | sed 's/\\/\\\\/g')
+          SAFE_TITLE=$(echo "$NOTIFICATION_TITLE" | sed 's/"/\\"/g')
+          SAFE_ACTION=$(echo "$ACTION_MESSAGE" | sed 's/"/\\"/g')
+
+          # Build files section (conditionally)
+          if [ "$SHOW_FILES" = "true" ]; then
+            FILES_SECTION=$(cat <<EOF
+                    {
+                      "type": "TextBlock",
+                      "text": "📂 **Files Changed:**",
+                      "weight": "Bolder",
+                      "spacing": "Medium"
+                    },
+                    {
+                      "type": "TextBlock",
+                      "text": "${SAFE_FILES}",
+                      "fontType": "Monospace",
+                      "wrap": true
+                    },
+          EOF
+          )
           else
-            echo "🚨 App source files changed:"
-            echo "$APP_FILES"
-            echo "should_notify=true" >> $GITHUB_OUTPUT
-            echo "changed_files<<EOF" >> $GITHUB_OUTPUT
-            echo "$APP_FILES" >> $GITHUB_OUTPUT
-            echo "EOF" >> $GITHUB_OUTPUT
+            FILES_SECTION=""
           fi
-      
-      - name: Call notification workflow
-        if: steps.check_files.outputs.should_notify == 'true'
-        uses: m-nikolovska-mak-system/reusable-actions-library/.github/workflows/teams-notify.yml@main
-        with:
-          notification_title: '🎉 App Release ${{ github.event.release.tag_name }}'
-          action_required_message: '⚠️ **Action Required:** New installer needed for Template Designer'
-          card_color: 'Good'
-          show_files: false  # Or true to show the changed app files
-          skip_if_no_changes: false
-        secrets:
-          teams_webhook_url: ${{ secrets.TEAMS_WEBHOOK_INSTALLER_URL }}
 
+          # Create Adaptive Card payload
+          PAYLOAD=$(cat <<EOF
+          {
+            "type": "message",
+            "attachments": [
+              {
+                "contentType": "application/vnd.microsoft.card.adaptive",
+                "content": {
+                  "\$schema": "http://adaptivecards.io/schemas/adaptive-card.json",
+                  "type": "AdaptiveCard",
+                  "version": "1.4",
+                  "body": [
+                    {
+                      "type": "ColumnSet",
+                      "columns": [
+                        {
+                          "type": "Column",
+                          "width": "auto",
+                          "items": [
+                            {
+                              "type": "Image",
+                              "url": "https://github.com/${ACTOR}.png",
+                              "size": "Small",
+                              "style": "Person"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "Column",
+                          "width": "stretch",
+                          "items": [
+                            {
+                              "type": "TextBlock",
+                              "text": "${SAFE_TITLE}",
+                              "weight": "Bolder",
+                              "size": "Large",
+                              "color": "${CARD_COLOR}"
+                            },
+                            {
+                              "type": "TextBlock",
+                              "text": "${DISPLAY_ACTOR} pushed to ${REPO} (${BRANCH})",
+                              "isSubtle": true,
+                              "wrap": true
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Container",
+                      "style": "attention",
+                      "items": [
+                        {
+                          "type": "TextBlock",
+                          "text": "${SAFE_ACTION}",
+                          "wrap": true,
+                          "weight": "Bolder"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TextBlock",
+                      "text": "🔗 **Commit:** [${SHORT_SHA}](https://github.com/${REPO}/commit/${SHA})",
+                      "wrap": true,
+                      "spacing": "Medium"
+                    },
+                    {
+                      "type": "TextBlock",
+                      "text": "🕒 **Timestamp:** ${TIMESTAMP}",
+                      "wrap": true
+                    },
+                    ${FILES_SECTION}
+                    {
+                      "type": "TextBlock",
+                      "text": " ",
+                      "spacing": "None"
+                    }
+                  ],
+                  "actions": [
+                    {
+                      "type": "Action.OpenUrl",
+                      "title": "View Commit",
+                      "url": "https://github.com/${REPO}/commit/${SHA}"
+                    },
+                    {
+                      "type": "Action.OpenUrl",
+                      "title": "View Repository",
+                      "url": "https://github.com/${REPO}"
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+          EOF
+          )
 
+          # Send to Teams
+          echo "📤 Sending notification to Teams..."
+          HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" \
+            -H "Content-Type: application/json" \
+            -d "$PAYLOAD" "$TEAMS_WEBHOOK_URL")
 
-
-## 📊 Example Scenarios:
-
-### Scenario 1: Release with app changes ✅
-```
-Release v2.0.0 includes:
-- src/main/com/miha/app/Service.java  ← MATCH!
-- docs/README.md
-- config/settings.xml
-```
-**Result:** Notification sent! 🚀
-
-### Scenario 2: Release without app changes ❌
-```
-Release v2.0.1 includes:
-- docs/README.md
-- frontend/index.html
-- tests/test.js
+          if [ "$HTTP_CODE" = "200" ] || [ "$HTTP_CODE" = "202" ]; then
+            echo "✅ Teams notification sent successfully!"
+          else
+            echo "❌ Teams webhook failed (HTTP $HTTP_CODE)"
+            echo ""
+            echo "📋 Payload was:"
+            echo "$PAYLOAD"
+            exit 1
+          fi
