@@ -1,46 +1,49 @@
-name: Release Reminder with Jira Task
+name: Notify App Changes on Release
 
 on:
+  release:
+    types: [published]
   workflow_dispatch:
-#  release:
- #   types: [created]
+
+permissions:
+  contents: read
 
 jobs:
   check_app_change:
     runs-on: ubuntu-latest
-
+    outputs:
+      should_notify: ${{ steps.check.outputs.should_notify }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      - name: Get previous tag
-        id: previoustag
-        run: |
-          echo "prev_tag=$(git describe --tags --abbrev=0 HEAD^)" >> $GITHUB_ENV
+      - name: Get current release tag
+        id: current_tag
+        run: echo "tag=${{ github.event.release.tag_name }}" >> $GITHUB_OUTPUT
 
-      - name: Check if App.java changed
-        id: check_file
+      - name: Get previous tag
+        id: previous_tag
         run: |
-          if git diff $prev_tag HEAD --name-only | grep -q 'oneProjectWed/src/java/com/miha/app/App.java'; then
-            echo "✅ App.java changed since last release!"
-            echo "changed=true" >> $GITHUB_ENV
+          prev_tag=$(git tag --sort=-creatordate | grep -B1 "${{ steps.current_tag.outputs.tag }}" | head -n1)
+          echo "prev_tag=$prev_tag" >> $GITHUB_OUTPUT
+      - name: Check if App.java changed
+        id: check
+        run: |
+          if git diff --name-only ${{ steps.previous_tag.outputs.prev_tag }} ${{ steps.current_tag.outputs.tag }} | grep -q 'oneProjectWed/src/java/com/miha/app/App.java'; then
+            echo "should_notify=true" >> $GITHUB_OUTPUT
           else
-            echo "ℹ️ App.java not changed since last release."
-            echo "changed=false" >> $GITHUB_ENV
+            echo "should_notify=false" >> $GITHUB_OUTPUT
           fi
 
-      - name: Create Jira task
-        if: env.changed == 'true'
-        uses: atlassian/gajira-create@v3
-        env:
-          JIRA_BASE_URL: ${{ secrets.JIRA_BASE_URL }}
-          JIRA_USER_EMAIL: ${{ secrets.JIRA_USER }}
-          JIRA_API_TOKEN: ${{ secrets.JIRA_API_TOKEN }}
-        with:
-          project: DEMO        # change this to your Jira project key (e.g., PROG)
-          issuetype: Task
-          summary: "Prepare new installer for App.java changes"
-          description: "App.java was modified in the latest release. Please review and rebuild the installer if necessary."
-          assignee: ${{ github.actor }}
+  notify:
+    needs: check_app_change
+    if: needs.check_app_change.outputs.should_notify == 'true'
+    uses: ./.github/workflows/teams-notif-simple.yml
+    with:
+      notification_title: "🚀 App.java Changed in Release"
+      action_required_message: "⚠️ Prepare new installer for Template Designer"
+      files: "oneProjectWed/src/java/com/miha/app/App.java"
+    secrets:
+      teams_webhook_url: ${{ secrets.TEAMS_WEBHOOK_INSTALLER_URL }}
