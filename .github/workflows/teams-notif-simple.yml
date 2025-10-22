@@ -3,6 +3,10 @@ name: Simple Teams Notification
 on:
   workflow_call:
     inputs:
+      watched_path:
+        required: false
+        type: string
+        default: ''
       notification_title:
         required: true
         type: string
@@ -47,7 +51,7 @@ jobs:
           fi
 
           # Gather commit information
-          FILES="${{ steps.changes.outputs.files }}"
+          FILES="${FILES}"
           ACTOR="${{ github.actor }}"
           REPO="${{ github.repository }}"
           SHA="${{ github.sha }}"
