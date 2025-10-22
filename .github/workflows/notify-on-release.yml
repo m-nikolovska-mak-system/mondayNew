@@ -9,26 +9,27 @@ permissions:
   contents: read
 
 jobs:
-  check_changes:
+  detect:
     runs-on: ubuntu-latest
     outputs:
+      files: ${{ steps.detect.outputs.files }}
       found: ${{ steps.detect.outputs.found }}
+
     steps:
-      - name: Checkout repository
+      - name: Checkout repo
         uses: actions/checkout@v4
         with:
           fetch-depth: 2
 
-      - name: Detect file changes
+      - name: Detect changed files
         id: detect
         run: |
-          echo "🔍 Checking for file changes..."
+          echo "🔍 Checking for changed files since last commit..."
           BEFORE=$(git rev-parse HEAD^ || echo "")
           AFTER=$(git rev-parse HEAD)
-          WATCHED_PATH="oneProjectWed/src/java/com/miha/app/App.java"
 
           if [ -z "$BEFORE" ]; then
-            echo "⚙️ Initial commit, listing all files..."
+            echo "⚙️ Initial commit detected."
             CHANGED=$(git ls-tree -r --name-only "$AFTER")
           else
             CHANGED=$(git diff --name-only "$BEFORE" "$AFTER")
@@ -37,21 +38,25 @@ jobs:
           echo "Changed files:"
           echo "$CHANGED"
 
-          if echo "$CHANGED" | grep -q "$WATCHED_PATH"; then
-            echo "✅ File changed: $WATCHED_PATH"
-            echo "found=true" >> $GITHUB_OUTPUT
-          else
-            echo "ℹ️ Watched path not changed — skipping notification."
+          if [ -z "$CHANGED" ]; then
+            echo "ℹ️ No files changed."
             echo "found=false" >> $GITHUB_OUTPUT
+            exit 0
           fi
 
+          echo "found=true" >> $GITHUB_OUTPUT
+          echo "files<<EOF" >> $GITHUB_OUTPUT
+          echo "$CHANGED" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
   notify:
-    needs: check_changes
-    if: needs.check_changes.outputs.found == 'true'
-    uses: ./.github/workflows/teams-notify-template.yml
+    needs: detect
+    if: needs.detect.outputs.found == 'true'
+    uses: ./.github/workflows/reusable-teams-notifier.yml
     with:
       notification_title: "🚀 New Release Published"
       action_required_message: "⚠️ Prepare new installer for Template Designer"
       card_color: "Accent"
+      files: ${{ needs.detect.outputs.files }}
     secrets:
       teams_webhook_url: ${{ secrets.TEAMS_WEBHOOK_INSTALLER_URL }}
