@@ -1,0 +1,17 @@
+name: Notify on Release
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+
+jobs:
+  notify:
+    uses: ./.github/workflows/teams-notif-on-update.yml
+    with:
+      notification_title: '🚀 New Release Published'
+      action_required_message: '⚠️ **Action Required:** Prepare new installer for Template Designer'
+      card_color: 'Accent'
+      show_files: true
+    secrets:
+      teams_webhook_url: ${{ secrets.TEAMS_WEBHOOK_INSTALLER_URL }}
