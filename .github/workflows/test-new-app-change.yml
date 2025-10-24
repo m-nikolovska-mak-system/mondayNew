@@ -17,6 +17,6 @@ jobs:
       notification_message: '⚠️ **Action Required:** Prepare new installer for Template Designer'
       card_color: 'Warning'
       show_changed_files: true
-      link_url: ${{ github.event.release.html_url || github.server_url }}/{{ github.repository }}/commit/${{ github.sha }}
+      link_url: https://github.com/${{ github.repository }}/commit/${{ github.sha }}
     secrets:
       teams_webhook_url: ${{ secrets.TEAMS_WEBHOOK_INSTALLER_URL }}
