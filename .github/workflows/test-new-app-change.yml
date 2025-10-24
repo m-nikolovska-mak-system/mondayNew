@@ -6,24 +6,41 @@ on:
   workflow_dispatch:
 
 jobs:
-  notify:
+  check_and_notify:
     runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
 
-      - name: Check for file changes
-        id: diff
-        uses: m-nikolovska-mak-system/reusable-actions-library/.github/actions/check-file-changes@main
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
         with:
-          target_file: 'oneProjectWed/src/java/com/miha/app/App.java'
+          fetch-depth: 0
+
+      - name: Get previous commit or tag
+        id: prev
+        run: |
+          PREV=$(git rev-parse HEAD~1)
+          echo "previous=$PREV" >> $GITHUB_OUTPUT
+
+      - name: Check if App.java changed
+        id: file_check
+        run: |
+          CHANGED=$(git diff --name-only ${{ steps.prev.outputs.previous }} HEAD | grep "oneProjectWed/src/java/com/miha/app/App.java" || true)
+          if [ -n "$CHANGED" ]; then
+            echo "✅ File changed"
+            echo "changed=true" >> $GITHUB_OUTPUT
+          else
+            echo "ℹ️ File not changed"
+            echo "changed=false" >> $GITHUB_OUTPUT
+          fi
 
       - name: Notify via Teams
-        if: steps.diff.outputs.changed == 'true'
-        uses: m-nikolovska-mak-system/reusable-actions-library/.github/workflows/send-teams-notification.yml@main
+        if: steps.file_check.outputs.changed == 'true'
+        uses: m-nikolovska-mak-system/reusable-actions-library/.github/workflows/send-teams-notification.yml@main 
         with:
-          watched_file: 'oneProjectWed/src/java/com/miha/app/App.java'
-          notification_title: '🚀 App.java Changed!'
-          notification_message: '⚠️ Prepare new installer for Template Designer'
-        secrets:
-          teams_webhook_url: ${{ secrets.TEAMS_WEBHOOK_INSTALLER_URL }}
+          webhook_url: ${{ secrets.TEAMS_WEBHOOK_INSTALLER_URL }}
+          title: '🚀 App.java Changed!'
+          message: '⚠️ Prepare new installer for Template Designer'
+          color: 'Good'
+          files: 'oneProjectWed/src/java/com/miha/app/App.java'
+      #  secrets:
+       #   teams_webhook_url: ${{ secrets.TEAMS_WEBHOOK_INSTALLER_URL }}
