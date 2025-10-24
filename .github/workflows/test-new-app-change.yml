@@ -7,7 +7,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Send simple Teams message
-        uses: m-nikolovska-mak-system/reusable-actions-library/.github/actions/send-teams-message@main
+        uses: m-nikolovska-mak-system/reusable-actions-library/.github/actions/send-teams-notification@main
         with:
           webhook_url: ${{ secrets.TEAMS_WEBHOOK_INSTALLER_URL }}
           message: "✅ Simple notification test — this one should definitely work!"
