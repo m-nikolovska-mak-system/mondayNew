@@ -3,7 +3,7 @@ name: Notify on App.java Changes
 on:
   release:
     types: [published]
-  workflow_dispatch:  # Manual trigger for testing
+  workflow_dispatch: 
 
 permissions:
   contents: read
@@ -12,7 +12,7 @@ jobs:
   check-and-notify:
     uses: m-nikolovska-mak-system/reusable-actions-library/.github/workflows/release-file-watcher.yml@main
     with:
-      watched_file: 'oneProjectWed/src/java/com/miha/app/App.java'  # ← Change this to your actual path
+      watched_file: 'oneProjectWed/src/java/com/miha/app/App.java'
       notification_title: '🚀 App.java Changed in Release'
       notification_message: '⚠️ **Action Required:** Prepare new installer for Template Designer'
       card_color: 'Warning'
