@@ -1,8 +1,8 @@
 name: Notify App Changes on Release
 
 on:
-  release:
-    types: [published]
+  # release:
+   # types: [published]
   workflow_dispatch:
 
 permissions:
