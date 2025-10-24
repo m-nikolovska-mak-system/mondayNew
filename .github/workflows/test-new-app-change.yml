@@ -3,6 +3,7 @@ name: Notify on App Changes
 on:
   release:
     types: [published]
+    workflow_dispatch: 
 
 jobs:
   notify:
