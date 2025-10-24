@@ -1,33 +1,15 @@
-name: Notify on Release
+name: Notify on App Changes
 
 on:
-#  release:
- #   types: [published]
-  workflow_dispatch:
+  release:
+    types: [published]
 
 jobs:
-  detect:
-    runs-on: ubuntu-latest
-    outputs:
-      found: ${{ steps.detect.outputs.found }}
-      files: ${{ steps.detect.outputs.files }}
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
-      - id: detect
-        uses: ./.github/actions/detect-file-change
-        with:
-          watched_path: "oneProjectWed/src/java/com/miha/app/App.java"
-
   notify:
-    needs: detect
-    if: needs.detect.outputs.found == 'true'
-    uses: m-nikolovska-mak-system/composite-actions@main
+    uses: m-nikolovska-mak-system/reusable-actions-library/.github/workflows/release-file-watcher.yml@main
     with:
-      notification_title: "🚀 Files Updated in New Release"
-      action_required_message: "⚠️ Prepare new installer for Template Designer"
-      files: ${{ needs.detect.outputs.files }}
-    env:
-      TEAMS_WEBHOOK_URL: ${{ secrets.TEAMS_WEBHOOK_INSTALLER_URL }}
+      watched_file: 'oneProjectWed/src/java/com/miha/app/App.java'
+      notification_title: '🚀 App.java Changed!'
+      notification_message: '⚠️ Prepare new installer for Template Designer'
+    secrets:
+     teams_webhook_url: ${{ secrets.TEAMS_WEBHOOK_INSTALLER_URL }}
