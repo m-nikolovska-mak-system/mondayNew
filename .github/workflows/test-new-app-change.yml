@@ -1,23 +1,21 @@
-name: Test File Change and Notify
+name: Notify on App.java Changes
+
 on:
-  workflow_dispatch:
+  release:
+    types: [published]
+  workflow_dispatch:  # Manual trigger for testing
+
+permissions:
+  contents: read
 
 jobs:
-  notify:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout repo
-        uses: actions/checkout@v3
-
-      - name: Check if file changed
-        uses: m-nikolovska-mak-system/reusable-actions-library/.github/actions/check-file-changes@main
-        id: file_check
-        with:
-          target_file: 'src/App.java'
-
-      - name: Send Teams notification if file changed
-        if: steps.file_check.outputs.changed == 'true'
-        uses: m-nikolovska-mak-system/reusable-actions-library/.github/actions/send-teams-notification@main
-        with:
-          webhook_url: ${{ secrets.TEAMS_WEBHOOK_INSTALLER_URL }}
-          message: "📢 File `src/App.java` has changed between releases!"
+  check-and-notify:
+    uses: m-nikolovska-mak-system/reusable-actions-library/.github/workflows/release-file-watcher.yml@main
+    with:
+      watched_file: 'oneProjectWed/src/java/com/miha/app/App.java'  # ← Change this to your actual path
+      notification_title: '🚀 App.java Changed in Release'
+      notification_message: '⚠️ **Action Required:** Prepare new installer for Template Designer'
+      card_color: 'Warning'
+      show_changed_files: false
+    secrets:
+      teams_webhook_url: ${{ secrets.TEAMS_WEBHOOK_INSTALLER_URL }}
