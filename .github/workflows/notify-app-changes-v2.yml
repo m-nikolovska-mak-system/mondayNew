@@ -12,27 +12,44 @@ jobs:
   find_previous_tag:
     runs-on: ubuntu-latest
     outputs:
-      previous_tag: ${{ steps.prev.outputs.tag }}
+      base_ref: ${{ steps.set.outputs.base_ref }}
+      head_ref: ${{ steps.set.outputs.head_ref }}
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      - name: Find previous tag
-        id: prev
+      - name: Determine base and head refs
+        id: set
         run: |
+          # Make sure we have all tags
+          git fetch --tags
+
           current_tag="${{ github.event.release.tag_name }}"
+          echo "Current tag: $current_tag"
+
+          # Try to find previous tag
           previous_tag=$(git describe --tags --abbrev=0 "${current_tag}^" 2>/dev/null || echo "")
-          echo "Previous tag: $previous_tag"
-          echo "tag=$previous_tag" >> $GITHUB_OUTPUT
+
+          # Fallback: if no previous tag found, use last commit
+          if [ -z "$previous_tag" ]; then
+            echo "⚠️ No previous tag found, using HEAD~1 as base."
+            previous_tag="HEAD~1"
+          fi
+
+          echo "Base ref (previous tag): $previous_tag"
+          echo "Head ref (current tag): $current_tag"
+
+          echo "base_ref=$previous_tag" >> $GITHUB_OUTPUT
+          echo "head_ref=$current_tag" >> $GITHUB_OUTPUT
 
   check_file_changes:
     needs: find_previous_tag
     uses: m-nikolovska-mak-system/reusable-actions-library/.github/workflows/check-for-file-changes.yml@main
     with:
       watched_files: 'oneProjectWed/src/java/com/miha/app/App.java'
-      base_ref: ${{ needs.find_previous_tag.outputs.previous_tag }}
-      head_ref: ${{ github.event.release.tag_name }}
+      base_ref: ${{ needs.find_previous_tag.outputs.base_ref }}
+      head_ref: ${{ needs.find_previous_tag.outputs.head_ref }}
 
   send_teams_notification:
     needs: check_file_changes
