@@ -1,8 +1,8 @@
 name: Notify on App.java Changes
 
 on:
-#  release:
-#    types: [published]
+  release:
+   types: [published]
   workflow_dispatch:
 
 permissions:
@@ -32,11 +32,20 @@ jobs:
     with:
       title: '🚀 App.java Changed in Release'
       message: |
-        Prepare new installer for Template Designer  
+           '⚠️ **Action Required:** Prepare new installer for Template Designer'
+      release_version: ${{ github.event.release.tag_name || inputs.release_tag }}
       color: 'Warning'
       released_by: ${{ github.actor }}
       changed_files: ${{ needs.check_file_changes.outputs.changed_files_list }}
-      link_url: ${{ github.event.release.html_url || ''}}
-      link_text: 'View Release'
+      link_url: ${{ 
+        github.event.release.html_url || 
+        (inputs.release_tag && format('https://github.com/{0}/releases/tag/{1}', github.repository, inputs.release_tag)) || 
+        format('https://github.com/{0}/releases', github.repository)
+       }}
+      link_text: ${{ 
+        github.event.release.html_url && 'View Release' || 
+        inputs.release_tag && 'View Release' || 
+        'View All Releases'
+       }}
     secrets:
       teams_webhook_url: ${{ secrets.TEAMS_WEBHOOK_INSTALLER_URL }}
