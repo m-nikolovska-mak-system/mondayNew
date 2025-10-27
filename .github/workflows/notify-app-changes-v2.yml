@@ -44,12 +44,9 @@ jobs:
           echo "head_ref=$current_tag" >> $GITHUB_OUTPUT
 
   check_file_changes:
-    needs: find_previous_tag
-    uses: m-nikolovska-mak-system/reusable-actions-library/.github/workflows/check-for-file-changes.yml@main
-    with:
-      watched_files: 'oneProjectWed/src/java/com/miha/app/App.java'
-      base_ref: ${{ needs.find_previous_tag.outputs.base_ref }}
-      head_ref: ${{ needs.find_previous_tag.outputs.head_ref }}
+      uses: m-nikolovska-mak-system/reusable-actions-library/.github/workflows/check-for-file-changes.yml@main
+      with:
+        watched_files: 'oneProjectWed/src/java/com/miha/app/App.java'
 
   send_teams_notification:
     needs: check_file_changes
