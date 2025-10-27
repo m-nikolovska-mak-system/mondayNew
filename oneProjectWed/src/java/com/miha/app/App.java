@@ -14,7 +14,7 @@ public class App {
 	public static void main(String[] args) {
 		System.out.println("Heellooo0oo!!!");
 		System.out.println("Hello this is a test for jira automation hello this is me changing the file on codechecker!!");
-		System.out.println("this hello ttttest aaa hello hhiaaaai testing thisi hhelloello new hiaaaaaaaaaaii test fridya! hiii hiii for functions! hii branching");
+		System.out.println("this hello testing hi aaa hello hhiaaaai testing thisi hhelloello new hiaaaaaaaaaaii test fridya! hiii hiii for functions! hii branching");
 
 
 
