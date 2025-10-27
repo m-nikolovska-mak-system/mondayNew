@@ -32,7 +32,7 @@ jobs:
     with:
       title: '🚀 App.java Changed in Release'
       message: |
-           '⚠️ **Action Required:** Prepare new installer for Template Designer'
+           ⚠️ **Action Required:** Prepare new installer for Template Designer
       release_version: ${{ github.event.release.tag_name || inputs.release_tag }}
       color: 'Warning'
       released_by: ${{ github.actor }}
