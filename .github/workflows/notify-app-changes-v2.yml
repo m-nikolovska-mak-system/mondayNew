@@ -14,10 +14,7 @@ jobs:
     with:
       watched_files: 'oneProjectWed/src/java/com/miha/app/App.java'
       
-      base_ref: ${{ github.event.release.target_commitish }}
-      head_ref: ${{ github.ref_name }}
-
-
+     
   debug_outputs:
     needs: check_file_changes
     runs-on: ubuntu-latest
