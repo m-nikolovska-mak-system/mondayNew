@@ -35,6 +35,7 @@ jobs:
         Prepare new installer for Template Designer  
         Changed files: ${{ needs.check_file_changes.outputs.changed_files_list }}
       color: 'Warning'
+      released_by: ${{ github.actor }}
       changed_files: ${{ needs.check_file_changes.outputs.changed_files_list }}
       link_url: ${{ github.event.release.html_url || ''}}
       link_text: 'View Release'
