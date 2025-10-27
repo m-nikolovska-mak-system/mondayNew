@@ -7,12 +7,22 @@ on:
 
 permissions:
   contents: read
-
+  
 jobs:
   check_file_changes:
     uses: m-nikolovska-mak-system/reusable-actions-library/.github/workflows/check-for-file-changes.yml@main
     with:
       watched_files: 'oneProjectWed/src/java/com/miha/app/App.java'
+
+  debug_outputs:
+    needs: check_file_changes
+    runs-on: ubuntu-latest
+    steps:
+      - name: Print outputs from check_file_changes
+        run: |
+          echo "Files changed: ${{ needs.check_file_changes.outputs.files_changed }}"
+          echo "Changed files list: ${{ needs.check_file_changes.outputs.changed_files_list }}"
+
 
   send_teams_notification:
     needs: check_file_changes
