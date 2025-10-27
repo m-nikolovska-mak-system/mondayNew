@@ -1,20 +1,22 @@
-name: Notify App Changes
+name: Notify on App.java Changes
 
 on:
-#  push:
- #   paths:
-  #    - '**/src/**/com/miha/app/**'
+  release:
+    types: [published]
   workflow_dispatch:
 
+permissions:
+  contents: read
+
 jobs:
-  notify:
-    uses: ./.github/workflows/teams-notif-on-update.yml
+  check-and-notify:
+    uses: m-nikolovska-mak-system/reusable-actions-library/.github/workflows/release-file-watcher.yml@main
     with:
-      # file_path: '**/src/**/com/miha/app/**'
-      notification_title: '🚀 App Source Files Updated'
-      action_required_message: '⚠️ **Action Required:** New installer needs to be prepared for Template Designer'
-      card_color: 'Accent'
-      show_files: true
-   #   teams_webhook_url: ${{ secrets.TEAMS_WEBHOOK_INSTALLER_URL }}
+      watched_files: 'oneProjectWed/src/java/com/miha/app/App.java'
+      notification_title: '🚀 App.java Changed in Release'
+      notification_message: '⚠️ **Action Required:** Prepare new installer for Template Designer'
+      card_color: 'Warning'
+      link_url: ${{ github.event.release.html_url }}
+      link_text: 'View Release'
     secrets:
-     teams_webhook_url: ${{ secrets.TEAMS_WEBHOOK_INSTALLER_URL }}
+      teams_webhook_url: ${{ secrets.TEAMS_WEBHOOK_INSTALLER_URL }}
