@@ -9,15 +9,31 @@ permissions:
   contents: read
 
 jobs:
-  # Step 1: Run the reusable workflow to check for file changes
+  find_previous_tag:
+    runs-on: ubuntu-latest
+    outputs:
+      previous_tag: ${{ steps.prev.outputs.tag }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Find previous tag
+        id: prev
+        run: |
+          current_tag="${{ github.event.release.tag_name }}"
+          previous_tag=$(git describe --tags --abbrev=0 "${current_tag}^" 2>/dev/null || echo "")
+          echo "Previous tag: $previous_tag"
+          echo "tag=$previous_tag" >> $GITHUB_OUTPUT
+
   check_file_changes:
+    needs: find_previous_tag
     uses: m-nikolovska-mak-system/reusable-actions-library/.github/workflows/check-for-file-changes.yml@main
     with:
       watched_files: 'oneProjectWed/src/java/com/miha/app/App.java'
-      base_ref: ${{ github.event.release.target_commitish }}^
-      head_ref: ${{ github.event.release.target_commitish }}
+      base_ref: ${{ needs.find_previous_tag.outputs.previous_tag }}
+      head_ref: ${{ github.event.release.tag_name }}
 
-  # Step 2: If files changed, send Teams notification
   send_teams_notification:
     needs: check_file_changes
     if: needs.check_file_changes.outputs.files_changed == 'true'
@@ -26,8 +42,7 @@ jobs:
       title: '🚀 App.java Changed in Release'
       message: |
         ⚠️ **Action Required:** Prepare new installer for Template Designer  
-        The following files were updated:  
-        ${{ needs.check_file_changes.outputs.changed_files_list }}
+        Changed files: ${{ needs.check_file_changes.outputs.changed_files_list }}
       color: 'Warning'
       changed_files: ${{ needs.check_file_changes.outputs.changed_files_list }}
       link_url: ${{ github.event.release.html_url }}
