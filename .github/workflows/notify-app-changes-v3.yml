@@ -40,7 +40,7 @@ jobs:
   send-teams-notification:
     needs: check-file-changes
     if: needs.check-file-changes.outputs.files_changed == 'true'
-    uses: m-nikolovska-mak-system/reusable-actions-library/.github/workflows/send-teams-notification.yml@main
+    uses: m-nikolovska-mak-system/reusable-actions-library/.github/workflows/send-teams-notification-v2.yml@main
     with:
       title: '🚀 App.java Changed in Release'
       message: |
