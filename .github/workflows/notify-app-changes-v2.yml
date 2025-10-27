@@ -33,7 +33,6 @@ jobs:
       title: '🚀 App.java Changed in Release'
       message: |
         Prepare new installer for Template Designer  
-        Changed files: ${{ needs.check_file_changes.outputs.changed_files_list }}
       color: 'Warning'
       released_by: ${{ github.actor }}
       changed_files: ${{ needs.check_file_changes.outputs.changed_files_list }}
