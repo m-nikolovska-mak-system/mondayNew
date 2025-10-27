@@ -1,0 +1,36 @@
+name: Notify on App.java Changes
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  # Step 1: Run the reusable workflow to check for file changes
+  check_file_changes:
+    uses: m-nikolovska-mak-system/reusable-actions-library/.github/workflows/check-for-file-changes.yml@main
+    with:
+      watched_files: 'oneProjectWed/src/java/com/miha/app/App.java'
+      base_ref: ${{ github.event.release.target_commitish }}^
+      head_ref: ${{ github.event.release.target_commitish }}
+
+  # Step 2: If files changed, send Teams notification
+  send_teams_notification:
+    needs: check_file_changes
+    if: needs.check_file_changes.outputs.files_changed == 'true'
+    uses: m-nikolovska-mak-system/reusable-actions-library/.github/workflows/send-teams-notification.yml@main
+    with:
+      title: '🚀 App.java Changed in Release'
+      message: |
+        ⚠️ **Action Required:** Prepare new installer for Template Designer  
+        The following files were updated:  
+        ${{ needs.check_file_changes.outputs.changed_files_list }}
+      color: 'Warning'
+      changed_files: ${{ needs.check_file_changes.outputs.changed_files_list }}
+      link_url: ${{ github.event.release.html_url }}
+      link_text: 'View Release'
+    secrets:
+      teams_webhook_url: ${{ secrets.TEAMS_WEBHOOK_INSTALLER_URL }}
