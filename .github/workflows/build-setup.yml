@@ -1,12 +1,14 @@
 name: Build Windows Installer
 
 on:
-  workflow_dispatch:
+  workflow_call:
     inputs:
       jar-key:
         description: 'Cache key for the JAR file'
+        type: string
         required: true
       release_tag:
+        type: string
         description: 'Tag name of the release'
         required: true
         
