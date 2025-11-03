@@ -1,18 +1,6 @@
-name: Build JAR
+name: OVA TREBA DA RABOTI Build JAR
 
 on:
-  workflow_call: 
-    inputs:
-      ref:
-        description: 'Branch or tag to checkout'
-        required: false
-        type: string
-        default: 'main'
-    outputs:
-      cache-key:
-        description: 'Cache key for the JAR'
-        value: ${{ jobs.build.outputs.cache-key }}
-  
   release:
     types: [created]
   
