@@ -57,7 +57,7 @@ jobs:
           path: build/libs/*.jar
 
       - name: Trigger Windows Installer workflow
-        uses: peter-evans/workflow-dispatch@v2
+        uses: peter-evans/workflow-dispatch@v1
         with:
           workflow: build-setup.yml
           ref: ${{ github.ref }}
