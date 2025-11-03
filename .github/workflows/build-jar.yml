@@ -78,8 +78,11 @@ jobs:
 
       - name: Rename JAR to App.jar
         run: |
-          Get-ChildItem build\libs\*.jar | Rename-Item -NewName "App.jar"
-      
+          $jar = Get-ChildItem build\libs\*.jar | Select-Object -First 1
+          if ($jar.Name -ne "App.jar") {
+            Rename-Item $jar.FullName -NewName "App.jar"
+          }
+            
       - name: Verify JAR
         run: dir build\libs
       
