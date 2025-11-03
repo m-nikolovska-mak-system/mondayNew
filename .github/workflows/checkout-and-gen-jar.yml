@@ -1,6 +1,12 @@
 name: Build JAR on Release
 
 on:
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: 'Branch or tag to build'
+        required: false
+        default: 'main'
   release:
     types: [created]
 
@@ -18,7 +24,7 @@ jobs:
         uses: actions/setup-java@v3
         with:
           distribution: 'temurin'
-          java-version: '17'  # or your preferred version
+          java-version: '17'
 
       - name: Make Gradle executable
         run: chmod +x gradlew
@@ -28,3 +34,14 @@ jobs:
 
       - name: List JAR files
         run: ls -l build/libs
+
+      - name: Set cache key
+        id: set-cache-key
+        run: |
+          echo "cache-key=jar-${{ github.sha }}-${{ github.run_number }}" >> $GITHUB_OUTPUT
+
+      - name: Cache JAR file
+        uses: actions/cache@v3
+        with:
+          path: build/libs/*.jar
+          key: ${{ steps.set-cache-key.outputs.cache-key }}
