@@ -32,13 +32,19 @@ jobs:
       - name: Build JAR with Gradle
         run: ./gradlew jar --no-daemon
 
-      - name: List JAR files
-        run: ls -l build/libs
-
       - name: Set cache key
         id: set-cache-key
         run: |
           echo "cache-key=jar-${{ github.sha }}-${{ github.run_number }}" >> $GITHUB_OUTPUT
+
+      - name: Cache JAR file
+        uses: actions/cache@v3
+        with:
+          path: build/libs/*.jar
+          key: ${{ steps.set-cache-key.outputs.cache-key }}
+
+      - name: List JAR files
+        run: ls -l build/libs
 
       - name: Cache JAR file
         uses: actions/cache@v3
