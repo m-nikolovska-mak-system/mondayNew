@@ -42,6 +42,10 @@ jobs:
           name: setup-installer
           path: output/setup.exe
 
+
+      - name: Check output folder
+        run: dir output   
+
       - name: Upload setup.exe to GitHub Release
         uses: softprops/action-gh-release@v2
         with:
