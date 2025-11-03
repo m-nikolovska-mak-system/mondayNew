@@ -58,3 +58,15 @@ jobs:
     uses: ./.github/workflows/build-installer.yml
     with:
       jar-cache-key: ${{ needs.build-jar.outputs.jar-cache-key }}
+
+  upload-to-release:
+      needs: call-installer
+      runs-on: ubuntu-latest
+      steps:
+        - name: Download installer artifact
+          uses: actions/download-artifact@v4
+          with:
+            name: setup-installer
+            path: output
+
+  
