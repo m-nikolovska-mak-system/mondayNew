@@ -1,13 +1,15 @@
 name: Branch Name Validation
 on:
-  push:
-    branches-ignore:
-      - main
-      - develop
-  create:
-    branches-ignore:
-      - main
-      - develop
+ # push:
+#    branches-ignore:
+  #    - main
+ #     - develop
+#  create:
+#    branches-ignore:
+ #     - main
+ #     - develop
+ workflow_dispatch: 
+
 jobs:
   branch-naming-rules:
     runs-on: ubuntu-latest
