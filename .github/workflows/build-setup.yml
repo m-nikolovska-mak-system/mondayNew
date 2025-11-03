@@ -36,3 +36,12 @@ jobs:
         with:
           name: setup-installer
           path: output/setup.exe
+
+
+      - name: Upload to GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: output/setup.exe
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
