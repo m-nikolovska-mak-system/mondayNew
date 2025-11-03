@@ -78,7 +78,7 @@ jobs:
       
       - name: Build setup.exe
         run: |
-          "C:\Program Files (x86)\Inno Setup 6\ISCC.exe" .github\setup-script.iss
+         & "C:\Program Files (x86)\Inno Setup 6\ISCC.exe" .github\setup-script.iss
       
       - name: Check output folder
         run: dir output
