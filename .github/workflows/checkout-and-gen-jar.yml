@@ -43,5 +43,14 @@ jobs:
           path: build/libs/*.jar
           key: ${{ steps.set-cache-key.outputs.cache-key }}
 
+
+      
+      - name: Upload JAR as artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: built-jar
+          path: build/libs/*.jar
+
+
       - name: List JAR files
         run: ls -l build/libs
