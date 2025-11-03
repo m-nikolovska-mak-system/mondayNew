@@ -1,0 +1,41 @@
+name: Build Installer
+
+on:
+  workflow_call:
+    inputs:
+      jar-cache-key:
+        required: true
+        type: string
+
+jobs:
+  build-installer:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Restore cached JAR
+        uses: actions/cache/restore@v3
+        with:
+          path: build/libs/*.jar
+          key: ${{ inputs.jar-cache-key }}
+
+      - name: Rename JAR to App.jar
+        run: |
+          $jar = Get-ChildItem build\libs\*.jar | Select-Object -First 1
+          if ($jar.Name -ne "App.jar") {
+            Rename-Item $jar.FullName -NewName "App.jar"
+          }
+
+      - name: Install Inno Setup
+        run: choco install innosetup --no-progress -y
+
+      - name: Build setup.exe
+        run: |
+          & "C:\Program Files (x86)\Inno Setup 6\ISCC.exe" setup-script.iss
+
+      - name: Upload setup.exe as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: setup-installer
+          path: output/OneProjectWed-Setup.exe
