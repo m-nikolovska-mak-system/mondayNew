@@ -1,0 +1,83 @@
+name: Build JAR
+
+on:
+  workflow_call: 
+    inputs:
+      ref:
+        description: 'Branch or tag to checkout'
+        required: false
+        type: string
+        default: 'main'
+    outputs:
+      cache-key:
+        description: 'Cache key for the JAR'
+        value: ${{ jobs.build.outputs.cache-key }}
+  
+  release:
+    types: [created]
+  
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: 'Branch or tag to build'
+        required: false
+        default: 'main'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    outputs:
+      cache-key: ${{ steps.set-cache-key.outputs.cache-key }}
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.ref || github.ref }}
+      
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '21'
+      
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v3
+      
+      - name: Build JAR with Gradle
+        run: ./gradlew jar --no-daemon
+      
+      - name: Find JAR file
+        id: find-jar
+        run: |
+          JAR_FILE=$(find build/libs -name "*.jar" -type f | head -n 1)
+          echo "jar-file=$JAR_FILE" >> $GITHUB_OUTPUT
+          echo "Found JAR: $JAR_FILE"
+      
+      - name: Set cache key
+        id: set-cache-key
+        run: |
+          CACHE_KEY="jar-${{ github.sha }}-${{ github.run_number }}"
+          echo "cache-key=$CACHE_KEY" >> $GITHUB_OUTPUT
+          echo "Cache key: $CACHE_KEY"
+      
+      - name: Cache JAR file
+        uses: actions/cache/save@v3
+        with:
+          path: ${{ steps.find-jar.outputs.jar-file }}
+          key: ${{ steps.set-cache-key.outputs.cache-key }}
+      
+      - name: Upload JAR as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-jar
+          path: ${{ steps.find-jar.outputs.jar-file }}
+          retention-days: 30
+      
+      - name: Upload JAR to Release
+        if: github.event_name == 'release'
+        uses: softprops/action-gh-release@v1
+        with:
+          files: ${{ steps.find-jar.outputs.jar-file }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
