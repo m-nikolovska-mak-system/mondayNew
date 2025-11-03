@@ -1,122 +1,101 @@
-# 🚀 GitHub Actions Workflows for JAR & Installer Build
-This repository contains **two GitHub Actions workflows** designed to automate the build and release process for a Java application and its Windows installer.
+# 🔄 Automated Build & Release Workflows (Java JAR + Windows Installer)
+
+This repository includes **two GitHub Actions workflows** that automate:
+
+✅ Building a Java JAR file using Gradle  
+✅ Creating a Windows installer (`.exe`) using Inno Setup  
+✅ Uploading the installer to a GitHub Release  
 
 ---
 
-## ✅ Overview
+## 📂 Workflow Files
 
-We have split the build process into **two workflows**:
-
-1. **Main Build and Release (`main-build.yml`)**  
-   - Triggered on **GitHub Release creation** or manually via `workflow_dispatch`.
-   - Builds the JAR file using Gradle.
-   - Caches the JAR for reuse.
-   - Calls the reusable workflow to build the installer.
-   - Uploads the final installer (`.exe`) to the GitHub Release.
-
-2. **Build Installer (`build-installer.yml`)**  
-   - A **reusable workflow** triggered by `workflow_call`.
-   - Restores the cached JAR.
-   - Builds the Windows installer using **Inno Setup**.
-   - Uploads the installer as an artifact for the calling workflow.
-
----
-
-## ✅ Workflow Structure
-
-### **1. Main Build and Release (`.github/workflows/main-build.yml`)**
-
+### 1. **Main Build and Release**  
+File: `.github/workflows/main-build.yml`  
 **Purpose:**  
-- Acts as the **entry point** for the build process.
-- Handles JAR build and release upload.
+- Triggered when a **GitHub Release** is created or manually via **Actions → Run workflow**.
+- Builds the JAR file.
+- Caches the JAR for reuse.
+- Calls the reusable installer workflow.
+- Uploads the final `.exe` installer to the Release page.
 
-**Triggers:**  
-- `release: created`  
-- `workflow_dispatch` (manual trigger)
+---
 
-**Key Steps:**  
-- Checkout code.
-- Set up Java 17.
-- Build JAR with Gradle.
-- Cache JAR for later use.
-- Call `build-installer.yml` workflow.
-- Upload installer to GitHub Release.
+### 2. **Build Installer (Reusable)**  
+File: `.github/workflows/build-installer.yml`  
+**Purpose:**  
+- Builds the Windows installer using **Inno Setup**.
+- Designed as a **reusable workflow** that can be called from other workflows.
+- Uploads the installer as an artifact for the calling workflow.
 
-```yaml
-name: Main Build and Release
-on:
-  release:
-    types: [created]
-  workflow_dispatch:
-    inputs:
-      ref:
-        description: 'Branch or tag to build'
-        required: false
-        default: 'main'
+---
 
-jobs:
-  build-jar:
-    runs-on: ubuntu-latest
-    outputs:
-      jar-cache-key: ${{ steps.cache-key.outputs.key }}
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-        with:
-          ref: ${{ github.event.release.tag_name || github.event.inputs.ref || 'main' }}
+## ✅ How It Works (Step-by-Step)
 
-      - name: Set up Java 17
-        uses: actions/setup-java@v3
-        with:
-          distribution: 'temurin'
-          java-version: '17'
+1. **Developer creates a GitHub Release** (or triggers manually).
+2. `main-build.yml`:
+   - Checks out the code.
+   - Builds the JAR with Gradle.
+   - Saves the JAR in a cache.
+   - Calls `build-installer.yml` and passes the cache key.
+3. `build-installer.yml`:
+   - Restores the cached JAR.
+   - Renames it to `App.jar`.
+   - Installs Inno Setup via Chocolatey.
+   - Compiles the installer using `setup-script.iss`.
+   - Uploads the installer as an artifact.
+4. Back in `main-build.yml`:
+   - Downloads the installer artifact.
+   - Uploads it to the GitHub Release.
 
-      - name: Make Gradle wrapper executable
-        run: chmod +x gradlew
+---
 
-      - name: Cache Gradle dependencies
-        uses: actions/cache@v3
-        with:
-          path: |
-            ~/.gradle/caches
-            ~/.gradle/wrapper
-          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
-          restore-keys: |
-            ${{ runner.os }}-gradle-
+## 🔧 How to Reuse for Your Project
+### **1. Copy the workflows**
+- Place both files in `.github/workflows/` in your repo.
 
-      - name: Build JAR with Gradle
-        run: ./gradlew clean jar --no-daemon
+### **2. Update Inno Setup script**
+- Edit `setup-script.iss` in your repo:
+  - Change `OutputBaseFilename` to your desired installer name:
+    ```iss
+    OutputBaseFilename=MyAppInstaller
+    ```
+- Ensure the script points to `App.jar` (since the workflow renames the JAR).
 
-      - name: Generate cache key
-        id: cache-key
-        run: echo "key=jar-${{ github.sha }}-${{ github.run_number }}" >> $GITHUB_OUTPUT
+### **3. Update workflow paths and names**
+- In both workflows, update:
+  - `files: output/MyAppInstaller.exe` (in `upload-to-release` step).
+  - Artifact name if needed (`setup-installer`).
 
-      - name: Cache built JAR
-        uses: actions/cache/save@v3
-        with:
-          path: build/libs/*.jar
-          key: ${{ steps.cache-key.outputs.key }}
+### **4. Test manually**
+- Go to **Actions → Main Build and Release → Run workflow**.
+- Check:
+  - JAR built successfully.
+  - Installer artifact uploaded.
+  - Installer attached to the Release.
 
-  call-installer:
-    needs: build-jar
-    uses: ./.github/workflows/build-installer.yml
-    with:
-      jar-cache-key: ${{ needs.build-jar.outputs.jar-cache-key }}
+---
 
-  upload-to-release:
-    needs: call-installer
-    runs-on: ubuntu-latest
-    steps:
-      - name: Download installer artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: setup-installer
-          path: output
+## ✅ Best Practices
 
-      - name: Upload setup.exe to GitHub Release
-        uses: softprops/action-gh-release@v2
-        with:
-          files: output/OneProjectWed-Setup.exe
-          tag_name: ${{ github.event.release.tag_name }}
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+- **Keep `build-installer.yml` generic**:
+  - It should only depend on the JAR and the `.iss` script.
+  - This makes it reusable across multiple projects.
+
+- **Use cache for JAR**:
+  - Speeds up builds and avoids re-uploading large files.
+
+- **Secrets**:
+  - `GITHUB_TOKEN` is provided by GitHub automatically.
+  - No extra secrets needed unless you add custom steps.
+
+---
+
+## 📌 Example Trigger
+
+- Create a new release:
+  - Tag: `v1.0.0`
+  - Title: `First Release`
+- Workflow runs automatically and uploads `MyAppInstaller.exe` to the release.
+
+---
