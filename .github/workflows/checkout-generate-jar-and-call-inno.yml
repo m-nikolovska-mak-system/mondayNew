@@ -54,7 +54,7 @@ jobs:
           wine "C:\\Program Files\\Inno Setup\\ISCC.exe" .github/setup-script.iss
           
       - name: Upload setup.exe as artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: installer
           path: output/setup.exe
