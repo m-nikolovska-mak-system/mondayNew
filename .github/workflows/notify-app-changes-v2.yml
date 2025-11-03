@@ -1,8 +1,8 @@
 name: Notify on App.java Changes
 
 on:
-  release:
-   types: [published]
+#  release:
+ #  types: [published]
   workflow_dispatch:
 
 permissions:
