@@ -12,24 +12,25 @@ on:
         default: 'main'
 
 jobs:
-  build:
-    runs-on: ubuntu-latest  # Faster and cheaper than Windows
-
+  build-jar:
+    runs-on: ubuntu-latest
+    outputs:
+      jar-cache-key: ${{ steps.cache-key.outputs.key }}
     steps:
-      - name: Checkout code at release tag
+      - name: Checkout code
         uses: actions/checkout@v4
         with:
-          ref: ${{ github.event.release.tag_name }}
-
+          ref: ${{ github.event.release.tag_name || github.event.inputs.ref || 'main' }}
+      
       - name: Set up Java 17
         uses: actions/setup-java@v3
         with:
           distribution: 'temurin'
           java-version: '17'
-
+      
       - name: Make Gradle wrapper executable
-        run: chmod +x gradlew    
-
+        run: chmod +x gradlew
+      
       - name: Cache Gradle dependencies
         uses: actions/cache@v3
         with:
@@ -39,30 +40,63 @@ jobs:
           key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
           restore-keys: |
             ${{ runner.os }}-gradle-
-            
-
+      
       - name: Build JAR with Gradle
         run: ./gradlew clean jar --no-daemon
-
+      
+      - name: Generate cache key
+        id: cache-key
+        run: echo "key=jar-${{ github.sha }}-${{ github.run_number }}" >> $GITHUB_OUTPUT
+      
       - name: Cache built JAR
-        uses: actions/cache@v3
+        uses: actions/cache/save@v3
         with:
           path: build/libs/*.jar
-          key: jar-${{ github.ref_name }}
-
-      - name: Upload JAR as artifact
+          key: ${{ steps.cache-key.outputs.key }}
+  
+  build-installer:
+    needs: build-jar
+    runs-on: windows-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.release.tag_name || github.event.inputs.ref || 'main' }}
+      
+      - name: Restore JAR from cache
+        uses: actions/cache/restore@v3
+        with:
+          path: build/libs/*.jar
+          key: ${{ needs.build-jar.outputs.jar-cache-key }}
+          fail-on-cache-miss: true
+      
+      - name: Verify JAR
+        run: dir build\libs
+      
+      - name: Install Inno Setup
+        run: choco install innosetup --no-progress -y
+      
+      - name: Build setup.exe
+        run: |
+          "C:\Program Files (x86)\Inno Setup 6\ISCC.exe" .github\setup-script.iss
+      
+      - name: Check output folder
+        run: dir output
+      
+      - name: Upload setup.exe to GitHub Release
+        if: github.event_name == 'release'
+        uses: softprops/action-gh-release@v2
+        with:
+          files: output/OneProjectWed-Setup.exe
+          tag_name: ${{ github.event.release.tag_name }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      
+      - name: Upload setup.exe as artifact (for workflow_dispatch)
+        if: github.event_name == 'workflow_dispatch'
         uses: actions/upload-artifact@v4
         with:
-          name: app-jar
-          path: build/libs/*.jar
-
-      - name: Trigger Windows Installer workflow
-        uses: peter-evans/workflow-dispatch@v1
-        with:
-          workflow: build-setup.yml
-          ref: ${{ github.ref }}
-          inputs: |
-            jar-key=jar-${{ github.ref_name || github.event.inputs.ref }}
-            release_tag=${{ github.event.release.tag_name || github.event.inputs.ref }}
+          name: setup-installer
+          path: output/OneProjectWed-Setup.exe
 
         
