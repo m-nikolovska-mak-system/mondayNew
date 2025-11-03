@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       jar-key:
-        description: 'Cache key for JAR (e.g., jar-v1.0.0)'
+        description: 'Cache key for the JAR file'
         required: true
 
 jobs:
