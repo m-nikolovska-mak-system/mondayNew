@@ -26,11 +26,6 @@ jobs:
           cd out
           jar cfm App.jar MANIFEST.MF com/miha/app/*.class
 
-      - name: Package JAR
-        run: |
-          cd out
-          jar cfm App.jar MANIFEST.MF *.class
-
       - name: Upload JAR to Release
         uses: softprops/action-gh-release@v1
         with:
