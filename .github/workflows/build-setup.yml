@@ -40,8 +40,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: setup-installer
-          path: output/setup.exe
-
+          path: output/OneProjectWed-Setup.exe
 
       - name: Check output folder
         run: dir output   
