@@ -75,6 +75,10 @@ jobs:
         with:
           name: app-jar
           path: build/libs
+
+      - name: Rename JAR to App.jar
+        run: |
+          Get-ChildItem build\libs\*.jar | Rename-Item -NewName "App.jar"
       
       - name: Verify JAR
         run: dir build\libs
