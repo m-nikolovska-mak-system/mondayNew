@@ -45,7 +45,7 @@ jobs:
       - name: Upload setup.exe to GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          files: output/setup.exe
+          files: output/OneProjectWed-Setup.exe
           tag_name: ${{ github.event.inputs.release_tag }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
