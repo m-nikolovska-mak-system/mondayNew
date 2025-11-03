@@ -55,3 +55,14 @@ jobs:
         with:
           name: app-jar
           path: build/libs/*.jar
+
+      - name: Trigger Windows Installer workflow
+        uses: peter-evans/workflow-dispatch@v1
+        with:
+          workflow: build-setup.yml
+          ref: ${{ github.ref }}
+          inputs: |
+            jar-key=jar-${{ github.ref_name || github.event.inputs.ref }}
+            release_tag=${{ github.event.release.tag_name || github.event.inputs.ref }}
+
+        
