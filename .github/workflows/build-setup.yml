@@ -1,96 +1,38 @@
-name: Build Setup.exe
+name: Build Windows Installer
 
 on:
   workflow_dispatch:
     inputs:
-      ref:
-        description: 'Branch or tag to build'
-        required: false
-        default: 'main'
-  
-  release:
-    types: [created]
+      jar-key:
+        description: 'Cache key for JAR (e.g., jar-v1.0.0)'
+        required: true
 
 jobs:
-  # First, call the JAR build workflow
-  build-jar:
-    uses: ./.github/workflows/build-jar.yml
-    with:
-      ref: ${{ inputs.ref || github.ref }}
-  
-  # Then, build the installer
-  build-installer:
-    needs: build-jar
+  build-setup:
     runs-on: windows-latest
-    
+
     steps:
-      - name: Checkout code
+      - name: Checkout repo
         uses: actions/checkout@v4
+
+      - name: Restore cached JAR
+        uses: actions/cache@v3
         with:
-          ref: ${{ inputs.ref || github.ref }}
-      
-      - name: Try to restore JAR from cache
-        id: cache-restore
-        uses: actions/cache/restore@v3
-        with:
-          path: build/libs/App.jar
-          key: ${{ needs.build-jar.outputs.cache-key }}
-          fail-on-cache-miss: false
-      
-      - name: Check if cache worked
-        run: |
-          if (Test-Path "build\libs\App.jar") {
-            Write-Host "✅ SUCCESS: JAR restored from cache!"
-          } else {
-            Write-Host "❌ CACHE MISS: JAR not found in cache, trying artifacts..."
-          }
-      
-      - name: Download JAR from artifacts (fallback)
-        if: steps.cache-restore.outputs.cache-hit != 'true'
-        uses: actions/download-artifact@v4
-        with:
-          name: app-jar
-          path: build/libs/
-      
-      - name: Verify JAR exists
-        run: |
-          if (!(Test-Path "build\libs\App.jar")) {
-            Write-Error "❌ ERROR: JAR file not found!"
-            exit 1
-          }
-          Write-Host "✅ JAR file found:"
-          Get-Item build\libs\App.jar
-      
+          path: build/libs/*.jar
+          key: ${{ github.event.inputs.jar-key }}
+
+      - name: List JAR files
+        run: dir build\libs
+
       - name: Install Inno Setup
-        run: choco install innosetup -y
-      
-      - name: Create output directory
-        run: New-Item -ItemType Directory -Force -Path output
-      
-      - name: Build Setup.exe with Inno Setup
+        run: choco install innosetup --no-progress -y
+
+      - name: Build setup.exe
         run: |
-          & "C:\Program Files (x86)\Inno Setup 6\ISCC.exe" setup-script.iss
-      
-      - name: Verify Setup.exe was created
-        run: |
-          if (!(Test-Path "output\*.exe")) {
-            Write-Error "❌ ERROR: Setup.exe not created!"
-            exit 1
-          }
-          Write-Host "✅ Setup.exe created successfully:"
-          Get-ChildItem output\
-      
-      - name: Upload Setup.exe as artifact
+          "C:\Program Files (x86)\Inno Setup 6\ISCC.exe" .github\setup-script.iss
+
+      - name: Upload setup.exe
         uses: actions/upload-artifact@v4
         with:
-          name: windows-installer
-          path: output/*.exe
-          retention-days: 90
-      
-      - name: Upload Setup.exe to Release
-        if: github.event_name == 'release'
-        uses: softprops/action-gh-release@v1
-        with:
-          files: output/*.exe
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          name: setup-installer
+          path: output/setup.exe
