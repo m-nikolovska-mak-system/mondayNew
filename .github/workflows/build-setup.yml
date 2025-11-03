@@ -6,22 +6,24 @@ on:
       jar-key:
         description: 'Cache key for the JAR file'
         required: true
-
+        
 jobs:
-  build-setup:
+  build-installer:
     runs-on: windows-latest
 
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
-
-      - name: Restore cached JAR
-        uses: actions/cache@v3
         with:
-          path: build/libs/*.jar
-          key: ${{ github.event.inputs.jar-key }}
+          ref: ${{ github.event.inputs.release_tag }}
 
-      - name: List JAR files
+      - name: Download built JAR from previous workflow
+        uses: actions/download-artifact@v4
+        with:
+          name: app-jar
+          path: build/libs
+
+      - name: Verify JAR
         run: dir build\libs
 
       - name: Install Inno Setup
@@ -31,17 +33,16 @@ jobs:
         run: |
           "C:\Program Files (x86)\Inno Setup 6\ISCC.exe" .github\setup-script.iss
 
-      - name: Upload setup.exe
+      - name: Upload setup.exe as artifact
         uses: actions/upload-artifact@v4
         with:
           name: setup-installer
           path: output/setup.exe
 
-
-      - name: Upload to GitHub Release
+      - name: Upload setup.exe to GitHub Release
         uses: softprops/action-gh-release@v2
         with:
           files: output/setup.exe
+          tag_name: ${{ github.event.inputs.release_tag }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
