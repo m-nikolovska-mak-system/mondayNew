@@ -12,6 +12,7 @@ PrivilegesRequired=lowest
 [Files]
 Source: "build\libs\App.jar"; DestDir: "{app}"; Flags: ignoreversion
 
+
 [Icons]
 Name: "{group}\OneProjectWed"; Filename: "javaw.exe"; Parameters: "-jar ""{app}\App.jar"""; WorkingDir: "{app}"
 Name: "{group}\Uninstall OneProjectWed"; Filename: "{uninstallexe}"
