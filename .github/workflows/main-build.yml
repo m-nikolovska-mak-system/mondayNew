@@ -53,6 +53,7 @@ jobs:
           path: build/libs/*.jar
           key: ${{ steps.cache-key.outputs.key }}
 
+
   call-installer:
     needs: build-jar
     uses: ./.github/workflows/build-installer.yml
@@ -60,13 +61,19 @@ jobs:
       jar-cache-key: ${{ needs.build-jar.outputs.jar-cache-key }}
 
   upload-to-release:
-      needs: call-installer
-      runs-on: ubuntu-latest
-      steps:
-        - name: Download installer artifact
-          uses: actions/download-artifact@v4
-          with:
-            name: setup-installer
-            path: output
+    needs: call-installer
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download installer artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: setup-installer
+          path: output
 
-  
+      - name: Upload setup.exe to GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: output/OneProjectWed-Setup.exe
+          tag_name: ${{ github.event.release.tag_name }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
