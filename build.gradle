@@ -1,43 +1,37 @@
 plugins {
-	id 'java'
-	id 'application'
-
+    id 'java'
+    id 'application'
 }
-
 
 group = 'com.miha.app'
 version = '1.0.0'
 
 java {
-	toolchain {
-		languageVersion = JavaLanguageVersion.of(17)
-	}
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(17)
+    }
 }
+
 application {
     mainClass = 'com.miha.app.App'
 }
+
 repositories {
-	mavenCentral()
+    mavenCentral()
 }
 
 dependencies {
-
-    
 }
 
 tasks.withType(JavaCompile) {
     options.encoding = 'UTF-8'
 }
 
-
 jar {
     manifest {
-        attributes(
-            'Main-Class': 'com.miha.app.App'
-        )
+        attributes('Main-Class': 'com.miha.app.App')
     }
-  
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
     archiveBaseName = 'App'
-    archiveVersion = ''  
+    archiveVersion = ''
 }
