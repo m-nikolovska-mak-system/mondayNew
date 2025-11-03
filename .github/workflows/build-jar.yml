@@ -71,32 +71,51 @@ jobs:
           fail-on-cache-miss: true
       
       - name: Verify JAR
-        run: dir build\libs
-      
+        run: |
+            dir build\libs
+            echo "---"
+            dir
+        
+      - name: Verify setup-script.iss exists
+        run: |
+            if (Test-Path "setup-script.iss") {
+              echo "setup-script.iss found"
+              Get-Content setup-script.iss
+            } else {
+              echo "setup-script.iss NOT found"
+              dir
+            }
+        
       - name: Install Inno Setup
         run: choco install innosetup --no-progress -y
-      
+
       - name: Build setup.exe
         run: |
-          & "C:\Program Files (x86)\Inno Setup 6\ISCC.exe" setup-script.iss   
-          
-      - name: Check output folder
-        run: dir output
+          & "C:\Program Files (x86)\Inno Setup 6\ISCC.exe" setup-script.iss
+            - name: Install Inno Setup
+              run: choco install innosetup --no-progress -y
+            
+            - name: Build setup.exe
+              run: |
+                & "C:\Program Files (x86)\Inno Setup 6\ISCC.exe" setup-script.iss   
+                
+            - name: Check output folder
+              run: dir output
+            
+            - name: Upload setup.exe to GitHub Release
+              if: github.event_name == 'release'
+              uses: softprops/action-gh-release@v2
+              with:
+                files: output/OneProjectWed-Setup.exe
+                tag_name: ${{ github.event.release.tag_name }}
+              env:
+                GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+            
+            - name: Upload setup.exe as artifact (for workflow_dispatch)
+              if: github.event_name == 'workflow_dispatch'
+              uses: actions/upload-artifact@v4
+              with:
+                name: setup-installer
+                path: output/OneProjectWed-Setup.exe
       
-      - name: Upload setup.exe to GitHub Release
-        if: github.event_name == 'release'
-        uses: softprops/action-gh-release@v2
-        with:
-          files: output/OneProjectWed-Setup.exe
-          tag_name: ${{ github.event.release.tag_name }}
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      
-      - name: Upload setup.exe as artifact (for workflow_dispatch)
-        if: github.event_name == 'workflow_dispatch'
-        uses: actions/upload-artifact@v4
-        with:
-          name: setup-installer
-          path: output/OneProjectWed-Setup.exe
-
-        
+              
