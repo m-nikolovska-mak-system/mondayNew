@@ -6,6 +6,9 @@ on:
       jar-key:
         description: 'Cache key for the JAR file'
         required: true
+      release_tag:
+        description: 'Tag name of the release'
+        required: true
         
 jobs:
   build-installer:
