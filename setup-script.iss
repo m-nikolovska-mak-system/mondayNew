@@ -10,7 +10,7 @@ SolidCompression=yes
 PrivilegesRequired=lowest
 
 [Files]
-Source: "build\libs\App.jar"; DestDir: "{app}"; Flags: ignoreversion
+Source: "build\libs\*.jar"; DestDir: "{app}"; DestName: "App.jar"; Flags: ignoreversion
 
 [Icons]
 Name: "{group}\OneProjectWed"; Filename: "javaw.exe"; Parameters: "-jar ""{app}\App.jar"""; WorkingDir: "{app}"
