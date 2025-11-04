@@ -2,8 +2,8 @@ name: Build Installer
 
 on:
   workflow_call:
-     inputs:
-      jar-key:
+    inputs:
+      jar_cache_key:
         required: true
         type: string
       release_tag:
@@ -22,12 +22,8 @@ on:
         required: true
         type: string
 
-
-
-
 jobs:
   build-installer:
-    
     runs-on: windows-latest
     env:
       APP_NAME: ${{ inputs.app_name }}
@@ -41,12 +37,11 @@ jobs:
         with:
           ref: ${{ inputs.release_tag }}
 
-
       - name: Restore cached JAR
         uses: actions/cache/restore@v3
         with:
           path: build/libs/*.jar
-          key: ${{ inputs.jar-cache-key }}
+          key: ${{ inputs.jar_cache_key }}
 
       - name: Check JAR presence
         run: |
@@ -55,48 +50,37 @@ jobs:
             exit 1
           }
 
-      - name: Rename JAR to App.jar
+      - name: Rename JAR to standardized name
         run: |
           $jar = Get-ChildItem build\libs\*.jar | Select-Object -First 1
-          if ($jar.Name -ne "App.jar") {
-            Rename-Item $jar.FullName -NewName "App.jar"
-          }
+          Rename-Item $jar.FullName -NewName $env:JAR_NAME -Force
 
       - name: Install Inno Setup
         run: choco install innosetup --no-progress -y
 
       - name: Validate Inno Setup install
         run: |
-            if (!(Test-Path "C:\Program Files (x86)\Inno Setup 6\ISCC.exe")) {
-              Write-Error "Inno Setup not installed correctly."
-              exit 1
-            }
+          if (!(Test-Path "C:\Program Files (x86)\Inno Setup 6\ISCC.exe")) {
+            Write-Error "Inno Setup not installed correctly."
+            exit 1
+          }
 
-      - name: Set environment variables
-        run: |
-          echo "APP_NAME=${{ inputs.app-name }}" >> $env:GITHUB_ENV
-          echo "APP_VERSION=${{ inputs.app-version }}" >> $env:GITHUB_ENV
-          echo "JAR_NAME=${{ inputs.jar-name }}" >> $env:GITHUB_ENV
-          echo "OUTPUT_NAME=${{ inputs.output-name }}" >> $env:GITHUB_ENV
-
-      - name: Build setup.exe with logging
+      - name: Build setup.exe with Inno Setup
         run: |
           & "C:\Program Files (x86)\Inno Setup 6\ISCC.exe" setup-script.iss | Tee-Object -FilePath build-log.txt
-      
 
       - name: Validate setup.exe output
         run: |
-          if (!(Test-Path "output\OneProjectWed-Setup.exe")) {
+          if (!(Test-Path "output\$env:OUTPUT_NAME")) {
             Write-Error "Installer not found in output folder."
             exit 1
           }
 
-      - name: Upload setup.exe as artifact
+      - name: Upload installer artifact
         uses: actions/upload-artifact@v4
         with:
           name: setup-installer
-          path: output/OneProjectWed-Setup.exe
-
+          path: output/${{ inputs.output_name }}
 
       - name: Installer Build Complete
-        run: echo "Installer successfully built and uploaded."
+        run: echo "✅ Installer successfully built and uploaded."
