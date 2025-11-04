@@ -6,6 +6,22 @@ on:
       jar-cache-key:
         required: true
         type: string
+      iss-cache-key:
+        required: true
+        type: string
+      app-name:
+        required: true
+        type: string
+      app-version:
+        required: true
+        type: string
+      jar-name:
+        required: true
+        type: string
+      output-name:
+        required: true
+        type: string
+
 
 jobs:
   build-installer:
@@ -43,6 +59,13 @@ jobs:
               Write-Error "Inno Setup not installed correctly."
               exit 1
             }
+
+      - name: Set environment variables
+        run: |
+          echo "APP_NAME=${{ inputs.app-name }}" >> $env:GITHUB_ENV
+          echo "APP_VERSION=${{ inputs.app-version }}" >> $env:GITHUB_ENV
+          echo "JAR_NAME=${{ inputs.jar-name }}" >> $env:GITHUB_ENV
+          echo "OUTPUT_NAME=${{ inputs.output-name }}" >> $env:GITHUB_ENV
 
       - name: Build setup.exe with logging
         run: |
