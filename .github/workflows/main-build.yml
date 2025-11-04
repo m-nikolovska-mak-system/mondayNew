@@ -43,6 +43,31 @@ jobs:
       - name: Build JAR with Gradle
         run: ./gradlew clean jar --no-daemon
 
+
+      - name: Validate and get JAR info
+        id: jar-info
+        run: |
+          jar_count=$(ls -1 build/libs/*.jar 2>/dev/null | wc -l)
+          if [ "$jar_count" -eq 0 ]; then
+            echo "❌ No JAR files found in build/libs/"
+            exit 1
+          elif [ "$jar_count" -gt 1 ]; then
+            echo "⚠️  Multiple JARs found, using first one"
+          fi
+          
+          jar_file=$(ls build/libs/*.jar | head -n 1)
+          jar_size=$(stat -f%z "$jar_file" 2>/dev/null || stat -c%s "$jar_file")
+          
+          if [ "$jar_size" -lt 1000 ]; then
+            echo "❌ JAR file too small ($jar_size bytes) - likely build failure"
+            exit 1
+          fi
+          
+          jar_name=$(basename "$jar_file")
+          echo "✓ JAR validated: $jar_name ($jar_size bytes)"
+          echo "name=$jar_name" >> $GITHUB_OUTPUT
+
+
       - name: Generate cache key
         id: cache-key
         run: echo "key=jar-${{ github.sha }}-${{ github.run_number }}" >> $GITHUB_OUTPUT
@@ -62,6 +87,7 @@ jobs:
 
   upload-to-release:
     needs: call-installer
+    if: github.event_name == 'release'
     runs-on: ubuntu-latest
     steps:
       - name: Download installer artifact
@@ -69,11 +95,46 @@ jobs:
         with:
           name: setup-installer
           path: output
+          
+      - name: Verify installer exists
+        run: |
+              if [ ! -f output/OneProjectWed-Setup.exe ]; then
+                echo "❌ Installer not found in artifact"
+                ls -la output/
+                exit 1
+              fi
+              
+              installer_size=$(stat -f%z output/OneProjectWed-Setup.exe 2>/dev/null || stat -c%s output/OneProjectWed-Setup.exe)
+              echo "✓ Installer found: OneProjectWed-Setup.exe ($installer_size bytes)"
+              
+              if [ "$installer_size" -lt 10000 ]; then
+                echo "❌ Installer too small - likely corrupted"
+                exit 1
+              fi
 
+
+              
       - name: Upload setup.exe to GitHub Release
         uses: softprops/action-gh-release@v2
         with:
           files: output/OneProjectWed-Setup.exe
           tag_name: ${{ github.event.release.tag_name }}
+          fail_on_unmatched_files: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+
+      - name: Verify release upload
+        run: |
+          echo "✓ Successfully uploaded to release ${{ github.event.release.tag_name }}"
+  
+  notify-on-failure:
+    needs: [build-jar, call-installer, upload-to-release]
+    if: failure()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Report failure
+        run: |
+          echo "❌ Workflow failed!"
+          echo "Failed job(s): ${{ toJSON(needs) }}"
+          exit 1
