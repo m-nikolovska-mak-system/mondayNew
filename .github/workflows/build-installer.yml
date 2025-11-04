@@ -20,6 +20,13 @@ jobs:
           path: build/libs/*.jar
           key: ${{ inputs.jar-cache-key }}
 
+      - name: Check JAR presence
+        run: |
+          if (!(Test-Path "build\libs\*.jar")) {
+            Write-Error "JAR file not found after cache restore."
+            exit 1
+          }
+
       - name: Rename JAR to App.jar
         run: |
           $jar = Get-ChildItem build\libs\*.jar | Select-Object -First 1
@@ -30,12 +37,31 @@ jobs:
       - name: Install Inno Setup
         run: choco install innosetup --no-progress -y
 
-      - name: Build setup.exe
+      - name: Validate Inno Setup install
         run: |
-          & "C:\Program Files (x86)\Inno Setup 6\ISCC.exe" setup-script.iss
+            if (!(Test-Path "C:\Program Files (x86)\Inno Setup 6\ISCC.exe")) {
+              Write-Error "Inno Setup not installed correctly."
+              exit 1
+            }
+
+      - name: Build setup.exe with logging
+        run: |
+          & "C:\Program Files (x86)\Inno Setup 6\ISCC.exe" setup-script.iss | Tee-Object -FilePath build-log.txt
+      
+
+      - name: Validate setup.exe output
+        run: |
+          if (!(Test-Path "output\OneProjectWed-Setup.exe")) {
+            Write-Error "Installer not found in output folder."
+            exit 1
+          }
 
       - name: Upload setup.exe as artifact
         uses: actions/upload-artifact@v4
         with:
           name: setup-installer
           path: output/OneProjectWed-Setup.exe
+
+
+      - name: Installer Build Complete
+        run: echo "Installer successfully built and uploaded."
