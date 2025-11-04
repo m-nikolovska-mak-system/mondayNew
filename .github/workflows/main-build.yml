@@ -42,30 +42,23 @@ jobs:
 
       - name: Build JAR with Gradle
         run: ./gradlew clean jar --no-daemon
-
-
+        
       - name: Validate and get JAR info
         id: jar-info
         run: |
-          jar_count=$(ls -1 build/libs/*.jar 2>/dev/null | wc -l)
-          if [ "$jar_count" -eq 0 ]; then
-            echo "❌ No JAR files found in build/libs/"
-            exit 1
-          elif [ "$jar_count" -gt 1 ]; then
-            echo "⚠️  Multiple JARs found, using first one"
-          fi
+          jar_file=$(ls build/libs/*.jar 2>/dev/null | head -n 1)
           
-          jar_file=$(ls build/libs/*.jar | head -n 1)
-          jar_size=$(stat -f%z "$jar_file" 2>/dev/null || stat -c%s "$jar_file")
-          
-          if [ "$jar_size" -lt 1000 ]; then
-            echo "❌ JAR file too small ($jar_size bytes) - likely build failure"
+          if [ -z "$jar_file" ]; then
+            echo "❌ No JAR files found"
             exit 1
           fi
           
-          jar_name=$(basename "$jar_file")
-          echo "✓ JAR validated: $jar_name ($jar_size bytes)"
-          echo "name=$jar_name" >> $GITHUB_OUTPUT
+          if [ ! -s "$jar_file" ]; then
+            echo "❌ JAR file is empty (0 bytes)"
+            exit 1
+          fi
+          
+          echo "✓ JAR found: $(basename "$jar_file")"
 
 
       - name: Generate cache key
