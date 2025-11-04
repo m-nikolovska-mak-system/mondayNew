@@ -2,33 +2,45 @@ name: Build Installer
 
 on:
   workflow_call:
-    inputs:
-      jar-cache-key:
+     inputs:
+      jar-key:
         required: true
         type: string
-      iss-cache-key:
+      release_tag:
         required: true
         type: string
-      app-name:
+      app_name:
         required: true
         type: string
-      app-version:
+      app_version:
         required: true
         type: string
-      jar-name:
+      jar_name:
         required: true
         type: string
-      output-name:
+      output_name:
         required: true
         type: string
+
+
 
 
 jobs:
   build-installer:
+    
     runs-on: windows-latest
+    env:
+      APP_NAME: ${{ inputs.app_name }}
+      APP_VERSION: ${{ inputs.app_version }}
+      JAR_NAME: ${{ inputs.jar_name }}
+      OUTPUT_NAME: ${{ inputs.output_name }}
+
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.release_tag }}
+
 
       - name: Restore cached JAR
         uses: actions/cache/restore@v3
