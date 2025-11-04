@@ -1,21 +1,24 @@
+#define AppName GetEnv("APP_NAME")
+#define AppVersion GetEnv("APP_VERSION")
+#define JarFileName GetEnv("JAR_NAME")
+#define OutputBaseName GetEnv("OUTPUT_NAME")
+
 [Setup]
-AppName=OneProjectWed
-AppVersion=1.0.0
-DefaultDirName={autopf}\OneProjectWed
-DefaultGroupName=OneProjectWed
+AppName={#AppName}
+AppVersion={#AppVersion}
+DefaultDirName={autopf}\{#AppName}
+DefaultGroupName={#AppName}
 OutputDir=output
-OutputBaseFilename=OneProjectWed-Setup
+OutputBaseFilename={#OutputBaseName}
 Compression=lzma2
 SolidCompression=yes
 PrivilegesRequired=lowest
 
 [Files]
-Source: "build\libs\App.jar"; DestDir: "{app}"; Flags: ignoreversion
-
+Source: "build\libs\{#JarFileName}"; DestDir: "{app}"; Flags: ignoreversion
 
 [Icons]
-Name: "{group}\OneProjectWed"; Filename: "javaw.exe"; Parameters: "-jar ""{app}\App.jar"""; WorkingDir: "{app}"
-Name: "{group}\Uninstall OneProjectWed"; Filename: "{uninstallexe}"
+Name: "{group}\{#AppName}"; Filename: "javaw.exe"; Parameters: "-jar ""{app}\{#JarFileName}"""; WorkingDir: "{app}"
+Name: "{group}\Uninstall {#AppName}"; Filename: "{uninstallexe}"
 
 [Run]
-Filename: "javaw.exe"; Parameters: "-jar ""{app}\App.jar"""; Description: "Launch OneProjectWed"; Flags: postinstall nowait skipifsilent
