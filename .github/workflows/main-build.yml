@@ -35,7 +35,7 @@ jobs:
             ${{ runner.os }}-gradle-
 
       - name: Build JAR with Gradle
-        run: ./gradlew clean jar --no-daemon
+        run: ./gradlew jar --no-daemon
 
       - name: Validate JAR
         run: |
