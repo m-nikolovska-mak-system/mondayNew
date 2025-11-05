@@ -57,14 +57,20 @@ jobs:
           key: ${{ steps.cache-key.outputs.key }}
 
   call-installer:
+   
     needs: build-jar
     uses: ./.github/workflows/build-installer.yml
     with:
       jar_cache_key: ${{ needs.build-jar.outputs.jar_cache_key }}
+      release_tag: ${{ github.event.release.tag_name || 'main' }}
       setup_script: "mondayNew/setup-script.iss"
       app_name: "OneProjectWed"
       app_version: "1.0.0"
-      output_name: "OneProjectWed-Setup.exe"
+      jar_name: "App.jar"
+      output_name: "Setup.exe"
+
+
+      
 
   upload-to-release:
     needs: call-installer
