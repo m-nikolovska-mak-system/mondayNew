@@ -18,9 +18,6 @@ on:
       app_version:
         required: true
         type: string
-      jar_name:
-        required: true
-        type: string
       output_name:
         required: true
         type: string
@@ -31,7 +28,6 @@ jobs:
     env:
       APP_NAME: ${{ inputs.app_name }}
       APP_VERSION: ${{ inputs.app_version }}
-      JAR_NAME: ${{ inputs.jar_name }}
       OUTPUT_NAME: ${{ inputs.output_name }}
     steps:
       - name: Checkout repo
@@ -52,11 +48,18 @@ jobs:
             exit 1
           }
           
-      - name: Rename JAR to standardized name
+      - name: Get JAR filename
+        id: jar-name
         run: |
           $jar = Get-ChildItem build\libs\*.jar | Select-Object -First 1
-          Rename-Item $jar.FullName -NewName $env:JAR_NAME -Force
-          
+          if (!$jar) {
+            Write-Error "No JAR file found!"
+            exit 1
+          }
+          echo "jar_file=$($jar.Name)" >> $env:GITHUB_OUTPUT
+          echo "Found JAR: $($jar.Name)"
+      
+         
       - name: Install Inno Setup
         run: choco install innosetup --no-progress -y
         
@@ -69,12 +72,12 @@ jobs:
           
       - name: Build setup.exe with Inno Setup
         run: |
-            & "C:\Program Files (x86)\Inno Setup 6\ISCC.exe" `
-              /DAppName="${{ inputs.app_name }}" `
-              /DAppVersion="${{ inputs.app_version }}" `
-              /DJarFileName="${{ inputs.jar_name }}" `
-              /DOutputBaseName="${{ inputs.output_name }}" `
-              "${{ inputs.setup_script }}" | Tee-Object -FilePath build-log.txt
+          & "C:\Program Files (x86)\Inno Setup 6\ISCC.exe" `
+            /DAppName="${{ inputs.app_name }}" `
+            /DAppVersion="${{ inputs.app_version }}" `
+            /DJarFileName="${{ steps.jar-name.outputs.jar_file }}" `
+            /DOutputBaseName="${{ inputs.output_name }}" `
+            "${{ inputs.setup_script }}" | Tee-Object -FilePath build-log.txt
                   
       - name: Upload installer artifact
         uses: actions/upload-artifact@v4
