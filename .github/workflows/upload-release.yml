@@ -3,9 +3,6 @@ name: Upload Release Artifact
 on:
   workflow_call:
     inputs:
-      artifact_path:
-        required: true
-        type: string
       tag_name:
         required: true
         type: string
@@ -14,25 +11,25 @@ jobs:
   upload:
     runs-on: ubuntu-latest
     steps:
-      - name: Download artifact
+      - name: Download installer artifact
         uses: actions/download-artifact@v4
         with:
           name: setup-installer
-          path: output
+          path: ./release-assets
 
       - name: Verify artifact exists
         run: |
-          files=$(ls ${{ inputs.artifact_path }} 2>/dev/null)
+          files=$(ls ./release-assets/*.exe 2>/dev/null)
           if [ -z "$files" ]; then
-            echo "❌ Artifact not found: ${{ inputs.artifact_path }}"
+            echo "❌ No installer files found in ./release-assets"
             exit 1
           fi
-          echo "✓ Found artifacts: $files"
+          echo "✓ Found installer files: $files"
 
       - name: Upload to GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          files: ${{ inputs.artifact_path }}
+          files: ./release-assets/*.exe
           tag_name: ${{ inputs.tag_name }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
