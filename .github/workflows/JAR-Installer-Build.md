@@ -2,9 +2,11 @@
 
 This repository includes **two GitHub Actions workflows** that automate:
 
-✅ Building a Java JAR file using Gradle  
-✅ Creating a Windows installer (`.exe`) using Inno Setup  
-✅ Uploading the installer to a GitHub Release  
+- ✅ Building a Java JAR file using Gradle  
+- ✅ Creating a Windows installer (`.exe`) using Inno Setup  
+- ✅ Uploading the installer to a GitHub Release  
+
+The system is designed to be **reusable, robust, and cache-friendly**, suitable for enterprise projects.
 
 ---
 
@@ -12,90 +14,91 @@ This repository includes **two GitHub Actions workflows** that automate:
 
 ### 1. **Main Build and Release**  
 File: `.github/workflows/main-build.yml`  
+
 **Purpose:**  
-- Triggered when a **GitHub Release** is created or manually via **Actions → Run workflow**.
-- Builds the JAR file.
-- Caches the JAR for reuse.
-- Calls the reusable installer workflow.
+
+- Triggered automatically on **GitHub Release creation** or manually via Actions → Run workflow.  
+- Builds the JAR with Gradle.  
+- Caches the JAR for reuse across workflow runs.  
+- Calls the reusable **Build Installer** workflow.  
 - Uploads the final `.exe` installer to the Release page.
 
 ---
 
 ### 2. **Build Installer (Reusable)**  
 File: `.github/workflows/build-installer.yml`  
+
 **Purpose:**  
-- Builds the Windows installer using **Inno Setup**.
-- Designed as a **reusable workflow** that can be called from other workflows.
-- Uploads the installer as an artifact for the calling workflow.
+
+- Builds the Windows installer using **Inno Setup**.  
+- Accepts inputs such as JAR cache key, release tag, app name, app version, and setup script.  
+- Designed as a **reusable workflow** that can be called from multiple repositories or workflows.  
+- Uploads the installer as a workflow artifact for consumption by the calling workflow.
 
 ---
 
 ## ✅ How It Works (Step-by-Step)
 
-1. **Developer creates a GitHub Release** (or triggers manually).
-2. `main-build.yml`:
-   - Checks out the code.
-   - Builds the JAR with Gradle.
-   - Saves the JAR in a cache.
-   - Calls `build-installer.yml` and passes the cache key.
-3. `build-installer.yml`:
-   - Restores the cached JAR.
-   - Renames it to `App.jar`.
-   - Installs Inno Setup via Chocolatey.
-   - Compiles the installer using `setup-script.iss`.
-   - Uploads the installer as an artifact.
-4. Back in `main-build.yml`:
-   - Downloads the installer artifact.
+1. **Developer creates a GitHub Release** (or triggers manually).  
+2. `main-build.yml` runs:  
+   - Checks out the code.  
+   - Builds the JAR with Gradle.  
+   - Caches the JAR for future runs.  
+   - Calls `build-installer.yml` and passes the cache key.  
+3. `build-installer.yml` runs:  
+   - Restores the cached JAR.  
+   - Installs Inno Setup via Chocolatey.  
+   - Dynamically detects the `.iss` setup script.  
+   - Compiles the installer using `ISCC.exe` with parameters:  
+     - `/DAppName=<App Name>`  
+     - `/DAppVersion=<App Version>`  
+     - `/DJarFileName=<JAR Filename>`  
+     - `/DOutputBaseName=<Installer Name>`  
+   - Uploads the installer as a workflow artifact.  
+4. Back in `main-build.yml`:  
+   - Downloads the installer artifact.  
    - Uploads it to the GitHub Release.
 
 ---
 
-## 🔧 How to Reuse for Your Project
+## 🔧 Setup and Usage
+
 ### **1. Copy the workflows**
-- Place both files in `.github/workflows/` in your repo.
 
-### **2. Update Inno Setup script**
-- Edit `setup-script.iss` in your repo:
-  - Change `OutputBaseFilename` to your desired installer name:
-    ```iss
-    OutputBaseFilename=MyAppInstaller
-    ```
-- Ensure the script points to `App.jar` (since the workflow renames the JAR).
+- Place both workflow files in `.github/workflows/` in your repository.
 
-### **3. Update workflow paths and names**
-- In both workflows, update:
-  - `files: output/MyAppInstaller.exe` (in `upload-to-release` step).
-  - Artifact name if needed (`setup-installer`).
+### **2. Update Inno Setup script (`.iss`)**
 
-### **4. Test manually**
-- Go to **Actions → Main Build and Release → Run workflow**.
-- Check:
-  - JAR built successfully.
-  - Installer artifact uploaded.
-  - Installer attached to the Release.
+- Create or modify a setup script in your repo (`setup-script.iss`). Example parameters handled by the workflow:
 
----
+```iss
+#ifndef AppName
+  #define AppName "DefaultApp"
+#endif
+#ifndef AppVersion
+  #define AppVersion "1.0.0"
+#endif
+#ifndef JarFileName
+  #define JarFileName "app.jar"
+#endif
+#ifndef OutputBaseName
+  #define OutputBaseName "Setup"
+#endif
 
-## ✅ Best Practices
+[Setup]
+AppName={#AppName}
+AppVersion={#AppVersion}
+DefaultDirName={autopf}\{#AppName}
+DefaultGroupName={#AppName}
+OutputDir=output
+OutputBaseFilename={#OutputBaseName}
+Compression=lzma2
+SolidCompression=yes
+PrivilegesRequired=lowest
 
-- **Keep `build-installer.yml` generic**:
-  - It should only depend on the JAR and the `.iss` script.
-  - This makes it reusable across multiple projects.
+[Files]
+Source: "build\libs\{#JarFileName}"; DestDir: "{app}"; Flags: ignoreversion
 
-- **Use cache for JAR**:
-  - Speeds up builds and avoids re-uploading large files.
-
-- **Secrets**:
-  - `GITHUB_TOKEN` is provided by GitHub automatically.
-  - No extra secrets needed unless you add custom steps.
-
----
-
-## 📌 Example Trigger
-
-- Create a new release:
-  - Tag: `v1.0.0`
-  - Title: `First Release`
-- Workflow runs automatically and uploads `MyAppInstaller.exe` to the release.
-
----
+[Icons]
+Name: "{group}\{#AppName}"; Filename: "javaw.exe"; Parameters: "-jar ""{app}\{#JarFileName}"""; WorkingDir: "{app}"
+Name: "{group}\Uninstall {#AppName}"; Filename: "{uninstallexe}"
