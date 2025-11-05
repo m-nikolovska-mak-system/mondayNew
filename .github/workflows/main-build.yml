@@ -63,7 +63,7 @@ jobs:
     with:
       jar_cache_key: ${{ needs.build-jar.outputs.jar_cache_key }}
       release_tag: ${{ github.event.release.tag_name || 'main' }}
-      setup_script: "mondayNew/setup-script.iss"
+      setup_script: "setup-script.iss"
       app_name: "OneProjectWed"
       app_version: "1.0.0"
       jar_name: "App.jar"
