@@ -1,5 +1,4 @@
 name: Build Installer
-
 on:
   workflow_call:
     inputs:
@@ -7,6 +6,10 @@ on:
         required: true
         type: string
       release_tag:
+        required: false
+        type: string
+        default: "main"
+      setup_script:
         required: true
         type: string
       app_name:
@@ -30,50 +33,54 @@ jobs:
       APP_VERSION: ${{ inputs.app_version }}
       JAR_NAME: ${{ inputs.jar_name }}
       OUTPUT_NAME: ${{ inputs.output_name }}
-
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
         with:
           ref: ${{ inputs.release_tag }}
-
+          
       - name: Restore cached JAR
         uses: actions/cache/restore@v3
         with:
           path: build/libs/*.jar
           key: ${{ inputs.jar_cache_key }}
-
+          
       - name: Check JAR presence
         run: |
           if (!(Test-Path "build\libs\*.jar")) {
             Write-Error "JAR file not found after cache restore."
             exit 1
           }
-
+          
       - name: Rename JAR to standardized name
         run: |
           $jar = Get-ChildItem build\libs\*.jar | Select-Object -First 1
           Rename-Item $jar.FullName -NewName $env:JAR_NAME -Force
-
+          
       - name: Install Inno Setup
         run: choco install innosetup --no-progress -y
-
+        
       - name: Validate Inno Setup install
         run: |
           if (!(Test-Path "C:\Program Files (x86)\Inno Setup 6\ISCC.exe")) {
             Write-Error "Inno Setup not installed correctly."
             exit 1
           }
-
+          
       - name: Build setup.exe with Inno Setup
         run: |
-          & "C:\Program Files (x86)\Inno Setup 6\ISCC.exe" setup-script.iss | Tee-Object -FilePath build-log.txt
-
+            & "C:\Program Files (x86)\Inno Setup 6\ISCC.exe" `
+              /DAppName="${{ inputs.app_name }}" `
+              /DAppVersion="${{ inputs.app_version }}" `
+              /DJarFileName="${{ inputs.jar_name }}" `
+              /DOutputBaseName="${{ inputs.output_name }}" `
+              "${{ inputs.setup_script }}" | Tee-Object -FilePath build-log.txt
+                  
       - name: Upload installer artifact
         uses: actions/upload-artifact@v4
         with:
           name: setup-installer
           path: output/${{ inputs.output_name }}
-
+          
       - name: Installer Build Complete
         run: echo "✅ Installer successfully built and uploaded."
