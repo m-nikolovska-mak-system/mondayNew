@@ -56,17 +56,35 @@ jobs:
           path: build/libs/*.jar
           key: ${{ steps.cache-key.outputs.key }}
 
+  detect-setup-script:
+    runs-on: ubuntu-latest
+    outputs:
+         setup_script: ${{ steps.detect-iss.outputs.script }}
+    steps:
+        - name: Checkout code
+          uses: actions/checkout@v4
+  
+        - name: Detect setup script
+          id: detect-iss
+          run: |
+            file=$(ls *.iss 2>/dev/null | head -n 1)
+            if [ -z "$file" ]; then
+              echo "❌ No .iss setup script found!"
+              exit 1
+            fi
+            echo "Found setup script: $file"
+            echo "script=$file" >> $GITHUB_OUTPUT
+      
   call-installer:
-   
-    needs: build-jar
-    uses: ./.github/workflows/build-installer.yml
-    with:
-      jar_cache_key: ${{ needs.build-jar.outputs.jar_cache_key }}
-      release_tag: ${{ github.event.release.tag_name || 'main' }}
-      setup_script: "setup-script.iss"
-      app_name: "OneProjectWed"
-      app_version: "1.0.0"
-      output_name: "Setup"
+      needs: [build-jar, detect-setup-script]
+      uses: ./.github/workflows/build-installer.yml
+      with:
+        jar_cache_key: ${{ needs.build-jar.outputs.jar_cache_key }}
+        release_tag: ${{ github.event.release.tag_name || 'main' }}
+        setup_script: ${{ needs.detect-setup-script.outputs.setup_script }}
+        app_name: ${{ github.event.repository.name }}
+        app_version: ${{ github.event.release.tag_name }}
+        output_name: "Setup-${{ github.event.release.tag_name }}"
 
 
       
@@ -94,7 +112,7 @@ jobs:
           echo "✓ Found installer"
           
       - name: Rename for release
-        run: mv output/Setup.exe output/OneProjectWed-Setup.exe
+        run: mv output/${{ inputs.output_name }}.exe output/${{ inputs.app_name }}-${{ github.event.release.tag_name }}.exe
           
       - name: Upload setup.exe to GitHub Release
         uses: softprops/action-gh-release@v2
