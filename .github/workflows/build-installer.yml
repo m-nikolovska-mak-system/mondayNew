@@ -51,7 +51,7 @@ jobs:
       - name: Get JAR filename
         id: jar-name
         run: |
-          $jar = Get-ChildItem build\libs\*.jar | Select-Object -First 1
+          $jar = Get-ChildItem "build\libs" -Filter *.jar -ErrorAction Stop | Select-Object -First 1
           if (!$jar) {
             Write-Error "No JAR file found!"
             exit 1
