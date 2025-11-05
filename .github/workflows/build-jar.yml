@@ -11,6 +11,10 @@ on:
         required: false
         type: string
         default: "jar"
+    outputs:
+      jar_cache_key: ${{ steps.cache-key.outputs.key }}
+
+      
 
 jobs:
   build-jar:
