@@ -112,14 +112,15 @@ jobs:
           fi
           echo "✓ Found $expected"
 
-          
-      - name: Upload setup.exe to GitHub Release
+                
+      - name: Upload installer to GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          files: output/OneProjectWed-Setup.exe
+          files: output/*.exe
           tag_name: ${{ github.event.release.tag_name }}
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} 
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
           
   notify-on-failure:
     needs: [build-jar, call-installer, upload-to-release]
