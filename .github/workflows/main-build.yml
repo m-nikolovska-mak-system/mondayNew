@@ -81,24 +81,29 @@ jobs:
         with:
           name: setup-installer
           path: output
-
+          
       - name: Verify installer exists
         run: |
-          if [ ! -f output/OneProjectWed-Setup.exe ]; then
+          echo "=== Files downloaded ==="
+          ls -lh output/
+          
+          if [ ! -f output/Setup.exe ]; then
             echo "❌ Installer not found"
             exit 1
           fi
           echo "✓ Found installer"
-          ls -lh output/
-
+          
+      - name: Rename for release
+        run: mv output/Setup.exe output/OneProjectWed-Setup.exe
+          
       - name: Upload setup.exe to GitHub Release
         uses: softprops/action-gh-release@v2
         with:
           files: output/OneProjectWed-Setup.exe
           tag_name: ${{ github.event.release.tag_name }}
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} 
+          
   notify-on-failure:
     needs: [build-jar, call-installer, upload-to-release]
     if: failure()
