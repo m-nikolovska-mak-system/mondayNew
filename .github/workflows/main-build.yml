@@ -1,8 +1,9 @@
 name: Main Build and Release
 
 on:
-  release:
-    types: [created]
+  #release:
+  #  types: [created]
+  workflow_dispatch:
 
 jobs:
   build-jar:
