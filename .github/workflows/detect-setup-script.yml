@@ -5,7 +5,7 @@ on:
     outputs:
       setup_script:
         description: "Detected .iss setup script"
-        value: ${{ jobs.detect-iss.outputs.setup_scrip
+        value: ${{ jobs.detect-iss.outputs.setup_script }}
 
 jobs:
   detect-iss:
