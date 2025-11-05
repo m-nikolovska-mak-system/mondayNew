@@ -79,11 +79,31 @@ jobs:
             /DOutputBaseName="${{ inputs.output_name }}" `
             "${{ inputs.setup_script }}" | Tee-Object -FilePath build-log.txt
                   
+      - name: Debug - Check what was created
+        run: |
+          echo "=== Contents of output directory ==="
+          if (Test-Path "output") {
+            Get-ChildItem output -Force
+          } else {
+            echo "❌ Output directory does not exist!"
+          }
+          
+          echo "`n=== All EXE files in workspace ==="
+          Get-ChildItem . -Recurse -Filter *.exe -ErrorAction SilentlyContinue | Select-Object FullName
+          
+          echo "`n=== Current directory ==="
+          Get-Location
+          
+          echo "`n=== Build log (last 50 lines) ==="
+          if (Test-Path "build-log.txt") {
+            Get-Content build-log.txt -Tail 50
+          }
+      
       - name: Upload installer artifact
         uses: actions/upload-artifact@v4
         with:
           name: setup-installer
           path: output/${{ inputs.output_name }}
-          
+                
       - name: Installer Build Complete
         run: echo "✅ Installer successfully built and uploaded."
