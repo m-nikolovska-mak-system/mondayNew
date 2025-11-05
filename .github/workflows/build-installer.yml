@@ -29,6 +29,8 @@ jobs:
       APP_NAME: ${{ inputs.app_name }}
       APP_VERSION: ${{ inputs.app_version }}
       OUTPUT_NAME: ${{ inputs.output_name }}
+    outputs:
+      installer_file: ${{ steps.set-installer-path.outputs.installer_file }}
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
@@ -131,6 +133,12 @@ jobs:
           if (Test-Path "build-log.txt") {
             Get-Content build-log.txt -Tail 50
           }
+
+      - name: Set output installer path
+        run: |
+          installer=$(ls output/*.exe | head -n 1)
+          echo "installer_file=$installer" >> $GITHUB_OUTPUT
+
       
       - name: Upload installer artifact
         uses: actions/upload-artifact@v4
