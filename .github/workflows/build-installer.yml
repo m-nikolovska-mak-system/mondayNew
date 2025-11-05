@@ -135,9 +135,14 @@ jobs:
           }
 
       - name: Set output installer path
+        id: set-installer-path
         run: |
-          installer=$(ls output/*.exe | head -n 1)
-          echo "installer_file=$installer" >> $GITHUB_OUTPUT
+          $installer = Get-ChildItem "output" -Filter *.exe | Select-Object -First 1
+          if (-not $installer) {
+            Write-Error "❌ No installer .exe found in output directory!"
+            exit 1
+          }
+          echo "installer_file=$($installer.FullName)" >> $env:GITHUB_OUTPUT
 
       
       - name: Upload installer artifact
