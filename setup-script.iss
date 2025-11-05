@@ -1,7 +1,15 @@
-#define AppName AppName
-#define AppVersion AppVersion
-#define JarFileName JarFileName
-#define OutputBaseName OutputBaseName
+#ifndef AppName
+  #define AppName "DefaultApp"
+#endif
+#ifndef AppVersion
+  #define AppVersion "1.0.0"
+#endif
+#ifndef JarFileName
+  #define JarFileName "app.jar"
+#endif
+#ifndef OutputBaseName
+  #define OutputBaseName "Setup"
+#endif
 
 [Setup]
 AppName={#AppName}
