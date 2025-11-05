@@ -112,8 +112,6 @@ jobs:
           fi
           echo "✓ Found $expected"
 
-      - name: Rename for release
-        run: mv output/${{ inputs.output_name }}.exe output/${{ inputs.app_name }}-${{ github.event.release.tag_name }}.exe
           
       - name: Upload setup.exe to GitHub Release
         uses: softprops/action-gh-release@v2
