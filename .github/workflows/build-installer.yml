@@ -69,24 +69,18 @@ jobs:
             Write-Error "Inno Setup not installed correctly."
             exit 1
           }
-          
+                
       - name: Build setup.exe with Inno Setup
         run: |
-          echo "=== Building with parameters ==="
-          echo "AppName: ${{ inputs.app_name }}"
-          echo "AppVersion: ${{ inputs.app_version }}"
-          echo "JarFileName: ${{ steps.jar-name.outputs.jar_file }}"
-          echo "OutputBaseName: ${{ inputs.output_name }}"
+          $params = @(
+            "/DAppName=${{ inputs.app_name }}"
+            "/DAppVersion=${{ inputs.app_version }}"
+            "/DJarFileName=${{ steps.jar-name.outputs.jar_file }}"
+            "/DOutputBaseName=${{ inputs.output_name }}"
+            "${{ inputs.setup_script }}"
+          )
           
-          & "C:\Program Files (x86)\Inno Setup 6\ISCC.exe" `
-            "/DAppName=${{ inputs.app_name }}" `
-            "/DAppVersion=${{ inputs.app_version }}" `
-            "/DJarFileName=${{ steps.jar-name.outputs.jar_file }}" `
-            "/DOutputBaseName=${{ inputs.output_name }}" `
-            "${{ inputs.setup_script }}" | Tee-Object -FilePath build-log.txt
-            
-          echo "`n=== Compilation complete, checking output ==="
-          Get-ChildItem output
+          & "C:\Program Files (x86)\Inno Setup 6\ISCC.exe" @params | Tee-Object -FilePath build-log.txt
                   
       - name: Debug - Check what was created
         run: |
