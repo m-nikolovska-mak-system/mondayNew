@@ -6,6 +6,11 @@ on:
       tag_name:
         required: true
         type: string
+      artifact_path:
+        required: true
+        type: string
+
+        
 
 jobs:
   upload:
@@ -27,9 +32,11 @@ jobs:
           echo "✓ Found installer files: $files"
 
       - name: Upload to GitHub Release
+      
         uses: softprops/action-gh-release@v2
         with:
-          files: ./release-assets/*.exe
+          files: ${{ inputs.artifact_path }}
           tag_name: ${{ inputs.tag_name }}
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
