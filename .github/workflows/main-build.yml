@@ -67,7 +67,7 @@ jobs:
       app_name: "OneProjectWed"
       app_version: "1.0.0"
       jar_name: "App.jar"
-      output_name: "Setup.exe"
+      output_name: "Setup"
 
 
       
