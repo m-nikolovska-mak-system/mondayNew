@@ -124,7 +124,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: setup-installer
-          path: output/${{ inputs.output_name }}
+          path: output/*.exe  
                 
       - name: Installer Build Complete
         run: echo "✅ Installer successfully built and uploaded."
