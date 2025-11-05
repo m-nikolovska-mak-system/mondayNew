@@ -72,15 +72,33 @@ jobs:
                 
       - name: Build setup.exe with Inno Setup
         run: |
-          $params = @(
-            "/DAppName=${{ inputs.app_name }}"
-            "/DAppVersion=${{ inputs.app_version }}"
-            "/DJarFileName=${{ steps.jar-name.outputs.jar_file }}"
-            "/DOutputBaseName=${{ inputs.output_name }}"
-            "${{ inputs.setup_script }}"
-          )
+          echo "=== Testing parameter passing ==="
           
-          & "C:\Program Files (x86)\Inno Setup 6\ISCC.exe" @params | Tee-Object -FilePath build-log.txt
+          # Test the command
+          $issPath = "C:\Program Files (x86)\Inno Setup 6\ISCC.exe"
+          $scriptPath = "${{ inputs.setup_script }}"
+          
+          echo "Script path: $scriptPath"
+          echo "Parameters being passed:"
+          echo "  /DAppName=${{ inputs.app_name }}"
+          echo "  /DAppVersion=${{ inputs.app_version }}"
+          echo "  /DJarFileName=${{ steps.jar-name.outputs.jar_file }}"
+          echo "  /DOutputBaseName=${{ inputs.output_name }}"
+          
+          & $issPath `
+            /DAppName=${{ inputs.app_name }} `
+            /DAppVersion=${{ inputs.app_version }} `
+            /DJarFileName=${{ steps.jar-name.outputs.jar_file }} `
+            /DOutputBaseName=${{ inputs.output_name }} `
+            $scriptPath 2>&1 | Tee-Object -FilePath build-log.txt
+          
+          if ($LASTEXITCODE -ne 0) {
+            Write-Error "ISCC failed with exit code $LASTEXITCODE"
+            exit 1
+          }
+          
+          echo "`n=== Output files created ==="
+          Get-ChildItem output -Force
                   
       - name: Debug - Check what was created
         run: |
