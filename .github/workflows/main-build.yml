@@ -77,7 +77,7 @@ jobs:
       
   call-installer:
       needs: [build-jar, detect-setup-script]
-      uses: ./.github/workflows/build-installer.yml
+      uses: m-nikolovska-mak-system/reusable-actions-library/.github/workflows/build-installer.yml@main
       with:
         jar_cache_key: ${{ needs.build-jar.outputs.jar_cache_key }}
         release_tag: ${{ github.event.release.tag_name || 'main' }}
