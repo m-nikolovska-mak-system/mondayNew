@@ -30,7 +30,7 @@ jobs:
     with:
       artifact_path: ${{ needs.build_installer.outputs.installer_file }}
       tag_name: ${{ github.event.release.tag_name }}
-
+   
   
   notify-on-failure:
     needs: [build_jar, build_installer, upload_release]
