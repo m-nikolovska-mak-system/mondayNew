@@ -72,34 +72,46 @@ jobs:
                 
       - name: Build setup.exe with Inno Setup
         run: |
-          echo "=== Testing parameter passing ==="
-          
-          # Test the command
-          $issPath = "C:\Program Files (x86)\Inno Setup 6\ISCC.exe"
-          $scriptPath = "${{ inputs.setup_script }}"
-          
-          echo "Script path: $scriptPath"
-          echo "Parameters being passed:"
-          echo "  /DAppName=${{ inputs.app_name }}"
-          echo "  /DAppVersion=${{ inputs.app_version }}"
-          echo "  /DJarFileName=${{ steps.jar-name.outputs.jar_file }}"
-          echo "  /DOutputBaseName=${{ inputs.output_name }}"
-          
+          Set-StrictMode -Version Latest
+          $ErrorActionPreference = "Stop"
+      
+          echo "=== Preparing Inno Setup build ==="
+      
+          # Find ISCC dynamically
+          $issCmd = Get-Command ISCC.exe -ErrorAction SilentlyContinue
+          if ($null -eq $issCmd) {
+              Write-Error "❌ Could not find ISCC.exe on PATH. Inno Setup may not be installed."
+              exit 1
+          }
+          $issPath = $issCmd.Source
+          echo "✅ Found Inno Setup compiler at: $issPath"
+      
+          # Ensure output directory exists
+          if (!(Test-Path "output")) { New-Item -ItemType Directory -Path "output" | Out-Null }
+      
+          # Log parameters
+          echo "Building with parameters:"
+          echo "  AppName:     ${{ inputs.app_name }}"
+          echo "  AppVersion:  ${{ inputs.app_version }}"
+          echo "  JarFileName: ${{ steps.jar-name.outputs.jar_file }}"
+          echo "  OutputName:  ${{ inputs.output_name }}"
+          echo "  Script:      ${{ inputs.setup_script }}"
+      
+          # Run ISCC
           & $issPath `
             /DAppName=${{ inputs.app_name }} `
             /DAppVersion=${{ inputs.app_version }} `
             /DJarFileName=${{ steps.jar-name.outputs.jar_file }} `
             /DOutputBaseName=${{ inputs.output_name }} `
-            $scriptPath 2>&1 | Tee-Object -FilePath build-log.txt
-          
+            "${{ inputs.setup_script }}" 2>&1 | Tee-Object -FilePath build-log.txt
+      
           if ($LASTEXITCODE -ne 0) {
-            Write-Error "ISCC failed with exit code $LASTEXITCODE"
+            Write-Error "❌ ISCC failed with exit code $LASTEXITCODE"
             exit 1
           }
-          
-          echo "`n=== Output files created ==="
-          Get-ChildItem output -Force
-                  
+      
+          echo "✅ Build completed successfully!"
+
       - name: Debug - Check what was created
         run: |
           echo "=== Contents of output directory ==="
