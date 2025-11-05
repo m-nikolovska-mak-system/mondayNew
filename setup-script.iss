@@ -1,7 +1,7 @@
-#define AppName GetEnv("APP_NAME")
-#define AppVersion GetEnv("APP_VERSION")
-#define JarFileName GetEnv("JAR_NAME")
-#define OutputBaseName GetEnv("OUTPUT_NAME")
+#define AppName AppName
+#define AppVersion AppVersion
+#define JarFileName JarFileName
+#define OutputBaseName OutputBaseName
 
 [Setup]
 AppName={#AppName}
