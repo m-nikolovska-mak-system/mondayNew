@@ -105,12 +105,13 @@ jobs:
           echo "=== Files downloaded ==="
           ls -lh output/
           
-          if [ ! -f output/Setup.exe ]; then
-            echo "❌ Installer not found"
+          expected="Setup-${{ github.event.release.tag_name }}.exe"
+          if [ ! -f "output/$expected" ]; then
+            echo "❌ Installer not found: $expected"
             exit 1
           fi
-          echo "✓ Found installer"
-          
+          echo "✓ Found $expected"
+
       - name: Rename for release
         run: mv output/${{ inputs.output_name }}.exe output/${{ inputs.app_name }}-${{ github.event.release.tag_name }}.exe
           
