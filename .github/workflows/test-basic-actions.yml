@@ -38,4 +38,4 @@ jobs:
       - name: Run Linting Check
         uses: ./.github/actions/lint-check
         with:
-          path: .
+          file: .
