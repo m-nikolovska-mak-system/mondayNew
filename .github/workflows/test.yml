@@ -1,4 +1,4 @@
-name: Test Workflow
+name: Test Act Workflow
 on: push
 
 jobs:
@@ -10,3 +10,6 @@ jobs:
 
       - name: Say Hello
         run: echo "Hello from Act!"
+
+      - name: Validate README
+        uses: ./.github/actions/readme-check

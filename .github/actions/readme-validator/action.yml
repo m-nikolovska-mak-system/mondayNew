@@ -1,0 +1,27 @@
+name: "README Validator"
+description: "Checks if the repository has a README.md file with minimum content."
+inputs:
+  min_lines:
+    description: "Minimum number of lines expected in README.md"
+    required: false
+    default: "5"
+runs:
+  using: "composite"
+  steps:
+    - name: Check README file
+      shell: bash
+      run: |
+        if [ ! -f README.md ]; then
+          echo "❌ README.md is missing!"
+          exit 1
+        fi
+        
+        line_count=$(wc -l < README.md)
+        echo "README line count: $line_count"
+        
+        if [ "$line_count" -lt "${{ inputs.min_lines }}" ]; then
+          echo "❌ README.md has fewer than ${{ inputs.min_lines }} lines."
+          exit 1
+        fi
+        
+        echo "✅ README.md validation passed."

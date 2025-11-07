@@ -24,7 +24,7 @@ on:
 
 jobs:
   build-installer:
-    runs-on: windows-latest
+    runs-on: ubuntu-latest
     env:
       APP_NAME: ${{ inputs.app_name }}
       APP_VERSION: ${{ inputs.app_version }}

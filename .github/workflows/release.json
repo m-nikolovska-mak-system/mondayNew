@@ -1,0 +1,12 @@
+{
+  "release": {
+    "tag_name": "v1.0.0",
+    "name": "Release v1.0.0",
+    "body": "Initial release",
+    "draft": false,
+    "prerelease": false
+  },
+  "repository": {
+    "full_name": "m-nikolovska-mak-system/mondayNew"
+  }
+}

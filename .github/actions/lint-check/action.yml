@@ -1,0 +1,43 @@
+name: 'Lint Check'
+description: 'Runs basic linting checks on shell scripts'
+inputs:
+  path:
+    description: 'Path to check for files'
+    required: true
+    default: '.'
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Install shellcheck
+      shell: bash
+      run: |
+        if ! command -v shellcheck &> /dev/null; then
+          echo "Installing shellcheck..."
+          sudo apt-get update
+          sudo apt-get install -y shellcheck
+        fi
+        echo "✅ shellcheck is installed"
+    
+    - name: Find shell scripts
+      shell: bash
+      run: |
+        echo "Looking for shell scripts in: ${{ inputs.path }}"
+        find ${{ inputs.path }} -type f -name "*.sh" 2>/dev/null || echo "No .sh files found"
+    
+    - name: Run shellcheck
+      shell: bash
+      run: |
+        script_count=0
+        
+        while IFS= read -r script; do
+          script_count=$((script_count + 1))
+          echo "Checking: $script"
+          shellcheck "$script" || exit 1
+        done < <(find ${{ inputs.path }} -type f -name "*.sh" 2>/dev/null)
+        
+        if [ "$script_count" -eq 0 ]; then
+          echo "⚠️  No shell scripts found to lint in ${{ inputs.path }}"
+        else
+          echo "✅ Checked $script_count shell script(s)"
+        fi
