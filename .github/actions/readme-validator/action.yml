@@ -6,22 +6,36 @@ inputs:
     required: false
     default: "5"
 runs:
-  using: "composite"
+  using: 'composite'
   steps:
-    - name: Check README file
+    - name: Check README exists
       shell: bash
       run: |
-        if [ ! -f README.md ]; then
-          echo "❌ README.md is missing!"
+        if [ ! -f "README.md" ]; then
+          echo "❌ Error: README.md not found!"
           exit 1
         fi
-        
+        echo "✅ README.md exists"
+    
+    - name: Validate README length
+      shell: bash
+      run: |
         line_count=$(wc -l < README.md)
-        echo "README line count: $line_count"
+        min_lines=${{ inputs.min_lines }}
         
-        if [ "$line_count" -lt "${{ inputs.min_lines }}" ]; then
-          echo "❌ README.md has fewer than ${{ inputs.min_lines }} lines."
+        echo "README has $line_count lines (minimum required: $min_lines)"
+        
+        if [ "$line_count" -lt "$min_lines" ]; then
+          echo "❌ Error: README.md has only $line_count lines, but needs at least $min_lines"
           exit 1
         fi
         
-        echo "✅ README.md validation passed."
+        echo "✅ README.md meets minimum length requirement"
+    
+    - name: Check README has title
+      shell: bash
+      run: |
+        if ! grep -q "^# " README.md; then
+          echo "⚠️  Warning: README.md doesn't have a markdown title (# heading)"
+        else
+          echo "✅ README.md has a title"

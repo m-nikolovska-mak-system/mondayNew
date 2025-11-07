@@ -1,43 +1,25 @@
-name: 'Lint Check'
-description: 'Runs basic linting checks on shell scripts'
+name: Java Lint Check
+description: 'Runs a basic syntax check on a Java file'
 inputs:
-  path:
-    description: 'Path to check for files'
+  file:
+    description: 'Path to the Java file'
     required: true
-    default: '.'
+    default: 'src/java/com/miha/app/App.java'
 
 runs:
   using: 'composite'
   steps:
-    - name: Install shellcheck
+    - name: Check Java file exists
       shell: bash
       run: |
-        if ! command -v shellcheck &> /dev/null; then
-          echo "Installing shellcheck..."
-          sudo apt-get update
-          sudo apt-get install -y shellcheck
+        if [ ! -f "${{ inputs.file }}" ]; then
+          echo "❌ File not found!"
+          exit 1
         fi
-        echo "✅ shellcheck is installed"
-    
-    - name: Find shell scripts
+        echo "✅ File exists"
+
+    - name: Compile Java file
       shell: bash
       run: |
-        echo "Looking for shell scripts in: ${{ inputs.path }}"
-        find ${{ inputs.path }} -type f -name "*.sh" 2>/dev/null || echo "No .sh files found"
-    
-    - name: Run shellcheck
-      shell: bash
-      run: |
-        script_count=0
-        
-        while IFS= read -r script; do
-          script_count=$((script_count + 1))
-          echo "Checking: $script"
-          shellcheck "$script" || exit 1
-        done < <(find ${{ inputs.path }} -type f -name "*.sh" 2>/dev/null)
-        
-        if [ "$script_count" -eq 0 ]; then
-          echo "⚠️  No shell scripts found to lint in ${{ inputs.path }}"
-        else
-          echo "✅ Checked $script_count shell script(s)"
-        fi
+        javac "${{ inputs.file }}" || exit 1
+        echo "✅ Java file compiled successfully"
