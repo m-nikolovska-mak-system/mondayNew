@@ -342,7 +342,7 @@ act workflow_dispatch -W .github/workflows/notify-my-changes.yml --secret-file .
 ```
 
 
-### 🪟 ACT on Windows: Self-Hosted Mode
+## 🪟 ACT on Windows: Self-Hosted Mode
 If you're running ACT on a Windows machine, you can test Windows-based workflows without Docker by using self-hosted mode:
 
 ```bash
