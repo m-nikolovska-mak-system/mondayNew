@@ -1,0 +1,14 @@
+name: Test Tag Push
+
+on:
+  push:
+    tags:
+      - '*'  
+
+jobs:
+  print-tag:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Show pushed tag
+        run: |
+          echo "Tag pushed: ${{ github.event.ref }}"
