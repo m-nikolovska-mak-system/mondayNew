@@ -349,10 +349,90 @@ If you're running ACT on a Windows machine, you can test Windows-based workflows
 act workflow_dispatch -P windows-latest=-self-hosted -W .github/workflows/windows-test.yml
 ``` 
 
+## 🧩 Testing with Bats and Act
+
+This section explains how to **extract**, **test**, and **verify** your Teams notification logic using [Bats](https://github.com/bats-core/bats-core) (for shell script testing) and [Act](https://github.com/nektos/act) (for GitHub Actions workflow simulation).
+
+---
+
+### 🧠 Overview
+
+Your `Teams Notification Template` workflow sends Microsoft Teams messages using inline bash logic.  
+To make this easier to test, we move the notification logic to a standalone script and validate it with **Bats**, while **Act** tests the workflow integration.
+
+---
+
+### 🏗️ Step 1: Extract the Bash Logic
+
+Create a new file:  
+`scripts/send-teams-notification.sh`
+
+```bash
+#!/bin/bash
+set -e
+
+# Required environment variables
+TEAMS_WEBHOOK_URL="${TEAMS_WEBHOOK_URL:-}"
+NOTIFICATION_TITLE="${NOTIFICATION_TITLE:-}"
+
+# Optional with defaults
+ACTION_MESSAGE="${ACTION_MESSAGE:-⚠️ Reminder: Changes detected that may require action}"
+CARD_COLOR="${CARD_COLOR:-Accent}"
+
+# Validation
+if [ -z "$TEAMS_WEBHOOK_URL" ]; then
+  echo "❌ Error: TEAMS_WEBHOOK_URL is not set"
+  exit 1
+fi
+
+if [ -z "$NOTIFICATION_TITLE" ]; then
+  echo "❌ Error: NOTIFICATION_TITLE is not set"
+  exit 1
+fi
+
+# Build payload
+PAYLOAD=$(cat <<EOF
+{
+  "text": "🚀 $NOTIFICATION_TITLE\n$ACTION_MESSAGE"
+}
+EOF
+)
+
+echo "📤 Sending notification to Teams..."
+HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" \
+  -H "Content-Type: application/json" \
+  -d "$PAYLOAD" "$TEAMS_WEBHOOK_URL")
+
+if [ "$HTTP_CODE" = "200" ] || [ "$HTTP_CODE" = "202" ]; then
+  echo "✅ Teams notification sent successfully!"
+  exit 0
+else
+  echo "❌ Error: Teams webhook failed with status $HTTP_CODE"
+  exit 1
+fi
+
+```
+
+### ⚙️ Step 2: Update Your Workflow
+
+Modify your existing `github/workflows/teams-notification.yml` file: 
+
+```bash
+run: ./scripts/send-teams-notification.sh
+```
+
+### 🧪 Step 3: Add Bats Tests
+
+Create a new test file:
+`test/teams-notification.bats`
+
+Then run the test:
+`bats/test/teams-notification.bats`
+
+### Step 4: Validate the Workflow with Act
+
+After verifying the script logic, test the workflow integration offline using Act:
 
 
-
-
-
-
+`act -W .github/workflows/tea s-notification.yml --dryrun`
 
