@@ -10,7 +10,7 @@ on:
       output:
         description: 'Output markdown path (relative to repo root)'
         required: false
-        default: docs/workflow.md
+        default: docs/workflows.md
       title:
         description: 'Title to put in the markdown'
         required: false
