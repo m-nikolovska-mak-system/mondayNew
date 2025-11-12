@@ -4,7 +4,7 @@ from datetime import datetime
 from pathlib import Path
 
 # Configuration
-CONFIG_PATH = "config.yml"  # or .yaml
+CONFIG_PATH = "action.yml"  # or .yaml
 README_PATH = "README.md"
 
 def load_config(path):
