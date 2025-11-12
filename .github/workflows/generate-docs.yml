@@ -3,7 +3,7 @@ name: Generate workflow docs
 on:
   workflow_dispatch:
     inputs:
-      file:
+      filename:
         description: 'Path to the workflow or action file (relative to repo root)'
         required: true
         default: .github/workflows/detect-file-change.yml
@@ -11,10 +11,7 @@ on:
         description: 'Output markdown path (relative to repo root)'
         required: false
         default: docs/workflows.md
-      title:
-        description: 'Title to put in the markdown'
-        required: false
-        default: 'CI workflow docs'
+     
 
 jobs:
   build-doc:
@@ -26,9 +23,8 @@ jobs:
       - name: Generate README with auto-doc
         uses: tj-actions/auto-doc@v3
         with:
-          file: ${{ github.event.inputs.file }}
+          file: ${{ github.event.inputs.filename }}
           output: ${{ github.event.inputs.output }}
-          title: ${{ github.event.inputs.title }}
           # optional: include_yaml: true
 
       - name: Commit generated docs
@@ -37,5 +33,5 @@ jobs:
         with:
           author_name: github-actions[bot]
           author_email: 41898282+github-actions[bot]@users.noreply.github.com
-          message: "chore(docs): update workflow docs for ${{ github.event.inputs.file }}"
+          message: "chore(docs): update workflow docs for ${{ github.event.inputs.filename }}"
           add: ${{ github.event.inputs.output }}
