@@ -1,0 +1,23 @@
+name: Generate Action Docs
+
+on:
+  workflow_dispatch:
+
+jobs:
+  generate-docs:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Install Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 24
+      - run: npm install -g @nektos/action-docs
+      - run: action-docs -u
+      - name: Commit README
+        run: |
+          git config --local user.name "github-actions"
+          git config --local user.email "github-actions@users.noreply.github.com"
+          git add README.md
+          git commit -m "Update action docs" || echo "No changes"
+          git push
