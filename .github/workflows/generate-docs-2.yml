@@ -25,7 +25,7 @@ jobs:
 
       - name: Run documentation generator
         run: |
-          python generate_docs.py
+          python scripts/generate_docs.py
 
       - name: Commit and push changes
         run: |
