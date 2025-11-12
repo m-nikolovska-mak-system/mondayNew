@@ -18,5 +18,5 @@ jobs:
       - name: Generate docs for reusable workflow
         uses: tj-actions/auto-doc@v3
         with:
-          filename: .github/workflows/reusable.yml
+          filename: .github/workflows/test-teams-noti.yml
           output: docs/reusable.md
