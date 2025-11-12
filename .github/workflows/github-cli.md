@@ -1,9 +1,18 @@
 ## 🚀 Creating and Managing GitHub Releases with `gh` CLI
 
-The GitHub CLI lets you perform almost anything you can do on the GitHub website, but directly from your terminal or inside a workflow. 
+The GitHub CLI lets you perform almost anything you can do on the GitHub website, but directly from your terminal or inside a workflow. The gh CLI does not run jobs locally.
 
-We use the **GitHub CLI (`gh`)** to automate release creation and version tagging.  
-This ensures that our tags and release notes stay consistent across environments.
+ **GitHub CLI (`gh`)** is used to automate release creation and version tagging.  
+This ensures that tags and release notes stay consistent across environments.
+
+
+| Method                | Runs Locally? | Windows Support | Notes |
+|-----------------------|---------------|----------------|-------|
+| `gh workflow run`      | No            | Yes (cloud)    | Runs on GitHub’s Windows runner |
+| `act`                 | Yes           | Limited/Linux  | Can’t run true Windows jobs locally |
+| Self-hosted runner     | Yes           | Yes (local on my pc)    | Full workflow simulation on your machine |
+| Manual commands       | Yes           | Yes            | Run individual steps manually in PowerShell |
+
 
 ### 🧩 1. What tags and releases mean
 
