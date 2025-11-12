@@ -1,3 +1,6 @@
+<!--START_SECTION:readme-info-->
+
+
 # 📢 Reusable Teams Notifier Template
 
 A flexible GitHub Actions workflow that sends beautifully formatted Microsoft Teams notifications when files change in your repository.
@@ -194,3 +197,6 @@ Free to use and modify for your projects!
 ---
 
 **Questions?** Check the [GitHub Actions docs](https://docs.github.com/en/actions) or [Adaptive Cards schema](https://adaptivecards.io/explorer/)
+
+<!--END_SECTION:readme-info-->
+
