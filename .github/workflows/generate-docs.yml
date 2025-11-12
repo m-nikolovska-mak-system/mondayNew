@@ -1,32 +1,41 @@
-name: Generate Workflow Docs
+name: Generate workflow docs
 
 on:
-  push:
-    paths:
-      - '.github/workflows/*.yml'
   workflow_dispatch:
+    inputs:
+      file:
+        description: 'Path to the workflow or action file (relative to repo root)'
+        required: true
+        default: .github/workflows/notify-app-changes-v3.yml
+      output:
+        description: 'Output markdown path (relative to repo root)'
+        required: false
+        default: docs/workflow.md
+      title:
+        description: 'Title to put in the markdown'
+        required: false
+        default: 'CI workflow docs'
 
 jobs:
-  generate-readme:
+  build-doc:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      
-      - name: Set up Python
-        uses: actions/setup-python@v5
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Generate README with auto-doc
+        uses: tj-actions/auto-doc@v3
         with:
-          python-version: '3.11'
-      
-      - name: Install dependencies
-        run: pip install pyyaml
-      
-      - name: Generate README for workflows
-        run: python scripts/generate_readme.py
-      
-      - name: Commit README updates
-        run: |
-          git config --global user.name "github-actions[bot]"
-          git config --global user.email "github-actions[bot]@users.noreply.github.com"
-          git add docs/workflows/*.md
-          git commit -m "📝 Auto-update workflow documentation" || echo "No changes"
-          git push
+          file: ${{ github.event.inputs.file }}
+          output: ${{ github.event.inputs.output }}
+          title: ${{ github.event.inputs.title }}
+          # optional: include_yaml: true
+
+      - name: Commit generated docs
+        if: ${{ steps.generate_doc_outcome != 'failure' }}
+        uses: EndBug/add-and-commit@v9
+        with:
+          author_name: github-actions[bot]
+          author_email: 41898282+github-actions[bot]@users.noreply.github.com
+          message: "chore(docs): update workflow docs for ${{ github.event.inputs.file }}"
+          add: ${{ github.event.inputs.output }}
