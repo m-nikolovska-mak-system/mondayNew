@@ -1,9 +1,3 @@
-<<<<<<< HEAD
-<!--START_SECTION:waka-->
-Heloo this is a test read me!
-<!--END_SECTION:waka-->
-
-
 
 <!-- action-docs -->
 =======
@@ -37,9 +31,9 @@ secrets !!
 
 ##### this is a test desc
 
-<!-- action-docs -->
 =======
 ## Outputs
 ## Secrets
 ## Description
->>>>>>> b90edfcd1abf14852c344b9d6b1b482911be1bc0
+
+<!-- action-docs -->
