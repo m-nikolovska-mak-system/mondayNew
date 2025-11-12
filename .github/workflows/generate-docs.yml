@@ -6,7 +6,7 @@ on:
       filename:
         description: 'Path to the workflow or action file (relative to repo root)'
         required: true
-        default: .github/workflows/detect-file-change.yml
+        default: .github/actions/lint-check/action.yml
       output:
         description: 'Output markdown path (relative to repo root)'
         required: false
