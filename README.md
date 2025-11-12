@@ -1,3 +1,11 @@
-<!--START_SECTION:waka-->
-Heloo this is a test read me!
-<!--END_SECTION:waka-->
+<!-- action-docs-header source="action.yml" -->
+
+<!-- action-docs-description source="action.yml" --> # applicable for actions only
+
+<!-- action-docs-inputs source="action.yml" -->
+
+<!-- action-docs-outputs source="action.yml" -->
+
+<!-- action-docs-runs source="action.yml" --> # applicable for actions only
+
+<!-- action-docs-usage source="action.yml" project="<project>" version="<version>" -->
