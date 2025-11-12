@@ -6,7 +6,7 @@ on:
       file:
         description: 'Path to the workflow or action file (relative to repo root)'
         required: true
-        default: .github/workflows/notify-app-changes-v3.yml
+        default: .github/workflows/detect-file-change.yml
       output:
         description: 'Output markdown path (relative to repo root)'
         required: false
