@@ -9,3 +9,11 @@
 <!-- action-docs-runs source="action.yml" --> # applicable for actions only
 
 <!-- action-docs-usage source="action.yml" project="<project>" version="<version>" -->
+
+
+
+## Inputs 
+hello this is a test
+## Outputs
+## Secrets
+## Description
