@@ -11,5 +11,5 @@ jobs:
         .github/workflows/**
         src/**
       # optionally override tags if you want to simulate specific ones
-      current_tag: v2.1.0
-      previous_tag: v1.0.0
+      current_tag:  v1.4.0
+      previous_tag: v1.3.1
