@@ -10,5 +10,6 @@ jobs:
       - name: Generate README
         uses: bitflight-devops/github-action-readme-generator@v1
         with:
-          path: .github/workflows/hello.yml
-          output: README.md
+          action: .github/workflows/hello.yml
+          readme: AUTO_README.md
+          save: false
