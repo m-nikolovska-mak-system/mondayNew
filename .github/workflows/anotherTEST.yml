@@ -1,7 +1,7 @@
 name: 🔍 Test File Watcher
 
 on:
-  workflow_dispatch:   # So you can trigger it manually from GitHub UI
+  workflow_dispatch:   
 
 jobs:
   test:
@@ -11,5 +11,5 @@ jobs:
         .github/workflows/**
         src/**
       # optionally override tags if you want to simulate specific ones
-      current_tag:  v1.4.0
-      previous_tag: v1.3.1
+      current_tag:  v1.4.1 
+      previous_tag: v1.4.0
