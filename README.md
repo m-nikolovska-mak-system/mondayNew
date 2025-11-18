@@ -1,6 +1,6 @@
 # My Custom Action
 
-**Description:** Does something coolaaaaaa
+**Description:** Does something cool
 
 ### Inputs
 
