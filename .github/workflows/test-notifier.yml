@@ -1,0 +1,13 @@
+name: Test Teams Notifier
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  test-call:
+    uses: ./.github/workflows/teams-notify-template.yml
+    with:
+      notification_title: "Test Notification"
+      files: "README.md, index.js"
+    secrets:
+      teams_webhook_url: ${{ secrets.TEAMS_WEBHOOK_URL }}
