@@ -21,6 +21,19 @@ jobs:
       watched_files: ${{ github.event.inputs.watched_file || 'oneProjectWed/src/java/com/miha/app/App.java' }}
       current_tag: ${{ github.ref_name }}
       previous_tag: ''   # auto-detects previous tag if your workflow supports it
+      
+
+  debug_print:
+    name: Debug
+    needs: check_changes
+    runs-on: ubuntu-latest
+    steps:
+      - name: Show outputs
+        run: |
+          echo "files_changed='${{ needs.check_changes.outputs.files_changed }}'"
+          echo "changed_files_list='${{ needs.check_changes.outputs.changed_files_list }}'"
+          echo "all_changed_files='${{ needs.check_changes.outputs.all_changed_files }}'"
+
 
   notify_if_changed:
     name: Notify MS Teams
