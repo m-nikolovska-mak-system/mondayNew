@@ -30,7 +30,7 @@ jobs:
     name: Test File Change Detection
     uses: m-nikolovska-mak-system/reusable-actions-library/.github/workflows/3check-file-changes.yml@main
     with:
-      watched_files: ${{ github.event.inputs.test_files || 'src/App.java' }}
+      watched_files: ${{ github.event.inputs.test_files || 'oneProjectWed/src/java/com/miha/app/App.java' }}
       current_tag: ${{ github.event.inputs.current_tag || github.event.release.tag_name }}
       previous_tag: ${{ github.event.inputs.previous_tag || '' }}
 
