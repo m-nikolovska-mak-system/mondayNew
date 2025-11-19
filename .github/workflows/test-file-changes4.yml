@@ -1,13 +1,13 @@
 name: 🧪 Test File Change Detection
 
 on:
-  push:
-    branches: [ main ]
-  pull_request:
-    branches: [ main ]
-  release:
-    types: [published]
-  workflow_dispatch:
+ # push:
+  #  branches: [ main ]
+ # pull_request:
+  #  branches: [ main ]
+ # release:
+  #  types: [published]
+   workflow_dispatch:
 
 permissions:
   contents: read
