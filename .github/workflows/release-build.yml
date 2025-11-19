@@ -74,7 +74,7 @@ jobs:
       setup_script: ${{ needs.detect-setup-script.outputs.setup_script }}
       app_name: ${{ github.event.repository.name }}
       app_version: ${{ github.event.release.tag_name || github.event.inputs.release_tag || '0.0.0-dev' }}
-      output_name: 'Setup-${{ github.event.repository.name }}-${{ github.event.release.tag_name || github.event.inputs.release_tag || "dev" }}'
+      output_name: 'Setup-${{ github.event.repository.name }}-${{ github.event.release.tag_name || github.event.inputs.release_tag }}'
 
   # Step 4: Upload to GitHub Release (only on actual releases)
   upload-to-release:
