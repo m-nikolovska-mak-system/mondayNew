@@ -13,14 +13,13 @@ on:
         default: "oneProjectWed/src/java/com/miha/app/App.java"
 
 jobs:
-
   check_changes:
     name: Check File Changes
     uses: m-nikolovska-mak-system/reusable-actions-library/.github/workflows/3check-file-changes.yml@main
     with:
-      watched_files: ${{ github.event.inputs.watched_file || 'oneProjectWed/src/java/com/miha/app/App.java' }}
+      watched_files: ${{ github.event.inputs.watched_file }}
       current_tag: ${{ github.ref_name }}
-      previous_tag: ''   # auto-detects previous tag if your workflow supports it
+      previous_tag: ''   
       
 
   debug_print:
@@ -43,6 +42,7 @@ jobs:
     with:
       notification_title: "🔥 Important File Changed"
       action_required_message: "File ${{ needs.check_changes.outputs.changed_files_list }} was modified"
-      card_color: "FFA500"
+      files: "Files ${{ needs.check_changes.outputs.changed_files_list }}"
+      card_color: "Action"
     secrets:
       teams_webhook_url: ${{ secrets.TEAMS_WEBHOOK_URL }}
