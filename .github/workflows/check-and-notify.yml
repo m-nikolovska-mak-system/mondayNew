@@ -31,3 +31,5 @@ jobs:
       notification_title: "🔥 Important File Changed"
       action_required_message: "File ${{ needs.check_changes.outputs.changed_files_list }} was modified"
       card_color: "FFA500"
+    secrets:
+      teams_webhook_url: ${{ secrets.TEAMS_WEBHOOK_URL }}
