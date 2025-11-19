@@ -22,7 +22,7 @@ jobs:
   # Step 1: Build the JAR file
   build-jar:
     name: Build JAR with Gradle
-    uses: your-org/company-workflows/.github/workflows/build-jar.yml@main
+    uses: m-nikolovska-mak-system/reusable-actions-library/.github/workflows/build-jar.yml@main
     with:
       java_version: '17'
       gradle_task: 'jar'
@@ -67,7 +67,7 @@ jobs:
   build-installer:
     name: Build Windows Installer
     needs: [build-jar, detect-setup-script]
-    uses: your-org/company-workflows/.github/workflows/build-installer.yml@main
+    uses:  m-nikolovska-mak-system/reusable-actions-library/.github/workflows/build-installer.yml@main
     with:
       jar_cache_key: ${{ needs.build-jar.outputs.jar_cache_key }}
       release_tag: ${{ github.event.inputs.release_tag || github.event.release.tag_name || 'main' }}
