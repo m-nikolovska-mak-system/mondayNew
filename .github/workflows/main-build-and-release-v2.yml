@@ -48,4 +48,7 @@ jobs:
     needs: [build_jar, detect_iss, build_installer, upload_release]
     if: failure()
     uses: m-nikolovska-mak-system/reusable-actions-library/.github/workflows/teams-notifier.yml@main
+    secrets:
+      teams_webhook_url: ${{ secrets.TEAMS_WEBHOOK_URL }}
+    
   
