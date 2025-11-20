@@ -29,6 +29,7 @@ jobs:
     with:
       setup_script: ${{ needs.detect_iss.outputs.setup_script }}
       jar_path: ${{ needs.build_jar.outputs.jar_path }}
+      jar_cache_key: ${{ needs.build_jar.outputs.jar_cache_key }}
       app_name: ${{ github.event.repository.name }}
       app_version: ${{ github.event.release.tag_name }}
       output_name: "Setup-${{ github.event.release.tag_name }}"
@@ -39,11 +40,12 @@ jobs:
     uses: m-nikolovska-mak-system/reusable-actions-library/.github/workflows/upload-release.yml@main
     with:
       tag_name: ${{ github.event.release.tag_name }}
-      artifact_path: ${{ needs.build_installer.outputs.installer_artifact_path }}
+      artifact_name: ${{ needs.build_installer.outputs.installer_artifact_name }}
       # file_pattern: "*.exe"
 
   notify_failure:
     name: Notify on Failure
-    needs: [build_jar, build_installer, upload_release]
+    needs: [build_jar, detect_iss, build_installer, upload_release]
     if: failure()
-    uses:  m-nikolovska-mak-system/reusable-actions-library/.github/workflows/notify-teams.yml@main
+    uses: m-nikolovska-mak-system/reusable-actions-library/.github/workflows/teams-notifier.yml@main
+  
