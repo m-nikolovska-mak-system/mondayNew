@@ -67,10 +67,13 @@ jobs:
         with:
           webhook_url: ${{ secrets.TEAMS_WEBHOOK_URL }}
           message: |
-            🚨 **Build & Release Failed**
+            🔴 **CRITICAL FAILURE ALERT**
+            🚨 Build & Release Workflow FAILED!
             Repository: ${{ github.repository }}
             Workflow: ${{ github.workflow }}
-            Run: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+            Run: 👉 [View Logs](${{ github.server_url }}/${{ github.repository }}/actions/runs/${_id }}
+          
+                    
 
       
   
