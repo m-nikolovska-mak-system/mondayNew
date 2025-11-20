@@ -59,6 +59,7 @@ jobs:
 
   notify_failure:
     if: failure()
+    needs: [build_jar, detect_iss, validate_inputs, upload_release, build_installer]
     runs-on: ubuntu-latest
     steps:
       - name: Send Teams Notification
