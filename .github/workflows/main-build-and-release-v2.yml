@@ -33,28 +33,19 @@ jobs:
             echo "::error::JAR cache key is empty!"
             exit 1
           fi
-
  
   build_installer:
-      name: Build Windows Installer
-      needs: [build_jar, detect_iss, validate_inputs]
-      runs-on: windows-latest
-      steps:
-        - name: Validate JAR cache key
-          if: ${{ needs.build_jar.outputs.jar_cache_key == '' }}
-          run: |
-            echo "::error::JAR cache key is empty! The build_jar job may have failed."
-            exit 1
-  
-        - name: Call reusable workflow
-          uses: m-nikolovska-mak-system/reusable-actions-library/.github/workflows/build-installer.yml@main
-          with:
-            setup_script: ${{ needs.detect_iss.outputs.setup_script }}
-            jar_path: ${{ needs.build_jar.outputs.jar_path }}
-            jar_cache_key: ${{ needs.build_jar.outputs.jar_cache_key }}
-            app_name: ${{ github.event.repository.name }}
-            app_version: ${{ github.event.release.tag_name }}
-            output_name: "Setup-${{ github.event.release.tag_name }}"
+    name: Build Windows Installer
+    needs: [build_jar, detect_iss, validate_inputs]
+    uses: m-nikolovska-mak-system/reusable-actions-library/.github/workflows/build-installer.yml@main
+    with:
+      setup_script: ${{ needs.detect_iss.outputs.setup_script }}
+      jar_path: ${{ needs.build_jar.outputs.jar_path }}
+      jar_cache_key: ${{ needs.build_jar.outputs.jar_cache_key }}
+      app_name: ${{ github.event.repository.name }}
+      app_version: ${{ github.event.release.tag_name }}
+      output_name: "Setup-${{ github.event.release.tag_name }}"
+
 
   upload_release:
     name: Upload Release Asset
