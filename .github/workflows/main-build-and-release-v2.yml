@@ -62,18 +62,29 @@ jobs:
     if: failure()
     runs-on: ubuntu-latest
     steps:
+      - name: Debug Context
+        run: |
+          echo "Workflow: ${{ github.workflow }}"
+          echo "Run ID: ${{ github.run_id }}"
+          echo "Repository: ${{ github.repository }}"
+          echo "Actor: ${{ github.actor }}"
+          echo "Webhook URL present? ${{ secrets.TEAMS_WEBHOOK_URL != '' }}"
+      
+      - name: Debug Marketplace Action Inputs
+        run: |
+          echo "Message to send:"
+          echo "🚨 **Build & Release Failed**"
+          echo "Repository: ${{ github.repository }}"
+          echo "Workflow: ${{ github.workflow }}"
+          echo "Run: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+      
       - name: Send Teams Notification
         uses: skitionek/notify-microsoft-teams@v1
         with:
           webhook_url: ${{ secrets.TEAMS_WEBHOOK_URL }}
           message: |
-            🔴 **CRITICAL FAILURE ALERT**
-            🚨 Build & Release Workflow FAILED!
+            🚨 **Build & Release Failed**
             Repository: ${{ github.repository }}
             Workflow: ${{ github.workflow }}
-            Run: 👉 [View Logs](${{ github.server_url }}/${{ github.repository }}/actions/runs/${_id }}
-          
-                    
-
-      
-  
+            Run: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+    
