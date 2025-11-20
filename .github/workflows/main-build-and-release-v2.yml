@@ -57,38 +57,14 @@ jobs:
       artifact_name: ${{ needs.build_installer.outputs.installer_artifact_name }}
       # file_pattern: "*.exe"
 
+  
   notify_failure:
     if: failure()
-    needs: [build_jar, detect_iss, validate_inputs, upload_release, build_installer]
-    runs-on: ubuntu-latest
-    steps:
-      - name: Send Teams Notification
-        uses: jdcargile/ms-teams-notification@v1.4
-        with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          webhook-uri: ${{ secrets.TEAMS_WEBHOOK_URL }}
-          title: "🚨 Build & Release Failed"
-          message: |
-            Repository: ${{ github.repository }}
-            Workflow: ${{ github.workflow }}
-            Run: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
-          color: "FF0000"
-      
-      - name: Debug Marketplace Action Inputs
-        run: |
-          echo "Message to send:"
-          echo "🚨 **Build & Release Failed**"
-          echo "Repository: ${{ github.repository }}"
-          echo "Workflow: ${{ github.workflow }}"
-          echo "Run: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
-      
-      - name: Send Teams Notification
-        uses: skitionek/notify-microsoft-teams@v1
-        with:
-          webhook_url: ${{ secrets.TEAMS_WEBHOOK_URL }}
-          message: |
-            🚨 **Build & Release Failed**
-            Repository: ${{ github.repository }}
-            Workflow: ${{ github.workflow }}
-            Run: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+    uses: m-nikolovska-mak-system/reusable-actions-library/.github/workflows/teams-notifier.yml@main
+    with:
+      notification_title: "🚨 Build & Release Failed!"
+      action_required_message: "Check logs: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+    secrets:
+      teams_webhook_url: ${{ secrets.TEAMS_WEBHOOK_URL }}
+
     
