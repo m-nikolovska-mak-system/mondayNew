@@ -22,12 +22,22 @@ jobs:
       pattern: "**/*.iss"
       fail_if_missing: true
 
-      
+  validate_inputs:
+    name: Validate JAR cache key
+    needs: build_jar
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check jar_cache_key
+        run: |
+          if [ -z "${{ needs.build_jar.outputs.jar_cache_key }}" ]; then
+            echo "::error::JAR cache key is empty!"
+            exit 1
+          fi
 
  
   build_installer:
       name: Build Windows Installer
-      needs: [build_jar, detect_iss]
+      needs: [build_jar, detect_iss, validate_inputs]
       runs-on: windows-latest
       steps:
         - name: Validate JAR cache key
