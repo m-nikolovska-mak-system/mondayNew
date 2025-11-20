@@ -9,7 +9,7 @@ jobs:
 
   build_jar:
     name: Build JAR
-    uses: m-nikolovska-mak-systemaaaa/reusable-actions-library/.github/workflows/build-jar.yml@main
+    uses: m-nikolovska-mak-system/reusable-actions-library/.github/workflows/build-jar.yml@main
     with:
       release_tag: ${{ github.event.release.tag_name }}
       gradle_task: jar
