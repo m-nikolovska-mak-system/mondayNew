@@ -57,12 +57,20 @@ jobs:
       # file_pattern: "*.exe"
 
   notify_failure:
+    name: Notify on Failure
+    needs: [build_jar, detect_iss, build_installer, upload_release]
     if: failure()
-    uses: m-nikolovska-mak-system/reusable-actions-library/.github/workflows/teams-notifier.yml@main
-    with:
-      message: ${{ inputs.action_required_message }}
-    secrets:
-      teams_webhook_url: ${{ secrets.TEAMS_WEBHOOK_URL }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Send Teams Notification
+        uses: skitionek/notify-microsoft-teams@v1
+        with:
+          webhook_url: ${{ secrets.TEAMS_WEBHOOK_URL }}
+          message: |
+            🚨 **Build & Release Failed**
+            Repository: ${{ github.repository }}
+            Workflow: ${{ github.workflow }}
+            Run: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
 
       
   
