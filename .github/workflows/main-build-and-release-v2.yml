@@ -58,18 +58,20 @@ jobs:
       # file_pattern: "*.exe"
 
   notify_failure:
-    name: Notify on Failure
-    needs: [build_jar, detect_iss, build_installer, upload_release]
     if: failure()
     runs-on: ubuntu-latest
     steps:
-      - name: Debug Context
-        run: |
-          echo "Workflow: ${{ github.workflow }}"
-          echo "Run ID: ${{ github.run_id }}"
-          echo "Repository: ${{ github.repository }}"
-          echo "Actor: ${{ github.actor }}"
-          echo "Webhook URL present? ${{ secrets.TEAMS_WEBHOOK_URL != '' }}"
+      - name: Send Teams Notification
+        uses: jdcargile/ms-teams-notification@v1.4
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          webhook-uri: ${{ secrets.TEAMS_WEBHOOK_URL }}
+          title: "🚨 Build & Release Failed"
+          message: |
+            Repository: ${{ github.repository }}
+            Workflow: ${{ github.workflow }}
+            Run: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          color: "FF0000"
       
       - name: Debug Marketplace Action Inputs
         run: |
