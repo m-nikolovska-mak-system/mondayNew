@@ -15,8 +15,8 @@ on:
         description: 'Gradle task to run'
         required: false
         default: 'jar'
-  release:
-    types: [created]
+#  release:
+ #   types: [created]
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.release.tag_name || github.run_id }}
