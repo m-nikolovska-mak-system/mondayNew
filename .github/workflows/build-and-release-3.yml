@@ -8,8 +8,8 @@ on:
         description: 'Perform a dry run without publishing'
         required: false
         default: 'false'
-  release:
-    types: [created]
+  # release:
+   # types: [created]
 
 # Environment variables for consistency
 env:
