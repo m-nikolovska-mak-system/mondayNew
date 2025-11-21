@@ -1,8 +1,8 @@
 name: Main Build and Release
 
 on:
-  release:
-    types: [created]
+ # release:
+  #  types: [created]
 
 jobs:
   build_jar:
