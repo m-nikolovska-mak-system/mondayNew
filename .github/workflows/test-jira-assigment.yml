@@ -12,7 +12,7 @@ on:
 
 jobs:
   assign:
-    uses: m-nikolovska-mak-system/reusable-actions-library/.github/workflows/assign-jira-issue.yml@main
+    uses: m-nikolovska-mak-system/reusable-actions-library/.github/workflows/assign-jira-ticket.yml@main
     with:
       issue_key: ${{ github.event.inputs.issue_key }}
       assignee_email: ${{ github.event.inputs.assignee_email }}
