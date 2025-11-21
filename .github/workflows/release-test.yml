@@ -1,8 +1,9 @@
 name: Test Release Workflow
 
 on:
-  release:
-    types: [created]  # triggers when a GitHub release is created
+#  release:
+ #   types: [created]  # triggers when a GitHub release is created
+ workflow_dispatch:
 
 jobs:
   print-release-info:
