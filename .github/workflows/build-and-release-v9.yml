@@ -43,8 +43,8 @@ on:
   
   # Automatic trigger - fires whenever a release is created
   # This is the primary production trigger
-  release:
-    types: [created]
+#  release:
+ #   types: [created]
 
 # ========== CONCURRENCY SETTINGS ==========
 # Prevents multiple builds for the same release from running simultaneously
