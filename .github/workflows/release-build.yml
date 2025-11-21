@@ -2,8 +2,9 @@ name: Build and Release
 # Main workflow that orchestrates JAR build, installer creation, and release upload
 
 on:
-  release:
-    types: [published]
+  # release:
+    # types: [published]
+
   
   # For testing
   workflow_dispatch:
