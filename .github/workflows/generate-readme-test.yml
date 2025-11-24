@@ -29,6 +29,9 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          fecth-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }} 
 
       - name: Detect changed workflow files
         id: detect
