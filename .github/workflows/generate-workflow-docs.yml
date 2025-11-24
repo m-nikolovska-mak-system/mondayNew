@@ -28,6 +28,12 @@ jobs:
           filename: ${{ github.event.inputs.filename }}
           output: ${{ github.event.inputs.output }}
 
+
+      
+      - name: Debug file existence
+        run: ls -la docs
+
+
       - name: Commit generated docs
         uses: EndBug/add-and-commit@v9
         with:
