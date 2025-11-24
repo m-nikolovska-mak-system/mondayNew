@@ -1,37 +1,37 @@
+
 name: Generate Workflow Docs
 
 on:
   workflow_dispatch:
     inputs:
-      file:
-        description: "Path to workflow/action YAML"
+      filename:
+        description: 'Path to the workflow or action file'
         required: true
-        default: ".github/workflows/jira-main-flow.yml"
+        default: .github/workflows/hello.yml
       output:
-        description: "Output markdown file"
+        description: 'Output markdown path'
         required: false
-        default: "docs/workflow-docs.md"
+        default: docs/workflow-docs.md
 
 jobs:
-  generate-docs:
+  build-doc:
     runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout repo
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Generate workflow docs
-        id: autogen
+      - name: Ensure docs directory exists
+        run: mkdir -p $(dirname "${{ github.event.inputs.output }}")
+
+      - name: Generate README with auto-doc
         uses: tj-actions/auto-doc@v3
         with:
-          file: ${{ github.event.inputs.file }}
+          filename: ${{ github.event.inputs.filename }}
           output: ${{ github.event.inputs.output }}
 
-      - name: Commit docs
-        if: steps.autogen.outcome == 'success'
+      - name: Commit generated docs
         uses: EndBug/add-and-commit@v9
         with:
           author_name: github-actions[bot]
           author_email: 41898282+github-actions[bot]@users.noreply.github.com
-          message: "docs: update workflow docs for ${{ github.event.inputs.file }}"
+          message: "chore(docs): update workflow docs"
           add: ${{ github.event.inputs.output }}
