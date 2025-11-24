@@ -13,24 +13,27 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Select workflow file
         id: select
         run: |
-          # Set the workflow file YOU want to document
           echo "workflow_file=.github/workflows/ci-build-and-release.yml" >> $GITHUB_OUTPUT
           echo "basename=ci-build-and-release" >> $GITHUB_OUTPUT
 
-      - name: Create README if missing
+      - name: Ensure docs folder exists
+        run: mkdir -p docs
+
+      - name: Prepare initial README if needed
         run: |
-          mkdir -p docs
-          README="docs/README-${{ steps.select.outputs.basename }}.md"
-          if [ ! -f "$README" ]; then
-            echo "Creating $README"
-            echo "# Documentation for ${{ steps.select.outputs.basename }}" > "$README"
-            echo "" >> "$README"
-            echo "> Auto-generated section below:" >> "$README"
-            echo "" >> "$README"
+          FILE=docs/README-${{ steps.select.outputs.basename }}.md
+          if [ ! -f "$FILE" ]; then
+            echo "Creating template at $FILE"
+            echo "# Documentation for ${{ steps.select.outputs.basename }}" > "$FILE"
+            echo "" >> "$FILE"
+            echo "> Auto-generated section below:" >> "$FILE"
+            echo "" >> "$FILE"
           fi
 
       - name: Run auto-doc
@@ -39,6 +42,12 @@ jobs:
           filename: ${{ steps.select.outputs.workflow_file }}
           reusable: true
           output: docs/README-${{ steps.select.outputs.basename }}.md
+
+      - name: Commit README changes
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "docs: auto-generate README for ${{ steps.select.outputs.basename }}"
+          file_pattern: docs/*
 
       - name: Show result
         run: |
