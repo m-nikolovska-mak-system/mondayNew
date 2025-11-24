@@ -19,7 +19,7 @@ on:
 jobs:
   create:
     name: Create Jira Issue
-    uses: m-nikolovska-mak-system/reusable-actions-library/.github/workflows/create-jira-ticket.yml@main
+    uses: m-nikolovska-mak-system/reusable-actions-library/.github/workflows/create-jira-issue.yml@main
     with:
       summary: ${{ inputs.summary }}
       description: ${{ inputs.description }}
