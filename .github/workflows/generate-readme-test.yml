@@ -48,6 +48,24 @@ jobs:
             echo " - $f"
           done
 
+
+      - name: Prepare matrix
+        id: prep_matrix
+        run: |
+          files="${{ steps.detect.outputs.all_changed_files }}"
+      
+          json="["
+          sep=""
+          for f in $files; do
+            base=$(basename "$f" .yml)
+            json="${json}${sep}{\"workflow\":\"$f\",\"basename\":\"$base\"}"
+            sep=","
+          done
+          json="${json}]"
+      
+          echo "matrix=$json" >> $GITHUB_OUTPUT
+
+
       - name: Handle empty matrix
         id: handle_matrix
         run: |
