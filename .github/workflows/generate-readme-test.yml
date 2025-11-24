@@ -13,7 +13,7 @@ permissions:
   pull-requests: write
 
 env:
-  GITHUB_USER_TOKEN: ${{ secrets.USER_TOKEN }}
+  GITHUB_USER_TOKEN: ${{ secrets.GITHUB_TOKEN }}
   GITHUB_USER_EMAIL: email@company.net
   GITHUB_USER_NAME: user1
 
@@ -81,8 +81,8 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0 # Needed to push changes back to the repository
-          token: ${{ env.GITHUB_USER_TOKEN }}
+          fetch-depth: 0
+          token: ${{ env.GITHUB_TOKEN }}
 
       # ------------------------------
       # 3. Create missing READMEs
