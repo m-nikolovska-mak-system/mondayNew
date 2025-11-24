@@ -1,0 +1,47 @@
+name: Simple README Generator
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  generate-readme:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Select workflow file
+        id: select
+        run: |
+          # Set the workflow file YOU want to document
+          echo "workflow_file=.github/workflows/ci-build-and-release.yml" >> $GITHUB_OUTPUT
+          echo "basename=ci-build-and-release" >> $GITHUB_OUTPUT
+
+      - name: Create README if missing
+        run: |
+          mkdir -p docs
+          README="docs/README-${{ steps.select.outputs.basename }}.md"
+          if [ ! -f "$README" ]; then
+            echo "Creating $README"
+            echo "# Documentation for ${{ steps.select.outputs.basename }}" > "$README"
+            echo "" >> "$README"
+            echo "> Auto-generated section below:" >> "$README"
+            echo "" >> "$README"
+          fi
+
+      - name: Run auto-doc
+        uses: tj-actions/auto-doc@v3
+        with:
+          filename: ${{ steps.select.outputs.workflow_file }}
+          reusable: true
+          output: docs/README-${{ steps.select.outputs.basename }}.md
+
+      - name: Show result
+        run: |
+          echo "==== README OUTPUT ===="
+          cat docs/README-${{ steps.select.outputs.basename }}.md
+          echo "========================"
