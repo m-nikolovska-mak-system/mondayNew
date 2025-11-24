@@ -19,8 +19,8 @@ jobs:
       - name: Select workflow file
         id: select
         run: |
-          echo "workflow_file=.github/workflows/ci-build-and-release.yml" >> $GITHUB_OUTPUT
-          echo "basename=ci-build-and-release" >> $GITHUB_OUTPUT
+          echo "workflow_file=.github/workflows/build-installer.yml" >> $GITHUB_OUTPUT
+          echo "basename=build-installer" >> $GITHUB_OUTPUT
 
       - name: Ensure docs folder exists
         run: mkdir -p docs
