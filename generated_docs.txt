@@ -45,6 +45,7 @@ docs/README-test-create-jira-issue.md
 docs/README-assign-jira-issue.md
 docs/README-check-and-notify.md
 docs/README-release-build.md
+docs/README-workflow-docs.md
 docs/README-release-reminder.md
 docs/README-detect-file-change.md
 docs/README-notify-app-changes-v2.md
@@ -83,9 +84,11 @@ docs/README-jira-reminder.md
 docs/README-test-notifier.md
 docs/README-main.md
 docs/README-build-setup.md
+docs/README-generate-docs-v3.md
 docs/README-build-and-release.md
 docs/README-send-teams-notif.md
 docs/README-pr-workflow.md
 docs/README-test-new-app-change.md
+docs/README-generate-workflow-docs-v3.md
 docs/README-check-file-changes.md
 docs/README-test2.md
