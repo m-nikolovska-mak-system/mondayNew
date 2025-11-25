@@ -105,17 +105,4 @@ jobs:
     secrets:
       teams_webhook_url: ${{ secrets.TEAMS_WEBHOOK_URL }}
   
-  notify_failure:
-    name: Notify Failure
-    needs: [build_jar, detect_iss, validate_inputs, build_installer, upload_release]
-    if: failure()
-    uses: m-nikolovska-mak-system/reusable-actions-library/.github/workflows/teams-notifier.yml@main
-    with:
-      notification_title: "🚨 Build & Release Failed!"
-      action_required_message: |
-        Check logs: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
-        Release: ${{ github.event.release.tag_name || 'N/A' }}
-    secrets:
-      teams_webhook_url: ${{ secrets.TEAMS_WEBHOOK_URL }}
-
 
