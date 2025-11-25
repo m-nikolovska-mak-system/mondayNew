@@ -147,7 +147,7 @@ jobs:
                       doc += "## 📥 Inputs\n\n"
                       doc += "<table>\n<thead>\n<tr>\n<th>Parameter</th>\n<th>Type</th>\n<th>Required</th>\n<th>Default</th>\n<th>Description</th>\n</tr>\n</thead>\n<tbody>\n"
                       
-                      for for name, config in call_config['inputs'].items():
+                      for name, config in call_config['inputs'].items():
                         # Ensure config is a dict; sometimes YAML allows shorthand values
                         if not isinstance(config, dict):
                             config = {"type": "string", "required": False, "default": config}
