@@ -1,70 +1,152 @@
-# 📝 Build Installer
+<div align="center">
 
-**Generated:** 2025-11-25 09:43:03
+# 🚀 Build Installer
+
+![Auto-generated](https://img.shields.io/badge/docs-auto--generated-blue?style=flat-square)
+![Workflow](https://img.shields.io/badge/type-github--workflow-purple?style=flat-square)
+![Updated](https://img.shields.io/badge/updated-2025.11.25-green?style=flat-square)
+
+</div>
 
 ---
 
-## Overview
+## 📋 Overview
 
-**Workflow Name:** `Build Installer`
+> **Workflow File:** `.github/workflows/build-installer.yml`
 
-## Triggers
+## ⚡ Triggers
 
-*No triggers defined*
+<table>
+<tr><th>Event</th><th>Details</th></tr>
+<tr><td colspan='2'><em>No triggers defined</em></td></tr>
+</table>
 
 ## 🔨 Jobs
 
-### `build-installer`
+### 🎯 `build-installer`
 
-**Runner:** `ubuntu-latest`
+**🖥️ Runner:** `ubuntu-latest`
 
-**Job Outputs:**
+<details>
+<summary>📊 Job Outputs</summary>
 
-- `installer_file`: `${{ steps.set-installer-path.outputs.installer_file }}`
+```yaml
+installer_file: ${{ steps.set-installer-path.outputs.installer_file }}
+```
 
-**Steps:**
+</details>
 
-1. **Checkout repo**
-   - 📦 Action: `actions/checkout@v4`
-   - ⚙️ Config:
-     - `ref`: `${{ inputs.release_tag }}...`
+<details>
+<summary>📝 Steps</summary>
 
-2. **Restore cached JAR**
-   - 📦 Action: `actions/cache/restore@v3`
-   - ⚙️ Config:
-     - `path`: `build/libs/*.jar...`
-     - `key`: `${{ inputs.jar_cache_key }}...`
+#### 1. Checkout repo
 
-3. **Check JAR presence**
-   - 💻 Run: `if (!(Test-Path "build\libs\*.jar")) {...`
+```yaml
+uses: actions/checkout@v4
+with:
+  ref: ${{ inputs.release_tag }}
+```
 
-4. **Get JAR filename**
-   - 💻 Run: `$jar = Get-ChildItem "build\libs" -Filter *.jar -ErrorAction...`
+#### 2. Restore cached JAR
 
-5. **Install Inno Setup**
-   - 💻 Run: `choco install innosetup --no-progress -y...`
+```yaml
+uses: actions/cache/restore@v3
+with:
+  path: build/libs/*.jar
+  key: ${{ inputs.jar_cache_key }}
+```
 
-6. **Validate Inno Setup install**
-   - 💻 Run: `if (!(Test-Path "C:\Program Files (x86)\Inno Setup 6\ISCC.ex...`
+#### 3. Check JAR presence
 
-7. **Build setup.exe with Inno Setup**
-   - 💻 Run: `Set-StrictMode -Version Latest...`
+```bash
+if (!(Test-Path "build\libs\*.jar")) {
+  Write-Error "JAR file not found after cache restore."
+  exit 1
+}
+```
 
-8. **Debug - Check what was created**
-   - 💻 Run: `echo "=== Contents of output directory ==="...`
+#### 4. Get JAR filename
 
-9. **Set output installer path**
-   - 💻 Run: `$installer = Get-ChildItem "output" -Filter *.exe | Select-O...`
+```bash
+$jar = Get-ChildItem "build\libs" -Filter *.jar -ErrorAction Stop | Select-Object -First 1
+if (!$jar) {
+  Write-Error "No JAR file found!"
+  exit 1
+}
+# ... (truncated)
+```
 
-10. **Upload installer artifact**
-   - 📦 Action: `actions/upload-artifact@v4`
-   - ⚙️ Config:
-     - `name`: `setup-installer...`
-     - `path`: `output/*.exe...`
+#### 5. Install Inno Setup
 
-11. **Installer Build Complete**
-   - 💻 Run: `echo "✅ Installer successfully built and uploaded."...`
+```bash
+choco install innosetup --no-progress -y
+```
+
+#### 6. Validate Inno Setup install
+
+```bash
+if (!(Test-Path "C:\Program Files (x86)\Inno Setup 6\ISCC.exe")) {
+  Write-Error "Inno Setup not installed correctly."
+  exit 1
+}
+```
+
+#### 7. Build setup.exe with Inno Setup
+
+```bash
+Set-StrictMode -Version Latest
+$ErrorActionPreference = "Stop"
+
+echo "=== Preparing Inno Setup build ==="
+
+# ... (truncated)
+```
+
+#### 8. Debug - Check what was created
+
+```bash
+echo "=== Contents of output directory ==="
+if (Test-Path "output") {
+  Get-ChildItem output -Force
+} else {
+  echo "❌ Output directory does not exist!"
+# ... (truncated)
+```
+
+#### 9. Set output installer path
+
+```bash
+$installer = Get-ChildItem "output" -Filter *.exe | Select-Object -First 1
+if (-not $installer) {
+  Write-Error "❌ No installer .exe found in output directory!"
+  exit 1
+}
+# ... (truncated)
+```
+
+#### 10. Upload installer artifact
+
+```yaml
+uses: actions/upload-artifact@v4
+with:
+  name: setup-installer
+  path: output/*.exe
+```
+
+#### 11. Installer Build Complete
+
+```bash
+echo "✅ Installer successfully built and uploaded."
+```
+
+</details>
 
 ---
 
-*This documentation is auto-generated. Do not edit manually.*
+<div align="center">
+
+**📅 Last Updated:** November 25, 2025 at 10:01 UTC
+
+*Auto-generated documentation. Manual edits will be overwritten.*
+
+</div>

@@ -1,37 +1,82 @@
-# 📝 Branch Name Check
+<div align="center">
 
-**Generated:** 2025-11-25 09:43:03
+# 🚀 Branch Name Check
+
+![Auto-generated](https://img.shields.io/badge/docs-auto--generated-blue?style=flat-square)
+![Workflow](https://img.shields.io/badge/type-github--workflow-purple?style=flat-square)
+![Updated](https://img.shields.io/badge/updated-2025.11.25-green?style=flat-square)
+
+</div>
 
 ---
 
-## Overview
+## 📋 Overview
 
-**Workflow Name:** `Branch Name Check`
+> **Workflow File:** `.github/workflows/branch-check.yml`
 
-## Triggers
+## ⚡ Triggers
 
-*No triggers defined*
+<table>
+<tr><th>Event</th><th>Details</th></tr>
+<tr><td colspan='2'><em>No triggers defined</em></td></tr>
+</table>
 
 ## 🔨 Jobs
 
-### `check-branch`
+### 🎯 `check-branch`
 
-**Runner:** `ubuntu-latest`
+**🖥️ Runner:** `ubuntu-latest`
 
-**Steps:**
+<details>
+<summary>📝 Steps</summary>
 
-1. **Step 1**
-   - 📦 Action: `actions/checkout@v4`
+#### 1. Step 1
 
-2. **Get branch name**
-   - 💻 Run: `# Try multiple methods to get branch name...`
+```yaml
+uses: actions/checkout@v4
+```
 
-3. **Check branch naming convention**
-   - 💻 Run: `branch="${{ steps.branch.outputs.branch }}"...`
+#### 2. Get branch name
 
-4. **Additional branch checks**
-   - 💻 Run: `branch="${{ steps.branch.outputs.branch }}"...`
+```bash
+# Try multiple methods to get branch name
+if [ -n "$GITHUB_HEAD_REF" ]; then
+  # PR event
+  branch="$GITHUB_HEAD_REF"
+  echo "📍 Branch from PR: $branch"
+# ... (truncated)
+```
+
+#### 3. Check branch naming convention
+
+```bash
+branch="${{ steps.branch.outputs.branch }}"
+echo ""
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+echo "🔍 Branch Name Validation"
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+# ... (truncated)
+```
+
+#### 4. Additional branch checks
+
+```bash
+branch="${{ steps.branch.outputs.branch }}"
+
+echo ""
+echo "🔍 Additional Checks:"
+echo ""
+# ... (truncated)
+```
+
+</details>
 
 ---
 
-*This documentation is auto-generated. Do not edit manually.*
+<div align="center">
+
+**📅 Last Updated:** November 25, 2025 at 10:01 UTC
+
+*Auto-generated documentation. Manual edits will be overwritten.*
+
+</div>

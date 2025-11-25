@@ -1,35 +1,69 @@
-# 📝 Detect Setup Script
+<div align="center">
 
-**Generated:** 2025-11-25 09:43:03
+# 🚀 Detect Setup Script
+
+![Auto-generated](https://img.shields.io/badge/docs-auto--generated-blue?style=flat-square)
+![Workflow](https://img.shields.io/badge/type-github--workflow-purple?style=flat-square)
+![Updated](https://img.shields.io/badge/updated-2025.11.25-green?style=flat-square)
+
+</div>
 
 ---
 
-## Overview
+## 📋 Overview
 
-**Workflow Name:** `Detect Setup Script`
+> **Workflow File:** `.github/workflows/detect-setup-script.yml`
 
-## Triggers
+## ⚡ Triggers
 
-*No triggers defined*
+<table>
+<tr><th>Event</th><th>Details</th></tr>
+<tr><td colspan='2'><em>No triggers defined</em></td></tr>
+</table>
 
 ## 🔨 Jobs
 
-### `detect-iss`
+### 🎯 `detect-iss`
 
-**Runner:** `ubuntu-latest`
+**🖥️ Runner:** `ubuntu-latest`
 
-**Job Outputs:**
+<details>
+<summary>📊 Job Outputs</summary>
 
-- `setup_script`: `${{ steps.detect.outputs.script }}`
+```yaml
+setup_script: ${{ steps.detect.outputs.script }}
+```
 
-**Steps:**
+</details>
 
-1. **Checkout code**
-   - 📦 Action: `actions/checkout@v4`
+<details>
+<summary>📝 Steps</summary>
 
-2. **Detect .iss setup script**
-   - 💻 Run: `file=$(ls *.iss 2>/dev/null | head -n 1)...`
+#### 1. Checkout code
+
+```yaml
+uses: actions/checkout@v4
+```
+
+#### 2. Detect .iss setup script
+
+```bash
+file=$(ls *.iss 2>/dev/null | head -n 1)
+if [ -z "$file" ]; then
+  echo "❌ No .iss setup script found!"
+  exit 1
+fi
+# ... (truncated)
+```
+
+</details>
 
 ---
 
-*This documentation is auto-generated. Do not edit manually.*
+<div align="center">
+
+**📅 Last Updated:** November 25, 2025 at 10:01 UTC
+
+*Auto-generated documentation. Manual edits will be overwritten.*
+
+</div>

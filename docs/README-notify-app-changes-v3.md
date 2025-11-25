@@ -1,36 +1,59 @@
-# 📝 Notify on App.java Changes
+<div align="center">
 
-**Generated:** 2025-11-25 09:43:03
+# 🚀 Notify on App.java Changes
+
+![Auto-generated](https://img.shields.io/badge/docs-auto--generated-blue?style=flat-square)
+![Workflow](https://img.shields.io/badge/type-github--workflow-purple?style=flat-square)
+![Updated](https://img.shields.io/badge/updated-2025.11.25-green?style=flat-square)
+
+</div>
 
 ---
 
-## Overview
+## 📋 Overview
 
-**Workflow Name:** `Notify on App.java Changes`
+> **Workflow File:** `.github/workflows/notify-app-changes-v3.yml`
 
-## Triggers
+## ⚡ Triggers
 
-*No triggers defined*
+<table>
+<tr><th>Event</th><th>Details</th></tr>
+<tr><td colspan='2'><em>No triggers defined</em></td></tr>
+</table>
 
 ## 🔨 Jobs
 
-### `check-file-changes`
+### 🎯 `check-file-changes`
 
-**Calls:** `m-nikolovska-mak-system/reusable-actions-library/.github/workflows/check-for-file-changes.yml@main`
+**📞 Calls:** `m-nikolovska-mak-system/reusable-actions-library/.github/workflows/check-for-file-changes.yml@main`
 
-### `debug-outputs`
+### 🎯 `debug-outputs`
 
-**Runner:** `ubuntu-latest`
+**🖥️ Runner:** `ubuntu-latest`
 
-**Steps:**
+<details>
+<summary>📝 Steps</summary>
 
-1. **Print check results**
-   - 💻 Run: `echo "Job status: ${{ needs.check-file-changes.result }}"...`
+#### 1. Print check results
 
-### `send-teams-notification`
+```bash
+echo "Job status: ${{ needs.check-file-changes.result }}"
+echo "Files changed: ${{ needs.check-file-changes.outputs.files_changed }}"
+echo "Changed files list: ${{ needs.check-file-changes.outputs.changed_files_list }}"
+```
 
-**Calls:** `m-nikolovska-mak-system/reusable-actions-library/.github/workflows/send-teams-notification-v2.yml@main`
+</details>
+
+### 🎯 `send-teams-notification`
+
+**📞 Calls:** `m-nikolovska-mak-system/reusable-actions-library/.github/workflows/send-teams-notification-v2.yml@main`
 
 ---
 
-*This documentation is auto-generated. Do not edit manually.*
+<div align="center">
+
+**📅 Last Updated:** November 25, 2025 at 10:01 UTC
+
+*Auto-generated documentation. Manual edits will be overwritten.*
+
+</div>

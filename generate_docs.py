@@ -2,178 +2,226 @@ import yaml
 import sys
 from pathlib import Path
 from datetime import datetime
+import traceback
 
 def generate_workflow_doc(workflow_path):
+    print(f"\n{'='*60}")
     print(f"Processing: {workflow_path}")
+    print(f"{'='*60}")
     
     try:
         with open(workflow_path, 'r') as f:
             workflow = yaml.safe_load(f)
+        print(f"✓ Successfully parsed YAML")
     except Exception as e:
-        print(f"❌ Failed to parse {workflow_path}: {e}")
+        print(f"✗ Failed to parse {workflow_path}")
+        print(f"Error: {e}")
+        traceback.print_exc()
         return None
     
     if not workflow:
-        print(f"⚠️ Empty workflow file: {workflow_path}")
+        print(f"✗ Empty workflow file: {workflow_path}")
         return None
+    
+    print(f"✓ Workflow has {len(workflow.get('jobs', {}))} jobs")
     
     basename = Path(workflow_path).stem
     doc_path = f"docs/README-{basename}.md"
+    workflow_name = workflow.get('name', basename)
+    
+    print(f"✓ Generating doc: {doc_path}")
     
     # Start building documentation
-    doc = f"# 📝 {workflow.get('name', basename)}\n\n"
-    doc += f"**Generated:** {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n\n"
+    doc = f"<div align=\"center\">\n\n"
+    doc += f"# 🚀 {workflow_name}\n\n"
+    doc += f"![Auto-generated](https://img.shields.io/badge/docs-auto--generated-blue?style=flat-square)\n"
+    doc += f"![Workflow](https://img.shields.io/badge/type-github--workflow-purple?style=flat-square)\n"
+    doc += f"![Updated](https://img.shields.io/badge/updated-{datetime.now().strftime('%Y.%m.%d')}-green?style=flat-square)\n\n"
+    doc += f"</div>\n\n"
     doc += "---\n\n"
-    doc += "## Overview\n\n"
-    
-    if 'name' in workflow:
-        doc += f"**Workflow Name:** `{workflow['name']}`\n\n"
+    doc += "## 📋 Overview\n\n"
+    doc += f"> **Workflow File:** `.github/workflows/{Path(workflow_path).name}`\n\n"
     
     # Trigger information
-    doc += "## Triggers\n\n"
+    doc += "## ⚡ Triggers\n\n"
+    doc += "<table>\n<tr><th>Event</th><th>Details</th></tr>\n"
+    
     if 'on' in workflow:
         triggers = workflow['on']
         if isinstance(triggers, dict):
             for trigger, config in triggers.items():
                 if trigger == 'workflow_call':
-                    doc += f"- 🔄 `{trigger}` (Reusable workflow)\n"
+                    doc += f"<tr><td><code>🔄 {trigger}</code></td><td><em>Reusable workflow</em></td></tr>\n"
                 elif isinstance(config, dict):
-                    doc += f"- ⚡ `{trigger}`\n"
-                    if 'branches' in config:
-                        branches = config['branches']
-                        if isinstance(branches, list):
-                            doc += f"  - Branches: `{', '.join(branches)}`\n"
-                    if 'paths' in config:
-                        paths = config['paths']
-                        if isinstance(paths, list):
-                            doc += f"  - Paths: `{', '.join(paths)}`\n"
+                    details = []
+                    if 'branches' in config and isinstance(config['branches'], list):
+                        details.append(f"<strong>Branches:</strong> <code>{', '.join(config['branches'])}</code>")
+                    if 'paths' in config and isinstance(config['paths'], list):
+                        details.append(f"<strong>Paths:</strong> <code>{', '.join(config['paths'])}</code>")
+                    detail_text = '<br>'.join(details) if details else '<em>No filters</em>'
+                    doc += f"<tr><td><code>⚡ {trigger}</code></td><td>{detail_text}</td></tr>\n"
                 else:
-                    doc += f"- ⚡ `{trigger}`\n"
-        elif isinstance(triggers, list):
-            for trigger in triggers:
-                doc += f"- ⚡ `{trigger}`\n"
+                    doc += f"<tr><td><code>⚡ {trigger}</code></td><td><em>Standard trigger</em></td></tr>\n"
         else:
-            doc += f"- ⚡ `{triggers}`\n"
+            doc += f"<tr><td><code>⚡ {triggers}</code></td><td><em>Standard trigger</em></td></tr>\n"
     else:
-        doc += "*No triggers defined*\n"
+        doc += "<tr><td colspan='2'><em>No triggers defined</em></td></tr>\n"
     
-    doc += "\n"
+    doc += "</table>\n\n"
     
     # Inputs/Outputs for reusable workflows
     if 'on' in workflow and isinstance(workflow['on'], dict) and 'workflow_call' in workflow['on']:
         call_config = workflow['on']['workflow_call']
         
-        # Inputs
         if 'inputs' in call_config and call_config['inputs']:
             doc += "## 📥 Inputs\n\n"
-            doc += "| Name | Type | Required | Default | Description |\n"
-            doc += "|------|------|----------|---------|-------------|\n"
+            doc += "<table>\n<thead>\n<tr>\n<th>Parameter</th>\n<th>Type</th>\n<th>Required</th>\n<th>Default</th>\n<th>Description</th>\n</tr>\n</thead>\n<tbody>\n"
+            
             for name, config in call_config['inputs'].items():
-                required = '✅ Yes' if config.get('required', False) else '❌ No'
+                required = '✅' if config.get('required', False) else '❌'
                 input_type = config.get('type', 'string')
-                default = config.get('default', 'N/A')
+                default = config.get('default', '—')
                 description = config.get('description', 'No description provided')
-                doc += f"| `{name}` | `{input_type}` | {required} | `{default}` | {description} |\n"
-            doc += "\n"
+                
+                doc += f"<tr>\n<td><code>{name}</code></td>\n<td><code>{input_type}</code></td>\n"
+                doc += f"<td align='center'>{required}</td>\n<td><code>{default}</code></td>\n<td>{description}</td>\n</tr>\n"
+            
+            doc += "</tbody>\n</table>\n\n"
         
-        # Outputs
         if 'outputs' in call_config and call_config['outputs']:
             doc += "## 📤 Outputs\n\n"
-            doc += "| Name | Description | Value |\n"
-            doc += "|------|-------------|-------|\n"
+            doc += "<table>\n<thead>\n<tr>\n<th>Output</th>\n<th>Description</th>\n<th>Value</th>\n</tr>\n</thead>\n<tbody>\n"
+            
             for name, config in call_config['outputs'].items():
                 description = config.get('description', 'No description provided')
                 value = config.get('value', 'N/A')
-                doc += f"| `{name}` | {description} | `{value}` |\n"
-            doc += "\n"
+                doc += f"<tr>\n<td><code>{name}</code></td>\n<td>{description}</td>\n<td><code>{value}</code></td>\n</tr>\n"
+            
+            doc += "</tbody>\n</table>\n\n"
     
     # Jobs
     if 'jobs' in workflow and workflow['jobs']:
         doc += "## 🔨 Jobs\n\n"
+        
         for job_name, job_config in workflow['jobs'].items():
-            doc += f"### `{job_name}`\n\n"
+            doc += f"### 🎯 `{job_name}`\n\n"
             
+            metadata = []
             if 'runs-on' in job_config:
-                doc += f"**Runner:** `{job_config['runs-on']}`\n\n"
-            
+                metadata.append(f"**🖥️ Runner:** `{job_config['runs-on']}`")
             if 'uses' in job_config:
-                doc += f"**Calls:** `{job_config['uses']}`\n\n"
+                metadata.append(f"**📞 Calls:** `{job_config['uses']}`")
+            
+            if metadata:
+                doc += ' | '.join(metadata) + "\n\n"
             
             if 'outputs' in job_config:
-                doc += "**Job Outputs:**\n\n"
+                doc += "<details>\n<summary>📊 Job Outputs</summary>\n\n```yaml\n"
                 for out_name, out_val in job_config['outputs'].items():
-                    doc += f"- `{out_name}`: `{out_val}`\n"
-                doc += "\n"
+                    doc += f"{out_name}: {out_val}\n"
+                doc += "```\n\n</details>\n\n"
             
             if 'steps' in job_config and job_config['steps']:
-                doc += "**Steps:**\n\n"
+                doc += "<details>\n<summary>📝 Steps</summary>\n\n"
+                
                 for i, step in enumerate(job_config['steps'], 1):
                     step_name = step.get('name', f'Step {i}')
-                    doc += f"{i}. **{step_name}**\n"
+                    doc += f"#### {i}. {step_name}\n\n"
                     
                     if 'uses' in step:
-                        doc += f"   - 📦 Action: `{step['uses']}`\n"
-                    
-                    if 'with' in step:
-                        doc += f"   - ⚙️ Config:\n"
-                        for key, val in list(step['with'].items())[:3]:  # Limit to 3 configs
-                            val_str = str(val).replace('\n', ' ')[:50]
-                            doc += f"     - `{key}`: `{val_str}...`\n"
+                        doc += f"```yaml\nuses: {step['uses']}\n"
+                        if 'with' in step:
+                            doc += f"with:\n"
+                            for key, val in list(step['with'].items())[:5]:
+                                val_str = str(val).replace('\n', ' ')
+                                if len(val_str) > 60:
+                                    val_str = val_str[:60] + "..."
+                                doc += f"  {key}: {val_str}\n"
+                        doc += f"```\n\n"
                     
                     if 'run' in step:
-                        run_cmd = step['run'].strip().split('\n')[0][:60]
-                        doc += f"   - 💻 Run: `{run_cmd}...`\n"
-                    
-                    doc += "\n"
+                        run_cmd = step['run'].strip()
+                        lines = run_cmd.split('\n')
+                        if len(lines) > 5:
+                            run_cmd = '\n'.join(lines[:5]) + '\n# ... (truncated)'
+                        doc += f"```bash\n{run_cmd}\n```\n\n"
+                
+                doc += "</details>\n\n"
     
-    # Usage example for reusable workflows
+    # Usage example
     if 'on' in workflow and isinstance(workflow['on'], dict) and 'workflow_call' in workflow['on']:
         doc += "## 📖 Usage Example\n\n"
+        doc += "> Copy this example into your workflow file:\n\n"
         doc += "```yaml\n"
-        doc += "jobs:\n"
-        doc += f"  my-job:\n"
+        doc += f"name: My Workflow\n\non: [push]\n\njobs:\n  call-{basename}:\n"
         doc += f"    uses: ./.github/workflows/{Path(workflow_path).name}\n"
         
         call_config = workflow['on']['workflow_call']
         if 'inputs' in call_config and call_config['inputs']:
             doc += "    with:\n"
             for input_name, input_config in call_config['inputs'].items():
-                default = input_config.get('default', 'your-value')
+                default = input_config.get('default', 'your-value-here')
                 doc += f"      {input_name}: {default}\n"
         doc += "```\n\n"
     
     doc += "---\n\n"
-    doc += "*This documentation is auto-generated. Do not edit manually.*\n"
+    doc += "<div align=\"center\">\n\n"
+    doc += "**📅 Last Updated:** " + datetime.now().strftime('%B %d, %Y at %H:%M UTC') + "\n\n"
+    doc += "*Auto-generated documentation. Manual edits will be overwritten.*\n\n"
+    doc += "</div>\n"
     
-    # Write the documentation
+    # Write the file
     try:
         with open(doc_path, 'w') as f:
             f.write(doc)
-        print(f"✅ Generated: {doc_path}")
+        print(f"✓ Successfully wrote: {doc_path}")
+        print(f"✓ File size: {len(doc)} bytes")
         return doc_path
     except Exception as e:
-        print(f"❌ Failed to write {doc_path}: {e}")
+        print(f"✗ Failed to write {doc_path}")
+        print(f"Error: {e}")
+        traceback.print_exc()
         return None
 
 if __name__ == "__main__":
-    # Get all workflow files
     import glob
     
-    workflow_files = glob.glob('.github/workflows/*.yml') + glob.glob('.github/workflows/*.yaml')
+    print("Starting documentation generation...")
+    print()
     
-    # Filter out the doc generator itself
+    workflow_files = glob.glob('.github/workflows/*.yml') + glob.glob('.github/workflows/*.yaml')
     workflow_files = [wf for wf in workflow_files if 'workflow-doc-generator' not in wf and 'doc-gen' not in wf]
     
-    print(f"Found {len(workflow_files)} workflow files to process")
+    print(f"Found {len(workflow_files)} workflow files:")
+    for wf in workflow_files:
+        print(f"  - {wf}")
+    print()
     
     generated = []
+    failed = []
+    
     for wf in workflow_files:
         doc = generate_workflow_doc(wf)
         if doc:
             generated.append(doc)
+        else:
+            failed.append(wf)
     
-    print(f"\n✅ Successfully generated {len(generated)} documentation files")
+    print(f"\n{'='*60}")
+    print(f"SUMMARY")
+    print(f"{'='*60}")
+    print(f"✓ Successfully generated: {len(generated)} files")
+    print(f"✗ Failed: {len(failed)} files")
     
-    # Save list of generated files
+    if generated:
+        print(f"\nGenerated files:")
+        for doc in generated:
+            print(f"  ✓ {doc}")
+    
+    if failed:
+        print(f"\nFailed files:")
+        for wf in failed:
+            print(f"  ✗ {wf}")
+    
     with open('generated_docs.txt', 'w') as f:
         f.write('\n'.join(generated))

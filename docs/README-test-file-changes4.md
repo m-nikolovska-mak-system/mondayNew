@@ -1,45 +1,73 @@
-# 📝 🧪 Test File Change Detection
+<div align="center">
 
-**Generated:** 2025-11-25 09:43:03
+# 🚀 🧪 Test File Change Detection
+
+![Auto-generated](https://img.shields.io/badge/docs-auto--generated-blue?style=flat-square)
+![Workflow](https://img.shields.io/badge/type-github--workflow-purple?style=flat-square)
+![Updated](https://img.shields.io/badge/updated-2025.11.25-green?style=flat-square)
+
+</div>
 
 ---
 
-## Overview
+## 📋 Overview
 
-**Workflow Name:** `🧪 Test File Change Detection`
+> **Workflow File:** `.github/workflows/test-file-changes4.yml`
 
-## Triggers
+## ⚡ Triggers
 
-*No triggers defined*
+<table>
+<tr><th>Event</th><th>Details</th></tr>
+<tr><td colspan='2'><em>No triggers defined</em></td></tr>
+</table>
 
 ## 🔨 Jobs
 
-### `run-test`
+### 🎯 `run-test`
 
-**Calls:** `m-nikolovska-mak-system/reusable-actions-library/.github/workflows/check-for-file-changes.yml@main`
+**📞 Calls:** `m-nikolovska-mak-system/reusable-actions-library/.github/workflows/check-for-file-changes.yml@main`
 
-### `check_changes`
+### 🎯 `check_changes`
 
-**Calls:** `m-nikolovska-mak-system/reusable-actions-library/.github/workflows/check-for-file-changes.yml@main`
+**📞 Calls:** `m-nikolovska-mak-system/reusable-actions-library/.github/workflows/check-for-file-changes.yml@main`
 
-### `on_changes`
+### 🎯 `on_changes`
 
-**Runner:** `ubuntu-latest`
+**🖥️ Runner:** `ubuntu-latest`
 
-**Steps:**
+<details>
+<summary>📝 Steps</summary>
 
-1. **✅ Watched files changed**
-   - 💻 Run: `echo "Changed files:"...`
+#### 1. ✅ Watched files changed
 
-### `on_no_changes`
+```bash
+echo "Changed files:"
+echo "${{ needs.check_changes.outputs.changed_files_list }}"
+```
 
-**Runner:** `ubuntu-latest`
+</details>
 
-**Steps:**
+### 🎯 `on_no_changes`
 
-1. **ℹ️ No relevant changes**
-   - 💻 Run: `echo "No watched files changed!"...`
+**🖥️ Runner:** `ubuntu-latest`
+
+<details>
+<summary>📝 Steps</summary>
+
+#### 1. ℹ️ No relevant changes
+
+```bash
+echo "No watched files changed!"
+```
+
+</details>
 
 ---
 
-*This documentation is auto-generated. Do not edit manually.*
+<div align="center">
+
+**📅 Last Updated:** November 25, 2025 at 10:01 UTC
+
+*Auto-generated documentation. Manual edits will be overwritten.*
+
+</div>

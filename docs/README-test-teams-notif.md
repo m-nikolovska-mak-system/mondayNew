@@ -1,28 +1,54 @@
-# 📝 Test Teams Notification
+<div align="center">
 
-**Generated:** 2025-11-25 09:43:03
+# 🚀 Test Teams Notification
+
+![Auto-generated](https://img.shields.io/badge/docs-auto--generated-blue?style=flat-square)
+![Workflow](https://img.shields.io/badge/type-github--workflow-purple?style=flat-square)
+![Updated](https://img.shields.io/badge/updated-2025.11.25-green?style=flat-square)
+
+</div>
 
 ---
 
-## Overview
+## 📋 Overview
 
-**Workflow Name:** `Test Teams Notification`
+> **Workflow File:** `.github/workflows/test-teams-notif.yml`
 
-## Triggers
+## ⚡ Triggers
 
-*No triggers defined*
+<table>
+<tr><th>Event</th><th>Details</th></tr>
+<tr><td colspan='2'><em>No triggers defined</em></td></tr>
+</table>
 
 ## 🔨 Jobs
 
-### `send-notification`
+### 🎯 `send-notification`
 
-**Runner:** `ubuntu-latest`
+**🖥️ Runner:** `ubuntu-latest`
 
-**Steps:**
+<details>
+<summary>📝 Steps</summary>
 
-1. **Send test Microsoft Teams notification**
-   - 💻 Run: `PAYLOAD='{"text": "Hello from act! This is a test notificati...`
+#### 1. Send test Microsoft Teams notification
+
+```bash
+PAYLOAD='{"text": "Hello from act! This is a test notification."}'
+
+echo "📤 Sending notification to Teams..."
+HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" -H "Content-Type: application/json" -d "$PAYLOAD" "$TEAMS_WEBHOOK_URL")
+if [ "$HTTP_CODE" = "200" ] || [ "$HTTP_CODE" = "202" ]; then
+# ... (truncated)
+```
+
+</details>
 
 ---
 
-*This documentation is auto-generated. Do not edit manually.*
+<div align="center">
+
+**📅 Last Updated:** November 25, 2025 at 10:01 UTC
+
+*Auto-generated documentation. Manual edits will be overwritten.*
+
+</div>

@@ -1,42 +1,79 @@
-# 📝 Generate Docs
+<div align="center">
 
-**Generated:** 2025-11-25 09:43:03
+# 🚀 Generate Docs
+
+![Auto-generated](https://img.shields.io/badge/docs-auto--generated-blue?style=flat-square)
+![Workflow](https://img.shields.io/badge/type-github--workflow-purple?style=flat-square)
+![Updated](https://img.shields.io/badge/updated-2025.11.25-green?style=flat-square)
+
+</div>
 
 ---
 
-## Overview
+## 📋 Overview
 
-**Workflow Name:** `Generate Docs`
+> **Workflow File:** `.github/workflows/generate-docs-2.yml`
 
-## Triggers
+## ⚡ Triggers
 
-*No triggers defined*
+<table>
+<tr><th>Event</th><th>Details</th></tr>
+<tr><td colspan='2'><em>No triggers defined</em></td></tr>
+</table>
 
 ## 🔨 Jobs
 
-### `generate-docs`
+### 🎯 `generate-docs`
 
-**Runner:** `ubuntu-latest`
+**🖥️ Runner:** `ubuntu-latest`
 
-**Steps:**
+<details>
+<summary>📝 Steps</summary>
 
-1. **Checkout repository**
-   - 📦 Action: `actions/checkout@v4`
+#### 1. Checkout repository
 
-2. **Set up Python**
-   - 📦 Action: `actions/setup-python@v5`
-   - ⚙️ Config:
-     - `python-version`: `3.11...`
+```yaml
+uses: actions/checkout@v4
+```
 
-3. **Install dependencies**
-   - 💻 Run: `pip install pyyaml...`
+#### 2. Set up Python
 
-4. **Run documentation generator**
-   - 💻 Run: `python scripts/generate_docs.py...`
+```yaml
+uses: actions/setup-python@v5
+with:
+  python-version: 3.11
+```
 
-5. **Commit and push changes**
-   - 💻 Run: `git config --global user.name "github-actions[bot]"...`
+#### 3. Install dependencies
+
+```bash
+pip install pyyaml
+```
+
+#### 4. Run documentation generator
+
+```bash
+python scripts/generate_docs.py
+```
+
+#### 5. Commit and push changes
+
+```bash
+git config --global user.name "github-actions[bot]"
+git config --global user.email "github-actions[bot]@users.noreply.github.com"
+git add README.md docs/workflows.md
+git commit -m "Update docs [skip ci]" || echo "No changes to commit"
+git push
+```
+
+</details>
 
 ---
 
-*This documentation is auto-generated. Do not edit manually.*
+<div align="center">
+
+**📅 Last Updated:** November 25, 2025 at 10:01 UTC
+
+*Auto-generated documentation. Manual edits will be overwritten.*
+
+</div>

@@ -1,34 +1,61 @@
-# 📝 Test Act Workflow
+<div align="center">
 
-**Generated:** 2025-11-25 09:43:03
+# 🚀 Test Act Workflow
+
+![Auto-generated](https://img.shields.io/badge/docs-auto--generated-blue?style=flat-square)
+![Workflow](https://img.shields.io/badge/type-github--workflow-purple?style=flat-square)
+![Updated](https://img.shields.io/badge/updated-2025.11.25-green?style=flat-square)
+
+</div>
 
 ---
 
-## Overview
+## 📋 Overview
 
-**Workflow Name:** `Test Act Workflow`
+> **Workflow File:** `.github/workflows/test.yml`
 
-## Triggers
+## ⚡ Triggers
 
-*No triggers defined*
+<table>
+<tr><th>Event</th><th>Details</th></tr>
+<tr><td colspan='2'><em>No triggers defined</em></td></tr>
+</table>
 
 ## 🔨 Jobs
 
-### `test`
+### 🎯 `test`
 
-**Runner:** `ubuntu-latest`
+**🖥️ Runner:** `ubuntu-latest`
 
-**Steps:**
+<details>
+<summary>📝 Steps</summary>
 
-1. **Checkout code**
-   - 📦 Action: `actions/checkout@v3`
+#### 1. Checkout code
 
-2. **Say Hello**
-   - 💻 Run: `echo "Hello from Act!"...`
+```yaml
+uses: actions/checkout@v3
+```
 
-3. **Validate README**
-   - 📦 Action: `./.github/actions/readme-check`
+#### 2. Say Hello
+
+```bash
+echo "Hello from Act!"
+```
+
+#### 3. Validate README
+
+```yaml
+uses: ./.github/actions/readme-check
+```
+
+</details>
 
 ---
 
-*This documentation is auto-generated. Do not edit manually.*
+<div align="center">
+
+**📅 Last Updated:** November 25, 2025 at 10:01 UTC
+
+*Auto-generated documentation. Manual edits will be overwritten.*
+
+</div>

@@ -1,34 +1,63 @@
-# 📝 mainn
+<div align="center">
 
-**Generated:** 2025-11-25 09:43:03
+# 🚀 mainn
+
+![Auto-generated](https://img.shields.io/badge/docs-auto--generated-blue?style=flat-square)
+![Workflow](https://img.shields.io/badge/type-github--workflow-purple?style=flat-square)
+![Updated](https://img.shields.io/badge/updated-2025.11.25-green?style=flat-square)
+
+</div>
 
 ---
 
-## Overview
+## 📋 Overview
 
-## Triggers
+> **Workflow File:** `.github/workflows/mainn.yml`
 
-*No triggers defined*
+## ⚡ Triggers
+
+<table>
+<tr><th>Event</th><th>Details</th></tr>
+<tr><td colspan='2'><em>No triggers defined</em></td></tr>
+</table>
 
 ## 🔨 Jobs
 
-### `hello_world_job`
+### 🎯 `hello_world_job`
 
-**Runner:** `ubuntu-latest`
+**🖥️ Runner:** `ubuntu-latest`
 
-**Steps:**
+<details>
+<summary>📝 Steps</summary>
 
-1. **Step 1**
-   - 📦 Action: `actions/checkout@v5`
+#### 1. Step 1
 
-2. **Step 2**
-   - 📦 Action: `m-nikolovska-mak-system/composite-actions@main`
-   - ⚙️ Config:
-     - `who-to-greet`: `Mona the Octocat...`
+```yaml
+uses: actions/checkout@v5
+```
 
-3. **Step 3**
-   - 💻 Run: `echo random-number "$RANDOM_NUMBER"...`
+#### 2. Step 2
+
+```yaml
+uses: m-nikolovska-mak-system/composite-actions@main
+with:
+  who-to-greet: Mona the Octocat
+```
+
+#### 3. Step 3
+
+```bash
+echo random-number "$RANDOM_NUMBER"
+```
+
+</details>
 
 ---
 
-*This documentation is auto-generated. Do not edit manually.*
+<div align="center">
+
+**📅 Last Updated:** November 25, 2025 at 10:01 UTC
+
+*Auto-generated documentation. Manual edits will be overwritten.*
+
+</div>

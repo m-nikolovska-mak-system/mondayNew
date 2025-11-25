@@ -1,79 +1,144 @@
-# 📝 Build and Release
+<div align="center">
 
-**Generated:** 2025-11-25 09:43:03
+# 🚀 Build and Release
+
+![Auto-generated](https://img.shields.io/badge/docs-auto--generated-blue?style=flat-square)
+![Workflow](https://img.shields.io/badge/type-github--workflow-purple?style=flat-square)
+![Updated](https://img.shields.io/badge/updated-2025.11.25-green?style=flat-square)
+
+</div>
 
 ---
 
-## Overview
+## 📋 Overview
 
-**Workflow Name:** `Build and Release`
+> **Workflow File:** `.github/workflows/release-build.yml`
 
-## Triggers
+## ⚡ Triggers
 
-*No triggers defined*
+<table>
+<tr><th>Event</th><th>Details</th></tr>
+<tr><td colspan='2'><em>No triggers defined</em></td></tr>
+</table>
 
 ## 🔨 Jobs
 
-### `build-jar`
+### 🎯 `build-jar`
 
-**Calls:** `m-nikolovska-mak-system/reusable-actions-library/.github/workflows/build-jar.yml@main`
+**📞 Calls:** `m-nikolovska-mak-system/reusable-actions-library/.github/workflows/build-jar.yml@main`
 
-### `detect-setup-script`
+### 🎯 `detect-setup-script`
 
-**Runner:** `ubuntu-latest`
+**🖥️ Runner:** `ubuntu-latest`
 
-**Job Outputs:**
+<details>
+<summary>📊 Job Outputs</summary>
 
-- `setup_script`: `${{ steps.detect.outputs.script }}`
+```yaml
+setup_script: ${{ steps.detect.outputs.script }}
+```
 
-**Steps:**
+</details>
 
-1. **Checkout code**
-   - 📦 Action: `actions/checkout@v4`
-   - ⚙️ Config:
-     - `ref`: `${{ github.event.inputs.release_tag || github.even...`
+<details>
+<summary>📝 Steps</summary>
 
-2. **Find .iss script**
-   - 💻 Run: `echo "🔍 Looking for Inno Setup script..."...`
+#### 1. Checkout code
 
-### `build-installer`
+```yaml
+uses: actions/checkout@v4
+with:
+  ref: ${{ github.event.inputs.release_tag || github.event.release....
+```
 
-**Calls:** `m-nikolovska-mak-system/reusable-actions-library/.github/workflows/build-installer.yml@main`
+#### 2. Find .iss script
 
-### `upload-to-release`
+```bash
+echo "🔍 Looking for Inno Setup script..."
 
-**Runner:** `ubuntu-latest`
+# Look for .iss files in root and common directories
+script=$(find . -maxdepth 2 -name "*.iss" -type f | head -n 1)
 
-**Steps:**
+# ... (truncated)
+```
 
-1. **Download installer artifact**
-   - 📦 Action: `actions/download-artifact@v4`
-   - ⚙️ Config:
-     - `name`: `${{ needs.build-installer.outputs.installer_artifa...`
-     - `path`: `./installer...`
+</details>
 
-2. **Verify installer exists**
-   - 💻 Run: `echo "📦 Downloaded artifacts:"...`
+### 🎯 `build-installer`
 
-3. **Upload installer to GitHub Release**
-   - 📦 Action: `softprops/action-gh-release@v2`
-   - ⚙️ Config:
-     - `files`: `installer/*.exe...`
-     - `tag_name`: `${{ github.event.release.tag_name }}...`
-     - `fail_on_unmatched_files`: `True...`
+**📞 Calls:** `m-nikolovska-mak-system/reusable-actions-library/.github/workflows/build-installer.yml@main`
 
-4. **Success notification**
-   - 💻 Run: `echo "✅ Installer successfully uploaded to release ${{ githu...`
+### 🎯 `upload-to-release`
 
-### `test-summary`
+**🖥️ Runner:** `ubuntu-latest`
 
-**Runner:** `ubuntu-latest`
+<details>
+<summary>📝 Steps</summary>
 
-**Steps:**
+#### 1. Download installer artifact
 
-1. **Display test results**
-   - 💻 Run: `echo "=========================================="...`
+```yaml
+uses: actions/download-artifact@v4
+with:
+  name: ${{ needs.build-installer.outputs.installer_artifact_name }}
+  path: ./installer
+```
+
+#### 2. Verify installer exists
+
+```bash
+echo "📦 Downloaded artifacts:"
+ls -lh installer/
+echo ""
+
+# Check if any .exe files exist
+# ... (truncated)
+```
+
+#### 3. Upload installer to GitHub Release
+
+```yaml
+uses: softprops/action-gh-release@v2
+with:
+  files: installer/*.exe
+  tag_name: ${{ github.event.release.tag_name }}
+  fail_on_unmatched_files: True
+```
+
+#### 4. Success notification
+
+```bash
+echo "✅ Installer successfully uploaded to release ${{ github.event.release.tag_name }}"
+```
+
+</details>
+
+### 🎯 `test-summary`
+
+**🖥️ Runner:** `ubuntu-latest`
+
+<details>
+<summary>📝 Steps</summary>
+
+#### 1. Display test results
+
+```bash
+echo "=========================================="
+echo "🧪 TEST MODE - BUILD SUMMARY"
+echo "=========================================="
+echo ""
+echo "✅ JAR Build:"
+# ... (truncated)
+```
+
+</details>
 
 ---
 
-*This documentation is auto-generated. Do not edit manually.*
+<div align="center">
+
+**📅 Last Updated:** November 25, 2025 at 10:01 UTC
+
+*Auto-generated documentation. Manual edits will be overwritten.*
+
+</div>

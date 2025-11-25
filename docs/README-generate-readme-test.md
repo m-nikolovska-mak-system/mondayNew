@@ -1,99 +1,201 @@
-# 📝 📝 Generate/Update README Documentation
+<div align="center">
 
-**Generated:** 2025-11-25 09:43:03
+# 🚀 📝 Generate/Update README Documentation
+
+![Auto-generated](https://img.shields.io/badge/docs-auto--generated-blue?style=flat-square)
+![Workflow](https://img.shields.io/badge/type-github--workflow-purple?style=flat-square)
+![Updated](https://img.shields.io/badge/updated-2025.11.25-green?style=flat-square)
+
+</div>
 
 ---
 
-## Overview
+## 📋 Overview
 
-**Workflow Name:** `📝 Generate/Update README Documentation`
+> **Workflow File:** `.github/workflows/generate-readme-test.yml`
 
-## Triggers
+## ⚡ Triggers
 
-*No triggers defined*
+<table>
+<tr><th>Event</th><th>Details</th></tr>
+<tr><td colspan='2'><em>No triggers defined</em></td></tr>
+</table>
 
 ## 🔨 Jobs
 
-### `detect-changes`
+### 🎯 `detect-changes`
 
-**Runner:** `ubuntu-latest`
+**🖥️ Runner:** `ubuntu-latest`
 
-**Job Outputs:**
+<details>
+<summary>📊 Job Outputs</summary>
 
-- `matrix`: `${{ steps.handle_matrix.outputs.matrix }}`
-- `pr_source_branch`: `${{ steps.get_source_branch.outputs.pr_source_branch }}`
+```yaml
+matrix: ${{ steps.handle_matrix.outputs.matrix }}
+pr_source_branch: ${{ steps.get_source_branch.outputs.pr_source_branch }}
+```
 
-**Steps:**
+</details>
 
-1. **Checkout**
-   - 📦 Action: `actions/checkout@v4`
-   - ⚙️ Config:
-     - `fetch-depth`: `0...`
-     - `token`: `${{ secrets.GITHUB_TOKEN }}...`
+<details>
+<summary>📝 Steps</summary>
 
-2. **Detect changed workflow files**
-   - 📦 Action: `tj-actions/changed-files@v44`
-   - ⚙️ Config:
-     - `files`: `.github/workflows/ci-*.yml !.github/workflows/ci-r...`
+#### 1. Checkout
 
-3. **Print changed workflow files**
-   - 💻 Run: `echo "Changed workflow files:"...`
+```yaml
+uses: actions/checkout@v4
+with:
+  fetch-depth: 0
+  token: ${{ secrets.GITHUB_TOKEN }}
+```
 
-4. **Prepare matrix**
-   - 💻 Run: `files="${{ steps.detect.outputs.all_changed_files }}"...`
+#### 2. Detect changed workflow files
 
-5. **Handle empty matrix**
-   - 💻 Run: `if [ "${{ steps.detect.outputs.any_changed }}" = "false" ]; ...`
+```yaml
+uses: tj-actions/changed-files@v44
+with:
+  files: .github/workflows/ci-*.yml !.github/workflows/ci-readme-docs...
+```
 
-6. **Get PR source branch**
-   - 💻 Run: `echo "pr_source_branch=${{ github.head_ref }}" >> $GITHUB_OU...`
+#### 3. Print changed workflow files
 
-### `update-doc`
+```bash
+echo "Changed workflow files:"
+for f in ${{ steps.detect.outputs.all_changed_files }}; do
+  echo " - $f"
+done
+```
 
-**Runner:** `ubuntu-latest`
+#### 4. Prepare matrix
 
-**Steps:**
+```bash
+files="${{ steps.detect.outputs.all_changed_files }}"
 
-1. **Checkout**
-   - 📦 Action: `actions/checkout@v4`
-   - ⚙️ Config:
-     - `fetch-depth`: `0...`
-     - `token`: `${{ secrets.GITHUB_TOKEN }}...`
+json="["
+sep=""
+for f in $files; do
+# ... (truncated)
+```
 
-2. **Create missing READMEs**
-   - 💻 Run: `TEMPLATE="docs/README-reusable.md"...`
+#### 5. Handle empty matrix
 
-3. **Print newly created README files**
-   - 💻 Run: `if [ -n "${{ steps.create_readmes.outputs.new_readmes }}" ];...`
+```bash
+if [ "${{ steps.detect.outputs.any_changed }}" = "false" ]; then
+  echo "No changes. Injecting dummy matrix item."
+  echo 'matrix=[{"workflow":"none","basename":"none"}]' >> $GITHUB_OUTPUT
+else
+  echo "Matrix already set by prep_matrix."
+# ... (truncated)
+```
 
-4. **Print workflow file from matrix**
-   - 💻 Run: `echo "Current workflow file: ${{ matrix.item.workflow }}"...`
+#### 6. Get PR source branch
 
-5. **Auto-doc for workflow**
-   - 📦 Action: `tj-actions/auto-doc@v3`
-   - ⚙️ Config:
-     - `filename`: `./${{ matrix.item.workflow }}...`
-     - `reusable`: `True...`
-     - `output`: `docs/README-${{ matrix.item.basename }}.md...`
+```bash
+echo "pr_source_branch=${{ github.head_ref }}" >> $GITHUB_OUTPUT
+```
 
-6. **Verify changed README**
-   - 📦 Action: `tj-actions/verify-changed-files@v19`
-   - ⚙️ Config:
-     - `files`: `docs/README-${{ matrix.item.basename }}.md...`
+</details>
 
-7. **Print verification result**
-   - 💻 Run: `if [ "${{ steps.verify.outputs.files_changed }}" == "true" ]...`
+### 🎯 `update-doc`
 
-8. **Print target branch**
-   - 💻 Run: `echo "*** branch *** " ${{ needs.detect-changes.outputs.pr_s...`
+**🖥️ Runner:** `ubuntu-latest`
 
-9. **Create Pull Request for Documentation Update**
-   - 📦 Action: `peter-evans/create-pull-request@v6`
-   - ⚙️ Config:
-     - `commit-message`: `docs: auto-update README for ${{ matrix.item.basen...`
-     - `title`: `docs: auto-update README for ${{ matrix.item.basen...`
-     - `body`: `This PR was automatically generated to update the ...`
+<details>
+<summary>📝 Steps</summary>
+
+#### 1. Checkout
+
+```yaml
+uses: actions/checkout@v4
+with:
+  fetch-depth: 0
+  token: ${{ secrets.GITHUB_TOKEN }}
+```
+
+#### 2. Create missing READMEs
+
+```bash
+TEMPLATE="docs/README-reusable.md"
+readme="docs/README-${{ matrix.item.basename }}.md"
+
+if [ ! -f "$readme" ]; then
+  echo "Creating $readme"
+# ... (truncated)
+```
+
+#### 3. Print newly created README files
+
+```bash
+if [ -n "${{ steps.create_readmes.outputs.new_readmes }}" ]; then
+  echo "Newly created README files:"
+  echo "${{ steps.create_readmes.outputs.new_readmes }}"
+else
+  echo "No new README files created."
+# ... (truncated)
+```
+
+#### 4. Print workflow file from matrix
+
+```bash
+echo "Current workflow file: ${{ matrix.item.workflow }}"
+echo "Current readme file: docs/${{ matrix.item.basename }}"
+```
+
+#### 5. Auto-doc for workflow
+
+```yaml
+uses: tj-actions/auto-doc@v3
+with:
+  filename: ./${{ matrix.item.workflow }}
+  reusable: True
+  output: docs/README-${{ matrix.item.basename }}.md
+```
+
+#### 6. Verify changed README
+
+```yaml
+uses: tj-actions/verify-changed-files@v19
+with:
+  files: docs/README-${{ matrix.item.basename }}.md
+```
+
+#### 7. Print verification result
+
+```bash
+if [ "${{ steps.verify.outputs.files_changed }}" == "true" ]; then
+  echo "✅ README updated: docs/README-${{ matrix.item.basename }}.md"
+
+  # Print the content (should show your Inputs table)
+  echo "--- Content ---"
+# ... (truncated)
+```
+
+#### 8. Print target branch
+
+```bash
+echo "*** branch *** " ${{ needs.detect-changes.outputs.pr_source_branch }}
+```
+
+#### 9. Create Pull Request for Documentation Update
+
+```yaml
+uses: peter-evans/create-pull-request@v6
+with:
+  commit-message: docs: auto-update README for ${{ matrix.item.basename }}
+  title: docs: auto-update README for ${{ matrix.item.basename }}
+  body: This PR was automatically generated to update the documentat...
+  branch: auto-doc/update-readme-${{ matrix.item.basename }}
+  token: ${{ env.GITHUB_USER_TOKEN }}
+```
+
+</details>
 
 ---
 
-*This documentation is auto-generated. Do not edit manually.*
+<div align="center">
+
+**📅 Last Updated:** November 25, 2025 at 10:01 UTC
+
+*Auto-generated documentation. Manual edits will be overwritten.*
+
+</div>
