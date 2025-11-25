@@ -70,52 +70,71 @@ def generate_workflow_doc(workflow_path):
     doc += "</table>\n\n"
     
     # Inputs/Outputs for reusable workflows
-    if 'on' in workflow and isinstance(workflow['on'], dict) and 'workflow_call' in workflow['on']:
-        call_config = workflow['on']['workflow_call']
-        
-        if 'inputs' in call_config and call_config['inputs']:
-            doc += "## 📥 Inputs\n\n"
-            doc += "<table>\n<thead>\n<tr>\n<th>Parameter</th>\n<th>Type</th>\n<th>Required</th>\n<th>Default</th>\n<th>Description</th>\n</tr>\n</thead>\n<tbody>\n"
-            
-            for name, config in call_config['inputs'].items():
-              # Ensure config is a dict; sometimes YAML allows shorthand values
-              if not isinstance(config, dict):
-                  config = {"type": "string", "required": False, "default": config}
-          
-              required = '✅' if config.get('required', False) else '❌'
-              input_type = config.get('type', 'string')
-          
-              default_val = config.get('default', '—')
-              # Convert None to dash for readability
-              if default_val is None:
-                  default_val = '—'
-          
-              description = config.get('description', '')
-              if not description:
-                  description = '<em>No description provided</em>'
-          
-              doc += (
-                  f"<tr>"
-                  f"<td><code>{name}</code></td>"
-                  f"<td><code>{input_type}</code></td>"
-                  f"<td align='center'>{required}</td>"
-                  f"<td><code>{default_val}</code></td>"
-                  f"<td>{description}</td>"
-                  f"</tr>\n"
-              )
+    call_config = None
 
-        
-        if 'outputs' in call_config and call_config['outputs']:
-            doc += "## 📤 Outputs\n\n"
-            doc += "<table>\n<thead>\n<tr>\n<th>Output</th>\n<th>Description</th>\n<th>Value</th>\n</tr>\n</thead>\n<tbody>\n"
-            
-            for name, config in call_config['outputs'].items():
-                description = config.get('description', 'No description provided')
-                value = config.get('value', 'N/A')
-                doc += f"<tr>\n<td><code>{name}</code></td>\n<td>{description}</td>\n<td><code>{value}</code></td>\n</tr>\n"
-            
-            doc += "</tbody>\n</table>\n\n"
-    
+    on_section = workflow.get("on", {})
+
+    # Case 1: "on:" is a dict (most common)
+    if isinstance(on_section, dict):
+        call_config = on_section.get("workflow_call")
+
+    # Case 2: "on:" is a list (rare)
+    elif isinstance(on_section, list):
+        for item in on_section:
+            if isinstance(item, dict) and "workflow_call" in item:
+                call_config = item["workflow_call"]
+                break
+
+    # Normalize to empty dict so lookups succeed
+    if call_config is None:
+        call_config = {}
+
+    # --- INPUTS ---
+    if "inputs" in call_config and call_config["inputs"]:
+        doc += "## 📥 Inputs\n\n"
+        doc += "<table>\n<thead>\n<tr>\n<th>Parameter</th>\n<th>Type</th>\n<th>Required</th>\n<th>Default</th>\n<th>Description</th>\n</tr>\n</thead>\n<tbody>\n"
+
+        for name, config in call_config["inputs"].items():
+            if not isinstance(config, dict):
+                config = {"type": "string", "required": False, "default": config}
+
+            required = "✅" if config.get("required", False) else "❌"
+            input_type = config.get("type", "string")
+            default_val = config.get("default", "—") or "—"
+            description = config.get("description", "<em>No description provided</em>")
+
+            doc += (
+                f"<tr>"
+                f"<td><code>{name}</code></td>"
+                f"<td><code>{input_type}</code></td>"
+                f"<td align='center'>{required}</td>"
+                f"<td><code>{default_val}</code></td>"
+                f"<td>{description}</td>"
+                f"</tr>\n"
+            )
+
+        doc += "</tbody></table>\n\n"
+
+    # --- OUTPUTS ---
+    if "outputs" in call_config and call_config["outputs"]:
+        doc += "## 📤 Outputs\n\n"
+        doc += "<table>\n<thead>\n<tr>\n<th>Output</th>\n<th>Description</th>\n<th>Value</th>\n</tr>\n</thead>\n<tbody>\n"
+
+        for name, config in call_config["outputs"].items():
+            description = config.get("description", "No description provided")
+            value = config.get("value", "N/A")
+
+            doc += (
+                f"<tr>"
+                f"<td><code>{name}</code></td>"
+                f"<td>{description}</td>"
+                f"<td><code>{value}</code></td>"
+                f"</tr>\n"
+            )
+
+        doc += "</tbody></table>\n\n"
+
+
     # Jobs
     if 'jobs' in workflow and workflow['jobs']:
         doc += "## 🔨 Jobs\n\n"
