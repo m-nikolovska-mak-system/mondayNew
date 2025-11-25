@@ -29,10 +29,12 @@ def build_triggers(triggers) -> str:
     doc = "## ⚡ Triggers\n\n"
     doc += "| Event | Details |\n|-------|---------|\n"
 
+    # Nothing at all under `on:`
     if not triggers:
         doc += "| – | No triggers defined |\n\n"
         return doc
 
+    # Normal case: `on:` is a mapping
     if isinstance(triggers, dict):
         for event, config in triggers.items():
             # Special case: reusable workflow
@@ -54,13 +56,17 @@ def build_triggers(triggers) -> str:
             else:
                 doc += f"| `{event}` | No filters |\n"
 
+    # `on: [push, pull_request]` style
     elif isinstance(triggers, list):
         for event in triggers:
             doc += f"| `{event}` | Standard trigger |\n"
+
+    # Fallback
     else:
         doc += f"| `{triggers}` | Standard trigger |\n"
 
     return doc + "\n"
+
 
 
 def build_jobs(jobs: dict) -> str:
