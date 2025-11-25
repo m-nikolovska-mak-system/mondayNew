@@ -1,70 +1,41 @@
-<div align="center">
+# 📝 🧩 Detect & Act on File Changes
 
-# 🚀 🧩 Detect & Act on File Changes
-
-![Auto-generated](https://img.shields.io/badge/docs-auto--generated-blue?style=flat-square)
-![Workflow](https://img.shields.io/badge/type-github--workflow-purple?style=flat-square)
-![Updated](https://img.shields.io/badge/updated-2025.11.25-green?style=flat-square)
-
-</div>
+**Generated:** 2025-11-25 10:30:18
 
 ---
 
-## 📋 Overview
+## Overview
 
-> **Workflow File:** `.github/workflows/check-file-changes5.yml`
+**Workflow Name:** `🧩 Detect & Act on File Changes`
 
-## ⚡ Triggers
+## Triggers
 
-<table>
-<tr><th>Event</th><th>Details</th></tr>
-<tr><td colspan='2'><em>No triggers defined</em></td></tr>
-</table>
+*No triggers defined*
 
 ## 🔨 Jobs
 
-### 🎯 `check_changes`
+### `check_changes`
 
-**📞 Calls:** `m-nikolovska-mak-system/reusable-actions-library/.github/workflows/check-file-changes.yml@main`
+**Calls:** `m-nikolovska-mak-system/reusable-actions-library/.github/workflows/check-file-changes.yml@main`
 
-### 🎯 `run_on_change`
+### `run_on_change`
 
-**🖥️ Runner:** `ubuntu-latest`
+**Runner:** `ubuntu-latest`
 
-<details>
-<summary>📝 Steps</summary>
+**Steps:**
 
-#### 1. ✅ Files changed
+1. **✅ Files changed**
+   - 💻 Run: `echo "Changed files:"...`
 
-```bash
-echo "Changed files:"
-echo "${{ needs.check_changes.outputs.changed_files_list }}"
-# Add your logic below (tests, build, deploy, etc.)
-```
+### `run_on_no_change`
 
-</details>
+**Runner:** `ubuntu-latest`
 
-### 🎯 `run_on_no_change`
+**Steps:**
 
-**🖥️ Runner:** `ubuntu-latest`
-
-<details>
-<summary>📝 Steps</summary>
-
-#### 1. ℹ️ No watched files changed
-
-```bash
-echo "No relevant files changed. Skipping build."
-```
-
-</details>
+1. **ℹ️ No watched files changed**
+   - 💻 Run: `echo "No relevant files changed. Skipping build."...`
 
 ---
 
-<div align="center">
-
-**📅 Last Updated:** November 25, 2025 at 10:20 UTC
-
-*Auto-generated documentation. Manual edits will be overwritten.*
-
-</div>
+*This documentation is auto-generated. Do not edit manually.*
