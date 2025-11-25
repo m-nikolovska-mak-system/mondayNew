@@ -1,12 +1,12 @@
-# 📝 📝 Generate/Update README Documentation
+# 📝 📝 Auto-generate workflow READMEs v5
 
-**Generated:** 2025-11-25 15:39:19
+**Generated:** 2025-11-25 15:39:20
 
 ---
 
 ## Overview
 
-**Workflow Name:** `📝 Generate/Update README Documentation`
+**Workflow Name:** `📝 Auto-generate workflow READMEs v5`
 
 ## Triggers
 
@@ -34,19 +34,16 @@
 2. **Detect changed workflow files**
    - 📦 Action: `tj-actions/changed-files@v44`
    - ⚙️ Config:
-     - `files`: `.github/workflows/ci-*.yml !.github/workflows/ci-r...`
+     - `files`: `.github/workflows/*.yml !.github/workflows/ci-read...`
 
-3. **Print changed workflow files**
-   - 💻 Run: `echo "Changed workflow files:"...`
-
-4. **Prepare matrix**
+3. **Prepare matrix**
    - 💻 Run: `files="${{ steps.detect.outputs.all_changed_files }}"...`
 
-5. **Handle empty matrix**
+4. **Handle empty matrix**
    - 💻 Run: `if [ "${{ steps.detect.outputs.any_changed }}" = "false" ]; ...`
 
-6. **Get PR source branch**
-   - 💻 Run: `echo "pr_source_branch=${{ github.head_ref }}" >> $GITHUB_OU...`
+5. **Get PR source branch**
+   - 💻 Run: `echo "pr_source_branch=${{ github.head_ref || github.ref_nam...`
 
 ### `update-doc`
 
@@ -60,39 +57,27 @@
      - `fetch-depth`: `0...`
      - `token`: `${{ secrets.GITHUB_TOKEN }}...`
 
-2. **Create missing READMEs**
-   - 💻 Run: `TEMPLATE="docs/README-reusable.md"...`
+2. **Ensure docs folder**
+   - 💻 Run: `mkdir -p docs...`
 
-3. **Print newly created README files**
-   - 💻 Run: `if [ -n "${{ steps.create_readmes.outputs.new_readmes }}" ];...`
-
-4. **Print workflow file from matrix**
-   - 💻 Run: `echo "Current workflow file: ${{ matrix.item.workflow }}"...`
-
-5. **Auto-doc for workflow**
+3. **Auto-doc for workflow**
    - 📦 Action: `tj-actions/auto-doc@v3`
    - ⚙️ Config:
      - `filename`: `./${{ matrix.item.workflow }}...`
      - `reusable`: `True...`
      - `output`: `docs/README-${{ matrix.item.basename }}.md...`
 
-6. **Verify changed README**
+4. **Verify changed README**
    - 📦 Action: `tj-actions/verify-changed-files@v19`
    - ⚙️ Config:
      - `files`: `docs/README-${{ matrix.item.basename }}.md...`
 
-7. **Print verification result**
-   - 💻 Run: `if [ "${{ steps.verify.outputs.files_changed }}" == "true" ]...`
-
-8. **Print target branch**
-   - 💻 Run: `echo "*** branch *** " ${{ needs.detect-changes.outputs.pr_s...`
-
-9. **Create Pull Request for Documentation Update**
+5. **Create Pull Request for Documentation Update**
    - 📦 Action: `peter-evans/create-pull-request@v6`
    - ⚙️ Config:
      - `commit-message`: `docs: auto-update README for ${{ matrix.item.basen...`
      - `title`: `docs: auto-update README for ${{ matrix.item.basen...`
-     - `body`: `This PR was automatically generated to update the ...`
+     - `body`: `This PR auto-updates the documentation for workflo...`
 
 ---
 

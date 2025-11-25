@@ -76,6 +76,7 @@ docs/README-teams-notif-on-update.md
 docs/README-test-file-detection.md
 docs/README-build-and-release-v33.md
 docs/README-branchNamingTwo.md
+docs/README-workflow_docs_v2.md
 docs/README-test-jira-assigment.md
 docs/README-test-secrets.md
 docs/README-main-build.md
