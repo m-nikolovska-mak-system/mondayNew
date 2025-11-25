@@ -1,60 +1,31 @@
-<div align="center">
+# 📝 Secret Scanner
 
-# 🚀 Secret Scanner
-
-![Auto-generated](https://img.shields.io/badge/docs-auto--generated-blue?style=flat-square)
-![Workflow](https://img.shields.io/badge/type-github--workflow-purple?style=flat-square)
-![Updated](https://img.shields.io/badge/updated-2025.11.25-green?style=flat-square)
-
-</div>
+**Generated:** 2025-11-25 10:43:52
 
 ---
 
-## 📋 Overview
+## Overview
 
-> **Workflow File:** `.github/workflows/secret-scanner.yml`
+**Workflow Name:** `Secret Scanner`
 
-## ⚡ Triggers
+## Triggers
 
-<table>
-<tr><th>Event</th><th>Details</th></tr>
-<tr><td colspan='2'><em>No triggers defined</em></td></tr>
-</table>
+*No triggers defined*
 
 ## 🔨 Jobs
 
-### 🎯 `scan-secrets`
+### `scan-secrets`
 
-**🖥️ Runner:** `ubuntu-latest`
+**Runner:** `ubuntu-latest`
 
-<details>
-<summary>📝 Steps</summary>
+**Steps:**
 
-#### 1. Step 1
+1. **Step 1**
+   - 📦 Action: `actions/checkout@v4`
 
-```yaml
-uses: actions/checkout@v4
-```
-
-#### 2. Scan for potential secrets
-
-```bash
-echo "🔍 Scanning for potential secrets..."
-
-# Common secret patterns
-issues=0
-
-# ... (truncated)
-```
-
-</details>
+2. **Scan for potential secrets**
+   - 💻 Run: `echo "🔍 Scanning for potential secrets..."...`
 
 ---
 
-<div align="center">
-
-**📅 Last Updated:** November 25, 2025 at 10:30 UTC
-
-*Auto-generated documentation. Manual edits will be overwritten.*
-
-</div>
+*This documentation is auto-generated. Do not edit manually.*

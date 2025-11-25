@@ -1,55 +1,32 @@
-<div align="center">
+# 📝 README Info Update
 
-# 🚀 README Info Update
-
-![Auto-generated](https://img.shields.io/badge/docs-auto--generated-blue?style=flat-square)
-![Workflow](https://img.shields.io/badge/type-github--workflow-purple?style=flat-square)
-![Updated](https://img.shields.io/badge/updated-2025.11.25-green?style=flat-square)
-
-</div>
+**Generated:** 2025-11-25 10:43:51
 
 ---
 
-## 📋 Overview
+## Overview
 
-> **Workflow File:** `.github/workflows/readmeGenTest.yml`
+**Workflow Name:** `README Info Update`
 
-## ⚡ Triggers
+## Triggers
 
-<table>
-<tr><th>Event</th><th>Details</th></tr>
-<tr><td colspan='2'><em>No triggers defined</em></td></tr>
-</table>
+*No triggers defined*
 
 ## 🔨 Jobs
 
-### 🎯 `update-readme`
+### `update-readme`
 
-**🖥️ Runner:** `ubuntu-latest`
+**Runner:** `ubuntu-latest`
 
-<details>
-<summary>📝 Steps</summary>
+**Steps:**
 
-#### 1. Step 1
-
-```yaml
-uses: anmol098/waka-readme-stats@master
-with:
-  GH_TOKEN: ${{ secrets.GH_PAT }}
-  SHOW_LINES_OF_CODE: True
-  SHOW_PROFILE_VIEWS: True
-  SHOW_TOTAL_CONTRIBUTIONS: True
-  TIMEZONE: Europe/Skopje
-```
-
-</details>
+1. **Step 1**
+   - 📦 Action: `anmol098/waka-readme-stats@master`
+   - ⚙️ Config:
+     - `GH_TOKEN`: `${{ secrets.GH_PAT }}...`
+     - `SHOW_LINES_OF_CODE`: `True...`
+     - `SHOW_PROFILE_VIEWS`: `True...`
 
 ---
 
-<div align="center">
-
-**📅 Last Updated:** November 25, 2025 at 10:30 UTC
-
-*Auto-generated documentation. Manual edits will be overwritten.*
-
-</div>
+*This documentation is auto-generated. Do not edit manually.*

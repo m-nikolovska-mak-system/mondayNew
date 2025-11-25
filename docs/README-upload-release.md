@@ -1,72 +1,40 @@
-<div align="center">
+# 📝 Upload Release Artifact
 
-# 🚀 Upload Release Artifact
-
-![Auto-generated](https://img.shields.io/badge/docs-auto--generated-blue?style=flat-square)
-![Workflow](https://img.shields.io/badge/type-github--workflow-purple?style=flat-square)
-![Updated](https://img.shields.io/badge/updated-2025.11.25-green?style=flat-square)
-
-</div>
+**Generated:** 2025-11-25 10:43:51
 
 ---
 
-## 📋 Overview
+## Overview
 
-> **Workflow File:** `.github/workflows/upload-release.yml`
+**Workflow Name:** `Upload Release Artifact`
 
-## ⚡ Triggers
+## Triggers
 
-<table>
-<tr><th>Event</th><th>Details</th></tr>
-<tr><td colspan='2'><em>No triggers defined</em></td></tr>
-</table>
+*No triggers defined*
 
 ## 🔨 Jobs
 
-### 🎯 `upload`
+### `upload`
 
-**🖥️ Runner:** `ubuntu-latest`
+**Runner:** `ubuntu-latest`
 
-<details>
-<summary>📝 Steps</summary>
+**Steps:**
 
-#### 1. Download installer artifact
+1. **Download installer artifact**
+   - 📦 Action: `actions/download-artifact@v4`
+   - ⚙️ Config:
+     - `name`: `setup-installer...`
+     - `path`: `./release-assets...`
 
-```yaml
-uses: actions/download-artifact@v4
-with:
-  name: setup-installer
-  path: ./release-assets
-```
+2. **Verify artifact exists**
+   - 💻 Run: `echo "=== Files in release-assets ==="...`
 
-#### 2. Verify artifact exists
-
-```bash
-echo "=== Files in release-assets ==="
-ls -lh ./release-assets/
-
-files=$(ls ./release-assets/*.exe 2>/dev/null)
-if [ -z "$files" ]; then
-# ... (truncated)
-```
-
-#### 3. Upload to GitHub Release
-
-```yaml
-uses: softprops/action-gh-release@v2
-with:
-  files: ./release-assets/*.exe
-  tag_name: ${{ inputs.tag_name }}
-```
-
-</details>
+3. **Upload to GitHub Release**
+   - 📦 Action: `softprops/action-gh-release@v2`
+   - ⚙️ Config:
+     - `files`: `./release-assets/*.exe...`
+     - `tag_name`: `${{ inputs.tag_name }}...`
 
 ---
 
-<div align="center">
-
-**📅 Last Updated:** November 25, 2025 at 10:30 UTC
-
-*Auto-generated documentation. Manual edits will be overwritten.*
-
-</div>
+*This documentation is auto-generated. Do not edit manually.*

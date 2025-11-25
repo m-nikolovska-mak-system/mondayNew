@@ -1,54 +1,28 @@
-<div align="center">
+# 📝 Debug Jira API
 
-# 🚀 Debug Jira API
-
-![Auto-generated](https://img.shields.io/badge/docs-auto--generated-blue?style=flat-square)
-![Workflow](https://img.shields.io/badge/type-github--workflow-purple?style=flat-square)
-![Updated](https://img.shields.io/badge/updated-2025.11.25-green?style=flat-square)
-
-</div>
+**Generated:** 2025-11-25 10:43:51
 
 ---
 
-## 📋 Overview
+## Overview
 
-> **Workflow File:** `.github/workflows/jiraDebug.yml`
+**Workflow Name:** `Debug Jira API`
 
-## ⚡ Triggers
+## Triggers
 
-<table>
-<tr><th>Event</th><th>Details</th></tr>
-<tr><td colspan='2'><em>No triggers defined</em></td></tr>
-</table>
+*No triggers defined*
 
 ## 🔨 Jobs
 
-### 🎯 `debug-jira`
+### `debug-jira`
 
-**🖥️ Runner:** `ubuntu-latest`
+**Runner:** `ubuntu-latest`
 
-<details>
-<summary>📝 Steps</summary>
+**Steps:**
 
-#### 1. Debug Jira API call
-
-```bash
-BRANCH_NAME="${GITHUB_REF#refs/heads/}"
-echo "Branch name: $BRANCH_NAME"
-
-# For testing, hardcode the ticket or extract from branch
-TICKET="M1-6"
-# ... (truncated)
-```
-
-</details>
+1. **Debug Jira API call**
+   - 💻 Run: `BRANCH_NAME="${GITHUB_REF#refs/heads/}"...`
 
 ---
 
-<div align="center">
-
-**📅 Last Updated:** November 25, 2025 at 10:30 UTC
-
-*Auto-generated documentation. Manual edits will be overwritten.*
-
-</div>
+*This documentation is auto-generated. Do not edit manually.*

@@ -1,67 +1,37 @@
-<div align="center">
+# 📝 Teams Notification Template
 
-# 🚀 Teams Notification Template
-
-![Auto-generated](https://img.shields.io/badge/docs-auto--generated-blue?style=flat-square)
-![Workflow](https://img.shields.io/badge/type-github--workflow-purple?style=flat-square)
-![Updated](https://img.shields.io/badge/updated-2025.11.25-green?style=flat-square)
-
-</div>
+**Generated:** 2025-11-25 10:43:51
 
 ---
 
-## 📋 Overview
+## Overview
 
-> **Workflow File:** `.github/workflows/teams-notif-template.yml`
+**Workflow Name:** `Teams Notification Template`
 
-## ⚡ Triggers
+## Triggers
 
-<table>
-<tr><th>Event</th><th>Details</th></tr>
-<tr><td colspan='2'><em>No triggers defined</em></td></tr>
-</table>
+*No triggers defined*
 
 ## 🔨 Jobs
 
-### 🎯 `send-notification`
+### `send-notification`
 
-**🖥️ Runner:** `ubuntu-latest`
+**Runner:** `ubuntu-latest`
 
-<details>
-<summary>📝 Steps</summary>
+**Steps:**
 
-#### 1. Checkout repository
+1. **Checkout repository**
+   - 📦 Action: `actions/checkout@v4`
 
-```yaml
-uses: actions/checkout@v4
-```
+2. **Make script executable**
+   - 💻 Run: `chmod +x ./scripts/send-teams-notification.sh...`
 
-#### 2. Make script executable
+3. **Send Microsoft Teams notification**
+   - 💻 Run: `./scripts/send-teams-notification.sh...`
 
-```bash
-chmod +x ./scripts/send-teams-notification.sh
-```
-
-#### 3. Send Microsoft Teams notification
-
-```bash
-./scripts/send-teams-notification.sh
-```
-
-#### 4. Test failure message
-
-```bash
-echo "This should fail" && false
-```
-
-</details>
+4. **Test failure message**
+   - 💻 Run: `echo "This should fail" && false...`
 
 ---
 
-<div align="center">
-
-**📅 Last Updated:** November 25, 2025 at 10:30 UTC
-
-*Auto-generated documentation. Manual edits will be overwritten.*
-
-</div>
+*This documentation is auto-generated. Do not edit manually.*
