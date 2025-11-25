@@ -1,8 +1,8 @@
-# 📝 Build & Release Java App (version 3) Workflow
+# 📝 Build & Release Java App Workflow
 
 ## Overview
 
-**Workflow Name:** `Build & Release Java App (version 3)`
+**Workflow Name:** `Build & Release Java App`
 
 ## Triggers
 
@@ -19,14 +19,12 @@
 
 **Steps:**
 
-1. **Validate jar_cache_key**
+1. **Check jar_cache_key**
    - Runs: `if [ -z "${{ needs.build_jar.outputs.jar_cache_key }}" ]; th...`
 
 ### `build_installer`
 
 ### `upload_release`
-
-### `notify_success`
 
 ### `notify_failure`
 
