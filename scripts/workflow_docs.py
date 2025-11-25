@@ -10,18 +10,10 @@ IGNORED_FILES = {"workflow-docs.yml", "workflow-docs.yaml"}
 
 
 def build_header(name: str) -> str:
-    ts = datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S UTC")
     return (
         f"# 📝 {name}\n\n"
-        f"**Generated:** {ts}\n\n"
+        f"**Generated:** {datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S UTC')}\n\n"
         "---\n\n"
-    )
-
-
-def build_overview(path: Path) -> str:
-    return (
-        "## Overview\n\n"
-        f"**Workflow File:** `{path}`\n\n"
     )
 
 
@@ -29,17 +21,20 @@ def build_triggers(triggers) -> str:
     doc = "## ⚡ Triggers\n\n"
     doc += "| Event | Details |\n|-------|---------|\n"
 
-    # Nothing at all under `on:`
     if not triggers:
         doc += "| – | No triggers defined |\n\n"
         return doc
 
-    # Normal case: `on:` is a mapping
     if isinstance(triggers, dict):
         for event, config in triggers.items():
             # Special case: reusable workflow
             if event == "workflow_call":
                 doc += "| `workflow_call` | Reusable workflow (called from other workflows) |\n"
+                continue
+
+            # Special case: manual dispatch
+            if event == "workflow_dispatch":
+                doc += "| `workflow_dispatch` | Manually triggered from the Actions tab |\n"
                 continue
 
             details = []
@@ -56,17 +51,51 @@ def build_triggers(triggers) -> str:
             else:
                 doc += f"| `{event}` | No filters |\n"
 
-    # `on: [push, pull_request]` style
     elif isinstance(triggers, list):
         for event in triggers:
             doc += f"| `{event}` | Standard trigger |\n"
 
-    # Fallback
     else:
         doc += f"| `{triggers}` | Standard trigger |\n"
 
     return doc + "\n"
 
+
+def build_workflow_call_io(triggers) -> str:
+    # Only care if this workflow uses `workflow_call`
+    if not isinstance(triggers, dict) or "workflow_call" not in triggers:
+        return ""
+
+    call_cfg = triggers["workflow_call"]
+    doc = ""
+
+    # Inputs
+    inputs = call_cfg.get("inputs") or {}
+    if inputs:
+        doc += "## 📥 Inputs\n\n"
+        doc += "| Name | Type | Required | Default | Description |\n"
+        doc += "|------|------|----------|---------|-------------|\n"
+        for name, cfg in inputs.items():
+            typ = cfg.get("type", "string")
+            required = "yes" if cfg.get("required", False) else "no"
+            default = cfg.get("default", "—")
+            desc = cfg.get("description", "")
+            doc += f"| `{name}` | `{typ}` | {required} | `{default}` | {desc} |\n"
+        doc += "\n"
+
+    # Outputs
+    outputs = call_cfg.get("outputs") or {}
+    if outputs:
+        doc += "## 📤 Outputs\n\n"
+        doc += "| Name | Description | Value |\n"
+        doc += "|------|-------------|-------|\n"
+        for name, cfg in outputs.items():
+            desc = cfg.get("description", "")
+            value = cfg.get("value", "")
+            doc += f"| `{name}` | {desc} | `{value}` |\n"
+        doc += "\n"
+
+    return doc
 
 
 def build_jobs(jobs: dict) -> str:
@@ -76,30 +105,25 @@ def build_jobs(jobs: dict) -> str:
 
     for job_name, job_data in jobs.items():
         doc += f"### `{job_name}`\n\n"
-        runner = job_data.get("runs-on", "unknown")
-        doc += f"**Runner:** `{runner}`\n\n"
+        doc += f"**Runner:** `{job_data.get('runs-on', 'unknown')}`\n\n"
 
-        # Job outputs (if any)
-        outputs = job_data.get("outputs")
-        if outputs:
+        if "outputs" in job_data:
             doc += "**Job Outputs:**\n\n"
-            for k, v in outputs.items():
+            for k, v in job_data["outputs"].items():
                 doc += f"- `{k}`: `{v}`\n"
             doc += "\n"
 
-        # Steps
-        steps = job_data.get("steps", [])
         doc += "**Steps:**\n\n"
-        for i, step in enumerate(steps, start=1):
+        for i, step in enumerate(job_data.get("steps", []), start=1):
             name = step.get("name", f"Step {i}")
             doc += f"{i}. **{name}**\n"
             if "uses" in step:
                 doc += f"   - 📦 Action: `{step['uses']}`\n"
             if "run" in step:
-                # keep run short-ish in docs
-                run_cmd = str(step["run"]).strip()
-                run_cmd = run_cmd.replace("\n", " ")[:120]
-                doc += f"   - 💻 Run: `{run_cmd}...`\n"
+                run_cmd = str(step["run"]).strip().replace("\n", " ")
+                if len(run_cmd) > 120:
+                    run_cmd = run_cmd[:120] + "..."
+                doc += f"   - 💻 Run: `{run_cmd}`\n"
             if "with" in step:
                 doc += f"   - ⚙️ Config:\n"
                 for k, v in step["with"].items():
@@ -110,25 +134,23 @@ def build_jobs(jobs: dict) -> str:
 
 
 def generate_doc(workflow_path: Path) -> None:
-    try:
-        with workflow_path.open() as f:
-            workflow = yaml.safe_load(f)
-    except Exception as e:
-        print(f"❌ Failed to parse {workflow_path}: {e}")
-        return
+    with workflow_path.open() as f:
+        workflow = yaml.safe_load(f)
 
-    if not workflow:
-        print(f"⚠️ Empty or invalid workflow: {workflow_path}")
-        return
+    # Debug (optional, you can remove later)
+    print("DEBUG:", workflow_path, "on =", workflow.get("on"))
 
     basename = workflow_path.stem
     doc_path = DOCS_DIR / f"README-{basename}.md"
     name = workflow.get("name", basename)
 
-    doc = ""
-    doc += build_header(name)
-    doc += build_overview(workflow_path)
-    doc += build_triggers(workflow.get("on"))
+    on_cfg = workflow.get("on", {})
+
+    doc = build_header(name)
+    doc += "## Overview\n\n"
+    doc += f"**Workflow File:** `{workflow_path}`\n\n"
+    doc += build_triggers(on_cfg)
+    doc += build_workflow_call_io(on_cfg)
     doc += build_jobs(workflow.get("jobs", {}))
     doc += "---\n\n*This documentation is auto-generated. Do not edit manually.*\n"
 
@@ -136,9 +158,8 @@ def generate_doc(workflow_path: Path) -> None:
     print(f"✅ Generated: {doc_path}")
 
 
-def main():
+def main() -> None:
     workflow_files = list(WORKFLOWS_DIR.glob("*.yml")) + list(WORKFLOWS_DIR.glob("*.yaml"))
-
     for wf in workflow_files:
         if wf.name in IGNORED_FILES:
             continue
