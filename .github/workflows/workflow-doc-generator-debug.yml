@@ -147,16 +147,33 @@ jobs:
                       doc += "## 📥 Inputs\n\n"
                       doc += "<table>\n<thead>\n<tr>\n<th>Parameter</th>\n<th>Type</th>\n<th>Required</th>\n<th>Default</th>\n<th>Description</th>\n</tr>\n</thead>\n<tbody>\n"
                       
-                      for name, config in call_config['inputs'].items():
-                          required = '✅' if config.get('required', False) else '❌'
-                          input_type = config.get('type', 'string')
-                          default = config.get('default', '—')
-                          description = config.get('description', 'No description provided')
-                          
-                          doc += f"<tr>\n<td><code>{name}</code></td>\n<td><code>{input_type}</code></td>\n"
-                          doc += f"<td align='center'>{required}</td>\n<td><code>{default}</code></td>\n<td>{description}</td>\n</tr>\n"
-                      
-                      doc += "</tbody>\n</table>\n\n"
+                      for for name, config in call_config['inputs'].items():
+                        # Ensure config is a dict; sometimes YAML allows shorthand values
+                        if not isinstance(config, dict):
+                            config = {"type": "string", "required": False, "default": config}
+                    
+                        required = '✅' if config.get('required', False) else '❌'
+                        input_type = config.get('type', 'string')
+                    
+                        default_val = config.get('default', '—')
+                        # Convert None to dash for readability
+                        if default_val is None:
+                            default_val = '—'
+                    
+                        description = config.get('description', '')
+                        if not description:
+                            description = '<em>No description provided</em>'
+                    
+                        doc += (
+                            f"<tr>"
+                            f"<td><code>{name}</code></td>"
+                            f"<td><code>{input_type}</code></td>"
+                            f"<td align='center'>{required}</td>"
+                            f"<td><code>{default_val}</code></td>"
+                            f"<td>{description}</td>"
+                            f"</tr>\n"
+                        )
+
                   
                   if 'outputs' in call_config and call_config['outputs']:
                       doc += "## 📤 Outputs\n\n"
