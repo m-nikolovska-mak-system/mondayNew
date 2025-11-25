@@ -147,6 +147,19 @@ jobs:
           filename: ./${{ matrix.item.workflow }}
           reusable: true
           output: docs/README-${{ matrix.item.basename }}.md
+      
+          # --- ENABLE RICH README MODE ---
+          inputs: true
+          outputs: true
+          steps: detailed
+          include_html: true
+          use_code_blocks: true
+          markdown_links: true
+          markdown_format: rich
+          badges: true
+          col_max_width: 200
+          col_max_words: 999
+
 
       # ------------------------------
       # Verify README changes for this workflow
