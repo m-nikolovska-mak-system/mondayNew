@@ -74,9 +74,10 @@ jobs:
             echo 'matrix=[{"workflow":"none","basename":"none"}]' >> $GITHUB_OUTPUT
           else
             echo "Matrix already set by prep_matrix."
-            # pass through existing matrix
-            echo "matrix=${{ steps.detect.outputs.all_changed_files }}" >> $GITHUB_OUTPUT
+            # pass through the JSON created in prep_matrix
+            echo "matrix=${{ steps.prep_matrix.outputs.matrix }}" >> $GITHUB_OUTPUT
           fi
+
 
       - name: Get PR source branch
         id: get_source_branch
