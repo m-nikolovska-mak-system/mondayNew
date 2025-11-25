@@ -68,11 +68,15 @@ def generate_doc(workflow_path):
     doc_path.write_text(doc)
     print(f"✅ Generated: {doc_path}")
 
+IGNORED_FILES = {"workflow-docs.yml", "workflow-docs.yaml"}
+
 def main():
-    for wf in WORKFLOWS_DIR.glob("*.yml"):
+    workflow_files = list(WORKFLOWS_DIR.glob("*.yml")) + list(WORKFLOWS_DIR.glob("*.yaml"))
+    for wf in workflow_files:
+        if wf.name in IGNORED_FILES:
+            continue
         generate_doc(wf)
-    for wf in WORKFLOWS_DIR.glob("*.yaml"):
-        generate_doc(wf)
+
 
 if __name__ == "__main__":
     main()
