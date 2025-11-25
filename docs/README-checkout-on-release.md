@@ -1,58 +1,33 @@
-<div align="center">
+# 📝 Checkout on Release
 
-# 🚀 Checkout on Release
-
-![Auto-generated](https://img.shields.io/badge/docs-auto--generated-blue?style=flat-square)
-![Workflow](https://img.shields.io/badge/type-github--workflow-purple?style=flat-square)
-![Updated](https://img.shields.io/badge/updated-2025.11.25-green?style=flat-square)
-
-</div>
+**Generated:** 2025-11-25 10:45:38
 
 ---
 
-## 📋 Overview
+## Overview
 
-> **Workflow File:** `.github/workflows/checkout-on-release.yml`
+**Workflow Name:** `Checkout on Release`
 
-## ⚡ Triggers
+## Triggers
 
-<table>
-<tr><th>Event</th><th>Details</th></tr>
-<tr><td colspan='2'><em>No triggers defined</em></td></tr>
-</table>
+*No triggers defined*
 
 ## 🔨 Jobs
 
-### 🎯 `checkout`
+### `checkout`
 
-**🖥️ Runner:** `ubuntu-latest`
+**Runner:** `ubuntu-latest`
 
-<details>
-<summary>📝 Steps</summary>
+**Steps:**
 
-#### 1. Checkout code at release tag
+1. **Checkout code at release tag**
+   - 📦 Action: `actions/checkout@v4`
+   - ⚙️ Config:
+     - `ref`: `${{ github.event.release.tag_name }}...`
 
-```yaml
-uses: actions/checkout@v4
-with:
-  ref: ${{ github.event.release.tag_name }}
-```
-
-#### 2. Show current commit and tag
-
-```bash
-echo "Checked out tag: ${{ github.event.release.tag_name }}"
-git log -1
-```
-
-</details>
+2. **Show current commit and tag**
+   - 💻 Run: `echo "Checked out tag: ${{ github.event.release.tag_name }}"...`
 
 ---
 
-<div align="center">
-
-**📅 Last Updated:** November 25, 2025 at 10:30 UTC
-
-*Auto-generated documentation. Manual edits will be overwritten.*
-
-</div>
+*This documentation is auto-generated. Do not edit manually.*

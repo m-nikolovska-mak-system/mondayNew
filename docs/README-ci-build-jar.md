@@ -1,4 +1,4 @@
-# 📝 Build JAR
+# 📝 Build JAR this is a duplicate with a differenect name to test readme WF
 
 **Generated:** 2025-11-25 10:45:38
 
@@ -6,7 +6,7 @@
 
 ## Overview
 
-**Workflow Name:** `Build JAR`
+**Workflow Name:** `Build JAR this is a duplicate with a differenect name to test readme WF`
 
 ## Triggers
 

@@ -1,102 +1,60 @@
-<div align="center">
+# 📝 Build Windows Installer
 
-# 🚀 Build Windows Installer
-
-![Auto-generated](https://img.shields.io/badge/docs-auto--generated-blue?style=flat-square)
-![Workflow](https://img.shields.io/badge/type-github--workflow-purple?style=flat-square)
-![Updated](https://img.shields.io/badge/updated-2025.11.25-green?style=flat-square)
-
-</div>
+**Generated:** 2025-11-25 10:45:38
 
 ---
 
-## 📋 Overview
+## Overview
 
-> **Workflow File:** `.github/workflows/build-setup.yml`
+**Workflow Name:** `Build Windows Installer`
 
-## ⚡ Triggers
+## Triggers
 
-<table>
-<tr><th>Event</th><th>Details</th></tr>
-<tr><td colspan='2'><em>No triggers defined</em></td></tr>
-</table>
+*No triggers defined*
 
 ## 🔨 Jobs
 
-### 🎯 `build-installer`
+### `build-installer`
 
-**🖥️ Runner:** `windows-latest`
+**Runner:** `windows-latest`
 
-<details>
-<summary>📝 Steps</summary>
+**Steps:**
 
-#### 1. Checkout repo
+1. **Checkout repo**
+   - 📦 Action: `actions/checkout@v4`
+   - ⚙️ Config:
+     - `ref`: `${{ github.event.inputs.release_tag }}...`
 
-```yaml
-uses: actions/checkout@v4
-with:
-  ref: ${{ github.event.inputs.release_tag }}
-```
+2. **Download built JAR from previous workflow**
+   - 📦 Action: `actions/download-artifact@v4`
+   - ⚙️ Config:
+     - `name`: `app-jar...`
+     - `path`: `build/libs...`
 
-#### 2. Download built JAR from previous workflow
+3. **Verify JAR**
+   - 💻 Run: `dir build\libs...`
 
-```yaml
-uses: actions/download-artifact@v4
-with:
-  name: app-jar
-  path: build/libs
-```
+4. **Install Inno Setup**
+   - 💻 Run: `choco install innosetup --no-progress -y...`
 
-#### 3. Verify JAR
+5. **Build setup.exe**
+   - 💻 Run: `"C:\Program Files (x86)\Inno Setup 6\ISCC.exe" .github\setup...`
 
-```bash
-dir build\libs
-```
+6. **Upload setup.exe as artifact**
+   - 📦 Action: `actions/upload-artifact@v4`
+   - ⚙️ Config:
+     - `name`: `setup-installer...`
+     - `path`: `output/OneProjectWed-Setup.exe...`
 
-#### 4. Install Inno Setup
+7. **Check output folder**
+   - 💻 Run: `dir output...`
 
-```bash
-choco install innosetup --no-progress -y
-```
-
-#### 5. Build setup.exe
-
-```bash
-"C:\Program Files (x86)\Inno Setup 6\ISCC.exe" .github\setup-script.iss
-```
-
-#### 6. Upload setup.exe as artifact
-
-```yaml
-uses: actions/upload-artifact@v4
-with:
-  name: setup-installer
-  path: output/OneProjectWed-Setup.exe
-```
-
-#### 7. Check output folder
-
-```bash
-dir output
-```
-
-#### 8. Upload setup.exe to GitHub Release
-
-```yaml
-uses: softprops/action-gh-release@v2
-with:
-  files: output/OneProjectWed-Setup.exe
-  tag_name: ${{ github.event.inputs.release_tag }}
-```
-
-</details>
+8. **Upload setup.exe to GitHub Release**
+   - 📦 Action: `softprops/action-gh-release@v2`
+   - ⚙️ Config:
+     - `files`: `output/OneProjectWed-Setup.exe...`
+     - `tag_name`: `${{ github.event.inputs.release_tag }}...`
 
 ---
 
-<div align="center">
-
-**📅 Last Updated:** November 25, 2025 at 10:30 UTC
-
-*Auto-generated documentation. Manual edits will be overwritten.*
-
-</div>
+*This documentation is auto-generated. Do not edit manually.*

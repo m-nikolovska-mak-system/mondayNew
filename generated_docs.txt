@@ -78,6 +78,7 @@ docs/README-test-secrets.md
 docs/README-main-build.md
 docs/README-2check-file-and-notify.md
 docs/README-build-and-release-4.md
+docs/README-ci-build-jar.md
 docs/README-jira-reminder.md
 docs/README-test-notifier.md
 docs/README-main.md
