@@ -1,54 +1,28 @@
-<div align="center">
+# 📝 Teams Notification
 
-# 🚀 Teams Notification
-
-![Auto-generated](https://img.shields.io/badge/docs-auto--generated-blue?style=flat-square)
-![Workflow](https://img.shields.io/badge/type-github--workflow-purple?style=flat-square)
-![Updated](https://img.shields.io/badge/updated-2025.11.25-green?style=flat-square)
-
-</div>
+**Generated:** 2025-11-25 10:20:13
 
 ---
 
-## 📋 Overview
+## Overview
 
-> **Workflow File:** `.github/workflows/teams-notify.yml`
+**Workflow Name:** `Teams Notification`
 
-## ⚡ Triggers
+## Triggers
 
-<table>
-<tr><th>Event</th><th>Details</th></tr>
-<tr><td colspan='2'><em>No triggers defined</em></td></tr>
-</table>
+*No triggers defined*
 
 ## 🔨 Jobs
 
-### 🎯 `notify`
+### `notify`
 
-**🖥️ Runner:** `ubuntu-latest`
+**Runner:** `ubuntu-latest`
 
-<details>
-<summary>📝 Steps</summary>
+**Steps:**
 
-#### 1. Send simple Teams message
-
-```bash
-echo "📤 Sending notification to Teams..."
-
-# Check if webhook is set
-if [ -z "${{ secrets.TEAMS_WEBHOOK_URL }}" ]; then
-  echo "❌ TEAMS_WEBHOOK_URL is not set!"
-# ... (truncated)
-```
-
-</details>
+1. **Send simple Teams message**
+   - 💻 Run: `echo "📤 Sending notification to Teams..."...`
 
 ---
 
-<div align="center">
-
-**📅 Last Updated:** November 25, 2025 at 10:01 UTC
-
-*Auto-generated documentation. Manual edits will be overwritten.*
-
-</div>
+*This documentation is auto-generated. Do not edit manually.*
