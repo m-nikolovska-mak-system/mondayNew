@@ -1,4 +1,4 @@
-name: Generate Workflow Documentation version 2
+name: Generate Workflow Documentation
 
 on:
   workflow_dispatch:
