@@ -140,8 +140,26 @@ jobs:
               doc += "</table>\n\n"
               
               # Inputs/Outputs for reusable workflows
-              if 'on' in workflow and isinstance(workflow['on'], dict) and 'workflow_call' in workflow['on']:
-                  call_config = workflow['on']['workflow_call']
+              call_config = None
+
+              on_section = workflow.get("on", {})
+                
+                # Case 1: "on:" is a dict (most common)
+              if isinstance(on_section, dict):
+                    call_config = on_section.get("workflow_call")
+                
+                # Case 2: "on:" is a list (rare, but YAML allows mixed triggers)
+              elif isinstance(on_section, list):
+                for item in on_section:
+                  if isinstance(item, dict) and "workflow_call" in item:
+                    call_config = item["workflow_call"]
+                    break
+                
+                # If workflow_call was found but empty, normalize to empty dict
+                if call_config is None:
+                    call_config = {}
+                
+
                   
                   if 'inputs' in call_config and call_config['inputs']:
                       doc += "## 📥 Inputs\n\n"
