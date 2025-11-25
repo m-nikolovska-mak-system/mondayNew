@@ -56,8 +56,8 @@ jobs:
           fi
           echo "✓ JAR cache key validated: ${{ needs.build_jar.outputs.jar_cache_key }}"
 
-        - name: Validate JAR path
-          run: |
+      - name: Validate JAR path
+        run: |
             if [ -z "${{ needs.build_jar.outputs.jar_path }}" ]; then
               echo "::error::JAR path is empty - artifact may not have been created"
               exit 1
