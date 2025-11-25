@@ -1,67 +1,40 @@
-<div align="center">
+# 📝 Update Docs for Workflows
 
-# 🚀 Update Docs for Workflows
-
-![Auto-generated](https://img.shields.io/badge/docs-auto--generated-blue?style=flat-square)
-![Workflow](https://img.shields.io/badge/type-github--workflow-purple?style=flat-square)
-![Updated](https://img.shields.io/badge/updated-2025.11.25-green?style=flat-square)
-
-</div>
+**Generated:** 2025-11-25 10:38:37
 
 ---
 
-## 📋 Overview
+## Overview
 
-> **Workflow File:** `.github/workflows/update-docs-2.yml`
+**Workflow Name:** `Update Docs for Workflows`
 
-## ⚡ Triggers
+## Triggers
 
-<table>
-<tr><th>Event</th><th>Details</th></tr>
-<tr><td colspan='2'><em>No triggers defined</em></td></tr>
-</table>
+*No triggers defined*
 
 ## 🔨 Jobs
 
-### 🎯 `update-docs`
+### `update-docs`
 
-**🖥️ Runner:** `ubuntu-latest`
+**Runner:** `ubuntu-latest`
 
-<details>
-<summary>📝 Steps</summary>
+**Steps:**
 
-#### 1. Step 1
+1. **Step 1**
+   - 📦 Action: `actions/checkout@v4`
 
-```yaml
-uses: actions/checkout@v4
-```
+2. **Generate docs for main action**
+   - 📦 Action: `tj-actions/auto-doc@v3`
+   - ⚙️ Config:
+     - `filename`: `action.yml...`
+     - `output`: `README.md...`
 
-#### 2. Generate docs for main action
-
-```yaml
-uses: tj-actions/auto-doc@v3
-with:
-  filename: action.yml
-  output: README.md
-```
-
-#### 3. Generate docs for reusable workflow
-
-```yaml
-uses: tj-actions/auto-doc@v3
-with:
-  filename: .github/workflows/notify-app-changes-v3.yml
-  output: docs/reusable.md
-```
-
-</details>
+3. **Generate docs for reusable workflow**
+   - 📦 Action: `tj-actions/auto-doc@v3`
+   - ⚙️ Config:
+     - `filename`: `.github/workflows/notify-app-changes-v3.yml...`
+     - `output`: `docs/reusable.md...`
 
 ---
 
-<div align="center">
-
-**📅 Last Updated:** November 25, 2025 at 10:30 UTC
-
-*Auto-generated documentation. Manual edits will be overwritten.*
-
-</div>
+*This documentation is auto-generated. Do not edit manually.*

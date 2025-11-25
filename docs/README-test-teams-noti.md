@@ -1,38 +1,23 @@
-<div align="center">
+# 📝 Test Teams Notification
 
-# 🚀 Test Teams Notification
-
-![Auto-generated](https://img.shields.io/badge/docs-auto--generated-blue?style=flat-square)
-![Workflow](https://img.shields.io/badge/type-github--workflow-purple?style=flat-square)
-![Updated](https://img.shields.io/badge/updated-2025.11.25-green?style=flat-square)
-
-</div>
+**Generated:** 2025-11-25 10:38:37
 
 ---
 
-## 📋 Overview
+## Overview
 
-> **Workflow File:** `.github/workflows/test-teams-noti.yml`
+**Workflow Name:** `Test Teams Notification`
 
-## ⚡ Triggers
+## Triggers
 
-<table>
-<tr><th>Event</th><th>Details</th></tr>
-<tr><td colspan='2'><em>No triggers defined</em></td></tr>
-</table>
+*No triggers defined*
 
 ## 🔨 Jobs
 
-### 🎯 `test-notification`
+### `test-notification`
 
-**📞 Calls:** `./.github/workflows/teams-notif-template.yml`
+**Calls:** `./.github/workflows/teams-notif-template.yml`
 
 ---
 
-<div align="center">
-
-**📅 Last Updated:** November 25, 2025 at 10:30 UTC
-
-*Auto-generated documentation. Manual edits will be overwritten.*
-
-</div>
+*This documentation is auto-generated. Do not edit manually.*

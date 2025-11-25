@@ -1,59 +1,36 @@
-<div align="center">
+# 📝 Detect File Change + MS Teams Notification
 
-# 🚀 Detect File Change + MS Teams Notification
-
-![Auto-generated](https://img.shields.io/badge/docs-auto--generated-blue?style=flat-square)
-![Workflow](https://img.shields.io/badge/type-github--workflow-purple?style=flat-square)
-![Updated](https://img.shields.io/badge/updated-2025.11.25-green?style=flat-square)
-
-</div>
+**Generated:** 2025-11-25 10:38:37
 
 ---
 
-## 📋 Overview
+## Overview
 
-> **Workflow File:** `.github/workflows/check-and-notify.yml`
+**Workflow Name:** `Detect File Change + MS Teams Notification`
 
-## ⚡ Triggers
+## Triggers
 
-<table>
-<tr><th>Event</th><th>Details</th></tr>
-<tr><td colspan='2'><em>No triggers defined</em></td></tr>
-</table>
+*No triggers defined*
 
 ## 🔨 Jobs
 
-### 🎯 `check_changes`
+### `check_changes`
 
-**📞 Calls:** `m-nikolovska-mak-system/reusable-actions-library/.github/workflows/3check-file-changes.yml@main`
+**Calls:** `m-nikolovska-mak-system/reusable-actions-library/.github/workflows/3check-file-changes.yml@main`
 
-### 🎯 `debug_print`
+### `debug_print`
 
-**🖥️ Runner:** `ubuntu-latest`
+**Runner:** `ubuntu-latest`
 
-<details>
-<summary>📝 Steps</summary>
+**Steps:**
 
-#### 1. Show outputs
+1. **Show outputs**
+   - 💻 Run: `echo "files_changed='${{ needs.check_changes.outputs.files_c...`
 
-```bash
-echo "files_changed='${{ needs.check_changes.outputs.files_changed }}'"
-echo "changed_files_list='${{ needs.check_changes.outputs.changed_files_list }}'"
-echo "all_changed_files='${{ needs.check_changes.outputs.all_changed_files }}'"
-```
+### `notify_if_changed`
 
-</details>
-
-### 🎯 `notify_if_changed`
-
-**📞 Calls:** `m-nikolovska-mak-system/reusable-actions-library/.github/workflows/teams-notifier.yml@main`
+**Calls:** `m-nikolovska-mak-system/reusable-actions-library/.github/workflows/teams-notifier.yml@main`
 
 ---
 
-<div align="center">
-
-**📅 Last Updated:** November 25, 2025 at 10:30 UTC
-
-*Auto-generated documentation. Manual edits will be overwritten.*
-
-</div>
+*This documentation is auto-generated. Do not edit manually.*

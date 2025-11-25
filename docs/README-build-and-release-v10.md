@@ -1,87 +1,55 @@
-<div align="center">
+# 📝 Build & Release Java App hi this is me testing this hello!
 
-# 🚀 Build & Release Java App hi this is me testing this hello!
-
-![Auto-generated](https://img.shields.io/badge/docs-auto--generated-blue?style=flat-square)
-![Workflow](https://img.shields.io/badge/type-github--workflow-purple?style=flat-square)
-![Updated](https://img.shields.io/badge/updated-2025.11.25-green?style=flat-square)
-
-</div>
+**Generated:** 2025-11-25 10:38:37
 
 ---
 
-## 📋 Overview
+## Overview
 
-> **Workflow File:** `.github/workflows/build-and-release-v10.yml`
+**Workflow Name:** `Build & Release Java App hi this is me testing this hello!`
 
-## ⚡ Triggers
+## Triggers
 
-<table>
-<tr><th>Event</th><th>Details</th></tr>
-<tr><td colspan='2'><em>No triggers defined</em></td></tr>
-</table>
+*No triggers defined*
 
 ## 🔨 Jobs
 
-### 🎯 `build_jar`
+### `build_jar`
 
-**📞 Calls:** `m-nikolovska-mak-system/reusable-actions-library/.github/workflows/build-jar.yml@main`
+**Calls:** `m-nikolovska-mak-system/reusable-actions-library/.github/workflows/build-jar.yml@main`
 
-### 🎯 `detect_iss`
+### `detect_iss`
 
-**📞 Calls:** `m-nikolovska-mak-system/reusable-actions-library/.github/workflows/detect-setup-script.yml@main`
+**Calls:** `m-nikolovska-mak-system/reusable-actions-library/.github/workflows/detect-setup-script.yml@main`
 
-### 🎯 `validate_inputs`
+### `validate_inputs`
 
-**🖥️ Runner:** `ubuntu-latest`
+**Runner:** `ubuntu-latest`
 
-<details>
-<summary>📝 Steps</summary>
+**Steps:**
 
-#### 1. Validate JAR cache key
+1. **Validate JAR cache key**
+   - 💻 Run: `if [ -z "${{ needs.build_jar.outputs.jar_cache_key }}" ]; th...`
 
-```bash
-if [ -z "${{ needs.build_jar.outputs.jar_cache_key }}" ]; then
-  echo "::error::JAR cache key is empty - build may have failed"
-  exit 1
-fi
-echo "✓ JAR cache key validated: ${{ needs.build_jar.outputs.jar_cache_key }}"
-```
+2. **Validate JAR path**
+   - 💻 Run: `if [ -z "${{ needs.build_jar.outputs.jar_path }}" ]; then...`
 
-#### 2. Validate JAR path
+### `build_installer`
 
-```bash
-if [ -z "${{ needs.build_jar.outputs.jar_path }}" ]; then
-  echo "::error::JAR path is empty - artifact may not have been created"
-  exit 1
-fi
-echo "✓ JAR path validated: ${{ needs.build_jar.outputs.jar_path }}"
-```
+**Calls:** `m-nikolovska-mak-system/reusable-actions-library/.github/workflows/build-installer.yml@main`
 
-</details>
+### `upload_release`
 
-### 🎯 `build_installer`
+**Calls:** `m-nikolovska-mak-system/reusable-actions-library/.github/workflows/upload-release.yml@main`
 
-**📞 Calls:** `m-nikolovska-mak-system/reusable-actions-library/.github/workflows/build-installer.yml@main`
+### `notify_success`
 
-### 🎯 `upload_release`
+**Calls:** `m-nikolovska-mak-system/reusable-actions-library/.github/workflows/teams-notifier.yml@main`
 
-**📞 Calls:** `m-nikolovska-mak-system/reusable-actions-library/.github/workflows/upload-release.yml@main`
+### `notify_failure`
 
-### 🎯 `notify_success`
-
-**📞 Calls:** `m-nikolovska-mak-system/reusable-actions-library/.github/workflows/teams-notifier.yml@main`
-
-### 🎯 `notify_failure`
-
-**📞 Calls:** `m-nikolovska-mak-system/reusable-actions-library/.github/workflows/teams-notifier.yml@main`
+**Calls:** `m-nikolovska-mak-system/reusable-actions-library/.github/workflows/teams-notifier.yml@main`
 
 ---
 
-<div align="center">
-
-**📅 Last Updated:** November 25, 2025 at 10:30 UTC
-
-*Auto-generated documentation. Manual edits will be overwritten.*
-
-</div>
+*This documentation is auto-generated. Do not edit manually.*
