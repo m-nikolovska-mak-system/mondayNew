@@ -35,6 +35,11 @@ def build_triggers(triggers) -> str:
 
     if isinstance(triggers, dict):
         for event, config in triggers.items():
+            # Special case: reusable workflow
+            if event == "workflow_call":
+                doc += "| `workflow_call` | Reusable workflow (called from other workflows) |\n"
+                continue
+
             details = []
             if isinstance(config, dict):
                 branches = config.get("branches")
@@ -43,10 +48,12 @@ def build_triggers(triggers) -> str:
                 paths = config.get("paths")
                 if isinstance(paths, list):
                     details.append(f"Paths: `{', '.join(paths)}`")
+
             if details:
                 doc += f"| `{event}` | {'<br>'.join(details)} |\n"
             else:
                 doc += f"| `{event}` | No filters |\n"
+
     elif isinstance(triggers, list):
         for event in triggers:
             doc += f"| `{event}` | Standard trigger |\n"
