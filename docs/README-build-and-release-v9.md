@@ -1,4 +1,4 @@
-# 📝 Build & Release Java App (version 3)
+# 📝 Build & Release Java App
 
 **Generated:** 2025-11-25 09:43:03
 
@@ -6,7 +6,7 @@
 
 ## Overview
 
-**Workflow Name:** `Build & Release Java App (version 3)`
+**Workflow Name:** `Build & Release Java App`
 
 ## Triggers
 
@@ -28,8 +28,8 @@
 
 **Steps:**
 
-1. **Validate jar_cache_key**
-   - 💻 Run: `if [ -z "${{ needs.build_jar.outputs.jar_cache_key }}" ]; th...`
+1. **Check jar_cache_key**
+   - 💻 Run: `# Verify JAR cache key exists and is not empty...`
 
 ### `build_installer`
 
