@@ -1,4 +1,4 @@
-name: Generate Workflow Documentation
+name: Generate Workflow Documentation version 3
 
 on:
   workflow_dispatch:
@@ -244,7 +244,8 @@ jobs:
                       doc += "    steps:\n"
                       for output_name in call_config['outputs'].keys():
                           doc += f"      - name: Use {output_name}\n"
-                          doc += f"        run: echo \"Output: ${{{{ needs.call-{basename}.outputs.{output_name} }}}}\"\n"
+                          # Escape the curly braces properly for the example
+                          doc += f"        run: echo \"Output: ${{{{{{ needs.call-{basename}.outputs.{output_name} }}}}}}\"\n"
                       doc += "```\n\n"
               
               doc += "---\n\n"
