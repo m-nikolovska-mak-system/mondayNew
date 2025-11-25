@@ -1,58 +1,36 @@
-<div align="center">
+# 📝 Detect File Changes + Notify Teams
 
-# 🚀 Detect File Changes + Notify Teams
-
-![Auto-generated](https://img.shields.io/badge/docs-auto--generated-blue?style=flat-square)
-![Workflow](https://img.shields.io/badge/type-github--workflow-purple?style=flat-square)
-![Updated](https://img.shields.io/badge/updated-2025.11.25-green?style=flat-square)
-
-</div>
+**Generated:** 2025-11-25 10:45:38
 
 ---
 
-## 📋 Overview
+## Overview
 
-> **Workflow File:** `.github/workflows/check-file-and-notify.yml`
+**Workflow Name:** `Detect File Changes + Notify Teams`
 
-## ⚡ Triggers
+## Triggers
 
-<table>
-<tr><th>Event</th><th>Details</th></tr>
-<tr><td colspan='2'><em>No triggers defined</em></td></tr>
-</table>
+*No triggers defined*
 
 ## 🔨 Jobs
 
-### 🎯 `check_changes`
+### `check_changes`
 
-**📞 Calls:** `m-nikolovska-mak-system/reusable-actions-library/.github/workflows/3check-file-changes.yml@main`
+**Calls:** `m-nikolovska-mak-system/reusable-actions-library/.github/workflows/3check-file-changes.yml@main`
 
-### 🎯 `debug_print`
+### `debug_print`
 
-**🖥️ Runner:** `ubuntu-latest`
+**Runner:** `ubuntu-latest`
 
-<details>
-<summary>📝 Steps</summary>
+**Steps:**
 
-#### 1. Step 1
+1. **Step 1**
+   - 💻 Run: `echo "changed files:  ${{ needs.check_changes.outputs.change...`
 
-```bash
-echo "changed files:  ${{ needs.check_changes.outputs.changed_files_list }}"
-echo "all changed:    ${{ needs.check_changes.outputs.all_changed_files }}"
-```
+### `notify_if_changed`
 
-</details>
-
-### 🎯 `notify_if_changed`
-
-**📞 Calls:** `m-nikolovska-mak-system/reusable-actions-library/.github/workflows/teams-notifier.yml@main`
+**Calls:** `m-nikolovska-mak-system/reusable-actions-library/.github/workflows/teams-notifier.yml@main`
 
 ---
 
-<div align="center">
-
-**📅 Last Updated:** November 25, 2025 at 10:30 UTC
-
-*Auto-generated documentation. Manual edits will be overwritten.*
-
-</div>
+*This documentation is auto-generated. Do not edit manually.*

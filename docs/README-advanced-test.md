@@ -1,142 +1,81 @@
-<div align="center">
+# 📝 Advanced ACT Test
 
-# 🚀 Advanced ACT Test
-
-![Auto-generated](https://img.shields.io/badge/docs-auto--generated-blue?style=flat-square)
-![Workflow](https://img.shields.io/badge/type-github--workflow-purple?style=flat-square)
-![Updated](https://img.shields.io/badge/updated-2025.11.25-green?style=flat-square)
-
-</div>
+**Generated:** 2025-11-25 10:45:38
 
 ---
 
-## 📋 Overview
+## Overview
 
-> **Workflow File:** `.github/workflows/advanced-test.yml`
+**Workflow Name:** `Advanced ACT Test`
 
-## ⚡ Triggers
+## Triggers
 
-<table>
-<tr><th>Event</th><th>Details</th></tr>
-<tr><td colspan='2'><em>No triggers defined</em></td></tr>
-</table>
+*No triggers defined*
 
 ## 🔨 Jobs
 
-### 🎯 `test-matrix`
+### `test-matrix`
 
-**🖥️ Runner:** `ubuntu-latest`
+**Runner:** `ubuntu-latest`
 
-<details>
-<summary>📝 Steps</summary>
+**Steps:**
 
-#### 1. Setup Node.js ${{ matrix.node }}
+1. **Setup Node.js ${{ matrix.node }}**
+   - 📦 Action: `actions/setup-node@v3`
+   - ⚙️ Config:
+     - `node-version`: `${{ matrix.node }}...`
 
-```yaml
-uses: actions/setup-node@v3
-with:
-  node-version: ${{ matrix.node }}
-```
+2. **Print Environment**
+   - 💻 Run: `echo "Running on ${{ matrix.os }} with Node.js ${{ matrix.no...`
 
-#### 2. Print Environment
+### `validate-inputs`
 
-```bash
-echo "Running on ${{ matrix.os }} with Node.js ${{ matrix.node }}"
-```
+**Runner:** `ubuntu-latest`
 
-</details>
+**Steps:**
 
-### 🎯 `validate-inputs`
+1. **Check dry-run input**
+   - 💻 Run: `if [[ "${{ github.event.inputs.dry_run }}" == "true" ]]; the...`
 
-**🖥️ Runner:** `ubuntu-latest`
+### `use-secrets`
 
-<details>
-<summary>📝 Steps</summary>
+**Runner:** `ubuntu-latest`
 
-#### 1. Check dry-run input
+**Steps:**
 
-```bash
-if [[ "${{ github.event.inputs.dry_run }}" == "true" ]]; then
-  echo "Dry run mode enabled"
-else
-  echo "Executing real changes"
-fi
-```
+1. **Print secret (simulated)**
+   - 💻 Run: `echo "Secret is set (not printing for safety)"...`
 
-</details>
+### `conditional-step`
 
-### 🎯 `use-secrets`
+**Runner:** `ubuntu-latest`
 
-**🖥️ Runner:** `ubuntu-latest`
+**Steps:**
 
-<details>
-<summary>📝 Steps</summary>
+1. **Run only in dev**
+   - 💻 Run: `echo "Running in development environment"...`
 
-#### 1. Print secret (simulated)
+### `concurrency-test`
 
-```bash
-echo "Secret is set (not printing for safety)"
-```
+**Runner:** `ubuntu-latest`
 
-</details>
+**Steps:**
 
-### 🎯 `conditional-step`
+1. **Simulate long task**
+   - 💻 Run: `sleep 10...`
 
-**🖥️ Runner:** `ubuntu-latest`
+### `post-run-cleanup`
 
-<details>
-<summary>📝 Steps</summary>
+**Runner:** `ubuntu-latest`
 
-#### 1. Run only in dev
+**Steps:**
 
-```bash
-echo "Running in development environment"
-```
+1. **Setup**
+   - 💻 Run: `echo "Setting up resources"...`
 
-</details>
-
-### 🎯 `concurrency-test`
-
-**🖥️ Runner:** `ubuntu-latest`
-
-<details>
-<summary>📝 Steps</summary>
-
-#### 1. Simulate long task
-
-```bash
-sleep 10
-```
-
-</details>
-
-### 🎯 `post-run-cleanup`
-
-**🖥️ Runner:** `ubuntu-latest`
-
-<details>
-<summary>📝 Steps</summary>
-
-#### 1. Setup
-
-```bash
-echo "Setting up resources"
-```
-
-#### 2. Cleanup
-
-```bash
-echo "Cleaning up resources"
-```
-
-</details>
+2. **Cleanup**
+   - 💻 Run: `echo "Cleaning up resources"...`
 
 ---
 
-<div align="center">
-
-**📅 Last Updated:** November 25, 2025 at 10:30 UTC
-
-*Auto-generated documentation. Manual edits will be overwritten.*
-
-</div>
+*This documentation is auto-generated. Do not edit manually.*

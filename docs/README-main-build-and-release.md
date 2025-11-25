@@ -1,66 +1,44 @@
-<div align="center">
+# 📝 Main Build and Release
 
-# 🚀 Main Build and Release
-
-![Auto-generated](https://img.shields.io/badge/docs-auto--generated-blue?style=flat-square)
-![Workflow](https://img.shields.io/badge/type-github--workflow-purple?style=flat-square)
-![Updated](https://img.shields.io/badge/updated-2025.11.25-green?style=flat-square)
-
-</div>
+**Generated:** 2025-11-25 10:45:38
 
 ---
 
-## 📋 Overview
+## Overview
 
-> **Workflow File:** `.github/workflows/main-build-and-release.yml`
+**Workflow Name:** `Main Build and Release`
 
-## ⚡ Triggers
+## Triggers
 
-<table>
-<tr><th>Event</th><th>Details</th></tr>
-<tr><td colspan='2'><em>No triggers defined</em></td></tr>
-</table>
+*No triggers defined*
 
 ## 🔨 Jobs
 
-### 🎯 `build_jar`
+### `build_jar`
 
-**📞 Calls:** `./.github/workflows/build-jar.yml`
+**Calls:** `./.github/workflows/build-jar.yml`
 
-### 🎯 `detect_iss`
+### `detect_iss`
 
-**📞 Calls:** `./.github/workflows/detect-setup-script.yml`
+**Calls:** `./.github/workflows/detect-setup-script.yml`
 
-### 🎯 `build_installer`
+### `build_installer`
 
-**📞 Calls:** `./.github/workflows/build-installer.yml`
+**Calls:** `./.github/workflows/build-installer.yml`
 
-### 🎯 `upload_release`
+### `upload_release`
 
-**📞 Calls:** `./.github/workflows/upload-release.yml`
+**Calls:** `./.github/workflows/upload-release.yml`
 
-### 🎯 `notify-on-failure`
+### `notify-on-failure`
 
-**🖥️ Runner:** `ubuntu-latest`
+**Runner:** `ubuntu-latest`
 
-<details>
-<summary>📝 Steps</summary>
+**Steps:**
 
-#### 1. Report failure
-
-```bash
-echo "❌ Workflow failed"
-echo "Failed jobs: ${{ toJSON(needs) }}"
-```
-
-</details>
+1. **Report failure**
+   - 💻 Run: `echo "❌ Workflow failed"...`
 
 ---
 
-<div align="center">
-
-**📅 Last Updated:** November 25, 2025 at 10:30 UTC
-
-*Auto-generated documentation. Manual edits will be overwritten.*
-
-</div>
+*This documentation is auto-generated. Do not edit manually.*

@@ -1,57 +1,33 @@
-<div align="center">
+# 📝 Test Composite Action
 
-# 🚀 Test Composite Action
-
-![Auto-generated](https://img.shields.io/badge/docs-auto--generated-blue?style=flat-square)
-![Workflow](https://img.shields.io/badge/type-github--workflow-purple?style=flat-square)
-![Updated](https://img.shields.io/badge/updated-2025.11.25-green?style=flat-square)
-
-</div>
+**Generated:** 2025-11-25 10:45:38
 
 ---
 
-## 📋 Overview
+## Overview
 
-> **Workflow File:** `.github/workflows/test2.yml`
+**Workflow Name:** `Test Composite Action`
 
-## ⚡ Triggers
+## Triggers
 
-<table>
-<tr><th>Event</th><th>Details</th></tr>
-<tr><td colspan='2'><em>No triggers defined</em></td></tr>
-</table>
+*No triggers defined*
 
 ## 🔨 Jobs
 
-### 🎯 `test-readme-validator`
+### `test-readme-validator`
 
-**🖥️ Runner:** `ubuntu-latest`
+**Runner:** `ubuntu-latest`
 
-<details>
-<summary>📝 Steps</summary>
+**Steps:**
 
-#### 1. Step 1
+1. **Step 1**
+   - 📦 Action: `actions/checkout@v3`
 
-```yaml
-uses: actions/checkout@v3
-```
-
-#### 2. Run README Validator
-
-```yaml
-uses: ./actions/readme-validator
-with:
-  input_file: README.md
-```
-
-</details>
+2. **Run README Validator**
+   - 📦 Action: `./actions/readme-validator`
+   - ⚙️ Config:
+     - `input_file`: `README.md...`
 
 ---
 
-<div align="center">
-
-**📅 Last Updated:** November 25, 2025 at 10:30 UTC
-
-*Auto-generated documentation. Manual edits will be overwritten.*
-
-</div>
+*This documentation is auto-generated. Do not edit manually.*
