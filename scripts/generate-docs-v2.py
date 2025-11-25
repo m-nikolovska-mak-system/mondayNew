@@ -6,8 +6,16 @@ WORKFLOWS_DIR = Path(".github/workflows")
 DOCS_DIR = Path("docs/workflows")
 DOCS_DIR.mkdir(parents=True, exist_ok=True)
 
-def build_header(name):
-    return f"# 📝 {name}\n\n**Generated:** {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n\n---\n\n"
+IGNORED_FILES = {"workflow-docs.yml", "workflow-docs.yaml"}
+
+
+def build_header(name: str) -> str:
+    return (
+        f"# 📝 {name}\n\n"
+        f"**Generated:** {datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S UTC')}\n\n"
+        "---\n\n"
+    )
+
 
 def build_triggers(triggers) -> str:
     doc = "## ⚡ Triggers\n\n"
@@ -90,50 +98,67 @@ def build_workflow_call_io(triggers) -> str:
     return doc
 
 
-
-def build_jobs(jobs):
+def build_jobs(jobs: dict) -> str:
     doc = "## 🔨 Jobs\n\n"
+    if not jobs:
+        return doc + "_No jobs defined._\n\n"
+
     for job_name, job_data in jobs.items():
         doc += f"### `{job_name}`\n\n"
         doc += f"**Runner:** `{job_data.get('runs-on', 'unknown')}`\n\n"
+
         if "outputs" in job_data:
             doc += "**Job Outputs:**\n\n"
             for k, v in job_data["outputs"].items():
                 doc += f"- `{k}`: `{v}`\n"
             doc += "\n"
+
         doc += "**Steps:**\n\n"
         for i, step in enumerate(job_data.get("steps", []), start=1):
-            name = step.get("name", "Unnamed step")
+            name = step.get("name", f"Step {i}")
             doc += f"{i}. **{name}**\n"
             if "uses" in step:
                 doc += f"   - 📦 Action: `{step['uses']}`\n"
             if "run" in step:
-                doc += f"   - 💻 Run: `{step['run']}`\n"
+                run_cmd = str(step["run"]).strip().replace("\n", " ")
+                if len(run_cmd) > 120:
+                    run_cmd = run_cmd[:120] + "..."
+                doc += f"   - 💻 Run: `{run_cmd}`\n"
             if "with" in step:
                 doc += f"   - ⚙️ Config:\n"
                 for k, v in step["with"].items():
                     doc += f"     - `{k}`: `{v}`\n"
             doc += "\n"
+
     return doc
 
-def generate_doc(workflow_path):
-    with open(workflow_path) as f:
+
+def generate_doc(workflow_path: Path) -> None:
+    with workflow_path.open() as f:
         workflow = yaml.safe_load(f)
+
+    # Debug (optional, you can remove later)
+    print("DEBUG:", workflow_path, "on =", workflow.get("on"))
+
     basename = workflow_path.stem
     doc_path = DOCS_DIR / f"README-{basename}.md"
     name = workflow.get("name", basename)
+
+    on_cfg = workflow.get("on", {})
+
     doc = build_header(name)
     doc += "## Overview\n\n"
     doc += f"**Workflow File:** `{workflow_path}`\n\n"
-    doc += build_triggers(workflow.get("on", {}))
+    doc += build_triggers(on_cfg)
+    doc += build_workflow_call_io(on_cfg)
     doc += build_jobs(workflow.get("jobs", {}))
     doc += "---\n\n*This documentation is auto-generated. Do not edit manually.*\n"
-    doc_path.write_text(doc)
+
+    doc_path.write_text(doc, encoding="utf-8")
     print(f"✅ Generated: {doc_path}")
 
-IGNORED_FILES = {"workflow-docs.yml", "workflow-docs.yaml"}
 
-def main():
+def main() -> None:
     workflow_files = list(WORKFLOWS_DIR.glob("*.yml")) + list(WORKFLOWS_DIR.glob("*.yaml"))
     for wf in workflow_files:
         if wf.name in IGNORED_FILES:
