@@ -1,6 +1,6 @@
 # 📝 Debug Jira API
 
-**Generated:** 2025-11-25 10:45:38
+**Generated:** 2025-11-25 15:07:33
 
 ---
 
