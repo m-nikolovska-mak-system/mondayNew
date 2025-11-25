@@ -1,0 +1,72 @@
+
+name: Generate Workflow Documentation v4
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - '.github/workflows/**'
+    branches:
+      - main
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  generate-docs:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: pip install pyyaml
+
+      - name: Generate documentation
+        run: |
+          python scripts/generate-docs-v2.py
+
+      - name: Show generated docs
+        run: |
+          echo "==== GENERATED DOCUMENTATION ===="
+          for file in docs/workflows/README-*.md; do
+            if [ -f "$file" ]; then
+              echo ""
+              echo "📄 $file"
+              echo "---"
+              cat "$file"
+              echo ""
+              echo "================================="
+            fi
+          done
+
+      - name: Create Pull Request
+        uses: peter-evans/create-pull-request@v6
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          commit-message: "docs: auto-generate workflow documentation"
+          title: "📝 Update workflow documentation"
+          body: |
+            ## 🤖 Auto-generated documentation
+
+            This PR updates the workflow documentation in `docs/workflows/`.
+
+            - Generated from files in `.github/workflows/`
+            - Uses a consistent template (overview, triggers, jobs, steps)
+
+            ---
+            *This PR was created automatically. Please review before merging.*
+          branch: docs/workflow-update
+          delete-branch: true
+          labels: |
+            documentation
+            automated
