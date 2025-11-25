@@ -1,69 +1,35 @@
-<div align="center">
+# 📝 Test File Change Detection
 
-# 🚀 Test File Change Detection
-
-![Auto-generated](https://img.shields.io/badge/docs-auto--generated-blue?style=flat-square)
-![Workflow](https://img.shields.io/badge/type-github--workflow-purple?style=flat-square)
-![Updated](https://img.shields.io/badge/updated-2025.11.25-green?style=flat-square)
-
-</div>
+**Generated:** 2025-11-25 10:25:26
 
 ---
 
-## 📋 Overview
+## Overview
 
-> **Workflow File:** `.github/workflows/test-file-detection.yml`
+**Workflow Name:** `Test File Change Detection`
 
-## ⚡ Triggers
+## Triggers
 
-<table>
-<tr><th>Event</th><th>Details</th></tr>
-<tr><td colspan='2'><em>No triggers defined</em></td></tr>
-</table>
+*No triggers defined*
 
 ## 🔨 Jobs
 
-### 🎯 `test-detection`
+### `test-detection`
 
-**📞 Calls:** `m-nikolovska-mak-system/reusable-actions-library/.github/workflows/3check-file-changes.yml@main`
+**Calls:** `m-nikolovska-mak-system/reusable-actions-library/.github/workflows/3check-file-changes.yml@main`
 
-### 🎯 `show-results`
+### `show-results`
 
-**🖥️ Runner:** `ubuntu-latest`
+**Runner:** `ubuntu-latest`
 
-<details>
-<summary>📝 Steps</summary>
+**Steps:**
 
-#### 1. Show what was detected
+1. **Show what was detected**
+   - 💻 Run: `echo "=========================================="...`
 
-```bash
-echo "=========================================="
-echo "🧪 FILE DETECTION TEST RESULTS"
-echo "=========================================="
-echo ""
-echo "📊 Comparison: ${{ needs.test-detection.outputs.comparison_info }}"
-# ... (truncated)
-```
-
-#### 2. Create test summary
-
-```bash
-echo "# 🧪 File Detection Test Results" >> $GITHUB_STEP_SUMMARY
-echo "" >> $GITHUB_STEP_SUMMARY
-echo "## Comparison" >> $GITHUB_STEP_SUMMARY
-echo "\`${{ needs.test-detection.outputs.comparison_info }}\`" >> $GITHUB_STEP_SUMMARY
-echo "" >> $GITHUB_STEP_SUMMARY
-# ... (truncated)
-```
-
-</details>
+2. **Create test summary**
+   - 💻 Run: `echo "# 🧪 File Detection Test Results" >> $GITHUB_STEP_SUMMA...`
 
 ---
 
-<div align="center">
-
-**📅 Last Updated:** November 25, 2025 at 10:20 UTC
-
-*Auto-generated documentation. Manual edits will be overwritten.*
-
-</div>
+*This documentation is auto-generated. Do not edit manually.*

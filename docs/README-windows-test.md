@@ -1,51 +1,28 @@
-<div align="center">
+# 📝 Windows Test Workflow
 
-# 🚀 Windows Test Workflow
-
-![Auto-generated](https://img.shields.io/badge/docs-auto--generated-blue?style=flat-square)
-![Workflow](https://img.shields.io/badge/type-github--workflow-purple?style=flat-square)
-![Updated](https://img.shields.io/badge/updated-2025.11.25-green?style=flat-square)
-
-</div>
+**Generated:** 2025-11-25 10:25:26
 
 ---
 
-## 📋 Overview
+## Overview
 
-> **Workflow File:** `.github/workflows/windows-test.yml`
+**Workflow Name:** `Windows Test Workflow`
 
-## ⚡ Triggers
+## Triggers
 
-<table>
-<tr><th>Event</th><th>Details</th></tr>
-<tr><td colspan='2'><em>No triggers defined</em></td></tr>
-</table>
+*No triggers defined*
 
 ## 🔨 Jobs
 
-### 🎯 `test-windows`
+### `test-windows`
 
-**🖥️ Runner:** `windows-latest`
+**Runner:** `windows-latest`
 
-<details>
-<summary>📝 Steps</summary>
+**Steps:**
 
-#### 1. Print system info
-
-```bash
-echo Running on Windows
-ver
-dir
-```
-
-</details>
+1. **Print system info**
+   - 💻 Run: `echo Running on Windows...`
 
 ---
 
-<div align="center">
-
-**📅 Last Updated:** November 25, 2025 at 10:20 UTC
-
-*Auto-generated documentation. Manual edits will be overwritten.*
-
-</div>
+*This documentation is auto-generated. Do not edit manually.*

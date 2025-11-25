@@ -1,55 +1,31 @@
-<div align="center">
+# 📝 Test Workflow
 
-# 🚀 Test Workflow
-
-![Auto-generated](https://img.shields.io/badge/docs-auto--generated-blue?style=flat-square)
-![Workflow](https://img.shields.io/badge/type-github--workflow-purple?style=flat-square)
-![Updated](https://img.shields.io/badge/updated-2025.11.25-green?style=flat-square)
-
-</div>
+**Generated:** 2025-11-25 10:25:26
 
 ---
 
-## 📋 Overview
+## Overview
 
-> **Workflow File:** `.github/workflows/main.yml`
+**Workflow Name:** `Test Workflow`
 
-## ⚡ Triggers
+## Triggers
 
-<table>
-<tr><th>Event</th><th>Details</th></tr>
-<tr><td colspan='2'><em>No triggers defined</em></td></tr>
-</table>
+*No triggers defined*
 
 ## 🔨 Jobs
 
-### 🎯 `test`
+### `test`
 
-**🖥️ Runner:** `ubuntu-latest`
+**Runner:** `ubuntu-latest`
 
-<details>
-<summary>📝 Steps</summary>
+**Steps:**
 
-#### 1. Checkout code
+1. **Checkout code**
+   - 📦 Action: `actions/checkout@v3`
 
-```yaml
-uses: actions/checkout@v3
-```
-
-#### 2. Say Hello
-
-```bash
-echo "Hello from Act!"
-```
-
-</details>
+2. **Say Hello**
+   - 💻 Run: `echo "Hello from Act!"...`
 
 ---
 
-<div align="center">
-
-**📅 Last Updated:** November 25, 2025 at 10:20 UTC
-
-*Auto-generated documentation. Manual edits will be overwritten.*
-
-</div>
+*This documentation is auto-generated. Do not edit manually.*

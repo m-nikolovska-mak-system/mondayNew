@@ -1,79 +1,42 @@
-<div align="center">
+# 📝 Generate Docs
 
-# 🚀 Generate Docs
-
-![Auto-generated](https://img.shields.io/badge/docs-auto--generated-blue?style=flat-square)
-![Workflow](https://img.shields.io/badge/type-github--workflow-purple?style=flat-square)
-![Updated](https://img.shields.io/badge/updated-2025.11.25-green?style=flat-square)
-
-</div>
+**Generated:** 2025-11-25 10:25:26
 
 ---
 
-## 📋 Overview
+## Overview
 
-> **Workflow File:** `.github/workflows/generate-docs-2.yml`
+**Workflow Name:** `Generate Docs`
 
-## ⚡ Triggers
+## Triggers
 
-<table>
-<tr><th>Event</th><th>Details</th></tr>
-<tr><td colspan='2'><em>No triggers defined</em></td></tr>
-</table>
+*No triggers defined*
 
 ## 🔨 Jobs
 
-### 🎯 `generate-docs`
+### `generate-docs`
 
-**🖥️ Runner:** `ubuntu-latest`
+**Runner:** `ubuntu-latest`
 
-<details>
-<summary>📝 Steps</summary>
+**Steps:**
 
-#### 1. Checkout repository
+1. **Checkout repository**
+   - 📦 Action: `actions/checkout@v4`
 
-```yaml
-uses: actions/checkout@v4
-```
+2. **Set up Python**
+   - 📦 Action: `actions/setup-python@v5`
+   - ⚙️ Config:
+     - `python-version`: `3.11...`
 
-#### 2. Set up Python
+3. **Install dependencies**
+   - 💻 Run: `pip install pyyaml...`
 
-```yaml
-uses: actions/setup-python@v5
-with:
-  python-version: 3.11
-```
+4. **Run documentation generator**
+   - 💻 Run: `python scripts/generate_docs.py...`
 
-#### 3. Install dependencies
-
-```bash
-pip install pyyaml
-```
-
-#### 4. Run documentation generator
-
-```bash
-python scripts/generate_docs.py
-```
-
-#### 5. Commit and push changes
-
-```bash
-git config --global user.name "github-actions[bot]"
-git config --global user.email "github-actions[bot]@users.noreply.github.com"
-git add README.md docs/workflows.md
-git commit -m "Update docs [skip ci]" || echo "No changes to commit"
-git push
-```
-
-</details>
+5. **Commit and push changes**
+   - 💻 Run: `git config --global user.name "github-actions[bot]"...`
 
 ---
 
-<div align="center">
-
-**📅 Last Updated:** November 25, 2025 at 10:20 UTC
-
-*Auto-generated documentation. Manual edits will be overwritten.*
-
-</div>
+*This documentation is auto-generated. Do not edit manually.*

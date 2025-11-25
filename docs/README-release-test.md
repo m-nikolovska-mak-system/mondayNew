@@ -1,53 +1,28 @@
-<div align="center">
+# 📝 Test Release Workflow
 
-# 🚀 Test Release Workflow
-
-![Auto-generated](https://img.shields.io/badge/docs-auto--generated-blue?style=flat-square)
-![Workflow](https://img.shields.io/badge/type-github--workflow-purple?style=flat-square)
-![Updated](https://img.shields.io/badge/updated-2025.11.25-green?style=flat-square)
-
-</div>
+**Generated:** 2025-11-25 10:25:26
 
 ---
 
-## 📋 Overview
+## Overview
 
-> **Workflow File:** `.github/workflows/release-test.yml`
+**Workflow Name:** `Test Release Workflow`
 
-## ⚡ Triggers
+## Triggers
 
-<table>
-<tr><th>Event</th><th>Details</th></tr>
-<tr><td colspan='2'><em>No triggers defined</em></td></tr>
-</table>
+*No triggers defined*
 
 ## 🔨 Jobs
 
-### 🎯 `print-release-info`
+### `print-release-info`
 
-**🖥️ Runner:** `ubuntu-latest`
+**Runner:** `ubuntu-latest`
 
-<details>
-<summary>📝 Steps</summary>
+**Steps:**
 
-#### 1. Show release info
-
-```bash
-echo "Release tag: ${{ github.event.release.tag_name }}"
-echo "Release name: ${{ github.event.release.name }}"
-echo "Draft? ${{ github.event.release.draft }}"
-echo "Prerelease? ${{ github.event.release.prerelease }}"
-echo "Body: ${{ github.event.release.body }}"
-```
-
-</details>
+1. **Show release info**
+   - 💻 Run: `echo "Release tag: ${{ github.event.release.tag_name }}"...`
 
 ---
 
-<div align="center">
-
-**📅 Last Updated:** November 25, 2025 at 10:20 UTC
-
-*Auto-generated documentation. Manual edits will be overwritten.*
-
-</div>
+*This documentation is auto-generated. Do not edit manually.*

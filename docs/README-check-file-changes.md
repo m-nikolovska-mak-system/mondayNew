@@ -1,84 +1,42 @@
-<div align="center">
+# 📝 Check File Changes
 
-# 🚀 Check File Changes
-
-![Auto-generated](https://img.shields.io/badge/docs-auto--generated-blue?style=flat-square)
-![Workflow](https://img.shields.io/badge/type-github--workflow-purple?style=flat-square)
-![Updated](https://img.shields.io/badge/updated-2025.11.25-green?style=flat-square)
-
-</div>
+**Generated:** 2025-11-25 10:25:26
 
 ---
 
-## 📋 Overview
+## Overview
 
-> **Workflow File:** `.github/workflows/check-file-changes.yml`
+**Workflow Name:** `Check File Changes`
 
-## ⚡ Triggers
+## Triggers
 
-<table>
-<tr><th>Event</th><th>Details</th></tr>
-<tr><td colspan='2'><em>No triggers defined</em></td></tr>
-</table>
+*No triggers defined*
 
 ## 🔨 Jobs
 
-### 🎯 `check`
+### `check`
 
-**🖥️ Runner:** `ubuntu-latest`
+**Runner:** `ubuntu-latest`
 
-<details>
-<summary>📊 Job Outputs</summary>
+**Job Outputs:**
 
-```yaml
-changed: ${{ steps.detect.outputs.changed }}
-files: ${{ steps.detect.outputs.files }}
-current_ref: ${{ steps.refs.outputs.current }}
-```
+- `changed`: `${{ steps.detect.outputs.changed }}`
+- `files`: `${{ steps.detect.outputs.files }}`
+- `current_ref`: `${{ steps.refs.outputs.current }}`
 
-</details>
+**Steps:**
 
-<details>
-<summary>📝 Steps</summary>
+1. **Checkout repository**
+   - 📦 Action: `actions/checkout@v4`
+   - ⚙️ Config:
+     - `fetch-depth`: `0...`
 
-#### 1. Checkout repository
+2. **Resolve refs**
+   - 💻 Run: `current="${{ inputs.current_ref }}"...`
 
-```yaml
-uses: actions/checkout@v4
-with:
-  fetch-depth: 0
-```
-
-#### 2. Resolve refs
-
-```bash
-current="${{ inputs.current_ref }}"
-previous="${{ inputs.previous_ref }}"
-
-# Auto-detect current ref
-if [ -z "$current" ]; then
-# ... (truncated)
-```
-
-#### 3. Detect changes
-
-```bash
-pattern="${{ inputs.file_pattern }}"
-prev="${{ steps.refs.outputs.previous }}"
-curr="${{ steps.refs.outputs.current }}"
-
-echo "🔍 Searching for pattern: $pattern"
-# ... (truncated)
-```
-
-</details>
+3. **Detect changes**
+   - 💻 Run: `pattern="${{ inputs.file_pattern }}"...`
 
 ---
 
-<div align="center">
-
-**📅 Last Updated:** November 25, 2025 at 10:20 UTC
-
-*Auto-generated documentation. Manual edits will be overwritten.*
-
-</div>
+*This documentation is auto-generated. Do not edit manually.*
