@@ -1,61 +1,35 @@
-<div align="center">
+# 📝 Create Jira Task on Release
 
-# 🚀 Create Jira Task on Release
-
-![Auto-generated](https://img.shields.io/badge/docs-auto--generated-blue?style=flat-square)
-![Workflow](https://img.shields.io/badge/type-github--workflow-purple?style=flat-square)
-![Updated](https://img.shields.io/badge/updated-2025.11.25-green?style=flat-square)
-
-</div>
+**Generated:** 2025-11-25 10:20:36
 
 ---
 
-## 📋 Overview
+## Overview
 
-> **Workflow File:** `.github/workflows/jira-reminder.yml`
+**Workflow Name:** `Create Jira Task on Release`
 
-## ⚡ Triggers
+## Triggers
 
-<table>
-<tr><th>Event</th><th>Details</th></tr>
-<tr><td colspan='2'><em>No triggers defined</em></td></tr>
-</table>
+*No triggers defined*
 
 ## 🔨 Jobs
 
-### 🎯 `create-jira-task`
+### `create-jira-task`
 
-**🖥️ Runner:** `ubuntu-latest`
+**Runner:** `ubuntu-latest`
 
-<details>
-<summary>📝 Steps</summary>
+**Steps:**
 
-#### 1. Checkout repository
+1. **Checkout repository**
+   - 📦 Action: `actions/checkout@v4`
 
-```yaml
-uses: actions/checkout@v4
-```
-
-#### 2. Create Jira task
-
-```yaml
-uses: atlassian/gajira-create@v3
-with:
-  project: DEMO
-  issuetype: Task
-  summary: Prepare new installer for App.java changes
-  description: App.java was modified in the latest release. Please review a...
-  assignee: mihaela.nikolovska@students.finki.ukim.mk
-```
-
-</details>
+2. **Create Jira task**
+   - 📦 Action: `atlassian/gajira-create@v3`
+   - ⚙️ Config:
+     - `project`: `DEMO...`
+     - `issuetype`: `Task...`
+     - `summary`: `Prepare new installer for App.java changes...`
 
 ---
 
-<div align="center">
-
-**📅 Last Updated:** November 25, 2025 at 10:01 UTC
-
-*Auto-generated documentation. Manual edits will be overwritten.*
-
-</div>
+*This documentation is auto-generated. Do not edit manually.*

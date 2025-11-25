@@ -1,42 +1,27 @@
-<div align="center">
+# 📝 Teams Notification Template
 
-# 🚀 Teams Notification Template
-
-![Auto-generated](https://img.shields.io/badge/docs-auto--generated-blue?style=flat-square)
-![Workflow](https://img.shields.io/badge/type-github--workflow-purple?style=flat-square)
-![Updated](https://img.shields.io/badge/updated-2025.11.25-green?style=flat-square)
-
-</div>
+**Generated:** 2025-11-25 10:20:35
 
 ---
 
-## 📋 Overview
+## Overview
 
-> **Workflow File:** `.github/workflows/teams-notif-on-update.yml`
+**Workflow Name:** `Teams Notification Template`
 
-## ⚡ Triggers
+## Triggers
 
-<table>
-<tr><th>Event</th><th>Details</th></tr>
-<tr><td colspan='2'><em>No triggers defined</em></td></tr>
-</table>
+*No triggers defined*
 
 ## 🔨 Jobs
 
-### 🎯 `detect`
+### `detect`
 
-**📞 Calls:** `./.github/workflows/detect-file-change.yml`
+**Calls:** `./.github/workflows/detect-file-change.yml`
 
-### 🎯 `notify`
+### `notify`
 
-**📞 Calls:** `./.github/workflows/send-teams-notif.yml`
+**Calls:** `./.github/workflows/send-teams-notif.yml`
 
 ---
 
-<div align="center">
-
-**📅 Last Updated:** November 25, 2025 at 10:01 UTC
-
-*Auto-generated documentation. Manual edits will be overwritten.*
-
-</div>
+*This documentation is auto-generated. Do not edit manually.*

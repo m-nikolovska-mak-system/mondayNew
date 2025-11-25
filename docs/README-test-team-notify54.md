@@ -1,75 +1,41 @@
-<div align="center">
+# 📝 Notify Teams on Changes
 
-# 🚀 Notify Teams on Changes
-
-![Auto-generated](https://img.shields.io/badge/docs-auto--generated-blue?style=flat-square)
-![Workflow](https://img.shields.io/badge/type-github--workflow-purple?style=flat-square)
-![Updated](https://img.shields.io/badge/updated-2025.11.25-green?style=flat-square)
-
-</div>
+**Generated:** 2025-11-25 10:20:35
 
 ---
 
-## 📋 Overview
+## Overview
 
-> **Workflow File:** `.github/workflows/test-team-notify54.yml`
+**Workflow Name:** `Notify Teams on Changes`
 
-## ⚡ Triggers
+## Triggers
 
-<table>
-<tr><th>Event</th><th>Details</th></tr>
-<tr><td colspan='2'><em>No triggers defined</em></td></tr>
-</table>
+*No triggers defined*
 
 ## 🔨 Jobs
 
-### 🎯 `detect-changes`
+### `detect-changes`
 
-**🖥️ Runner:** `ubuntu-latest`
+**Runner:** `ubuntu-latest`
 
-<details>
-<summary>📊 Job Outputs</summary>
+**Job Outputs:**
 
-```yaml
-changed_files: ${{ steps.changes.outputs.files }}
-```
+- `changed_files`: `${{ steps.changes.outputs.files }}`
 
-</details>
+**Steps:**
 
-<details>
-<summary>📝 Steps</summary>
+1. **Checkout code**
+   - 📦 Action: `actions/checkout@v4`
+   - ⚙️ Config:
+     - `fetch-depth`: `2...`
 
-#### 1. Checkout code
+2. **Get changed files**
+   - 💻 Run: `# For push events, compare with previous commit...`
 
-```yaml
-uses: actions/checkout@v4
-with:
-  fetch-depth: 2
-```
+### `notify-teams`
 
-#### 2. Get changed files
-
-```bash
-# For push events, compare with previous commit
-if [ "${{ github.event_name }}" = "push" ]; then
-  FILES=$(git diff --name-only HEAD^ HEAD | tr '\n' ',' | sed 's/,$//')
-else
-  # For manual dispatch, just list some key files
-# ... (truncated)
-```
-
-</details>
-
-### 🎯 `notify-teams`
-
-**📞 Calls:** `m-nikolovska-mak-system/reusable-actions-library/.github/workflows/teams-notifier.yml@main`
+**Calls:** `m-nikolovska-mak-system/reusable-actions-library/.github/workflows/teams-notifier.yml@main`
 
 ---
 
-<div align="center">
-
-**📅 Last Updated:** November 25, 2025 at 10:01 UTC
-
-*Auto-generated documentation. Manual edits will be overwritten.*
-
-</div>
+*This documentation is auto-generated. Do not edit manually.*
