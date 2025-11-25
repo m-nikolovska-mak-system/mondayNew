@@ -1,60 +1,102 @@
-# 📝 Build JAR on Release
+<div align="center">
 
-**Generated:** 2025-11-25 09:43:03
+# 🚀 Build JAR on Release
+
+![Auto-generated](https://img.shields.io/badge/docs-auto--generated-blue?style=flat-square)
+![Workflow](https://img.shields.io/badge/type-github--workflow-purple?style=flat-square)
+![Updated](https://img.shields.io/badge/updated-2025.11.25-green?style=flat-square)
+
+</div>
 
 ---
 
-## Overview
+## 📋 Overview
 
-**Workflow Name:** `Build JAR on Release`
+> **Workflow File:** `.github/workflows/checkout-and-gen-jar.yml`
 
-## Triggers
+## ⚡ Triggers
 
-*No triggers defined*
+<table>
+<tr><th>Event</th><th>Details</th></tr>
+<tr><td colspan='2'><em>No triggers defined</em></td></tr>
+</table>
 
 ## 🔨 Jobs
 
-### `build`
+### 🎯 `build`
 
-**Runner:** `ubuntu-latest`
+**🖥️ Runner:** `ubuntu-latest`
 
-**Steps:**
+<details>
+<summary>📝 Steps</summary>
 
-1. **Checkout code at release tag**
-   - 📦 Action: `actions/checkout@v4`
-   - ⚙️ Config:
-     - `ref`: `${{ github.event.release.tag_name }}...`
+#### 1. Checkout code at release tag
 
-2. **Set up Java**
-   - 📦 Action: `actions/setup-java@v3`
-   - ⚙️ Config:
-     - `distribution`: `temurin...`
-     - `java-version`: `17...`
+```yaml
+uses: actions/checkout@v4
+with:
+  ref: ${{ github.event.release.tag_name }}
+```
 
-3. **Make Gradle executable**
-   - 💻 Run: `chmod +x gradlew...`
+#### 2. Set up Java
 
-4. **Build JAR with Gradle**
-   - 💻 Run: `./gradlew jar --no-daemon...`
+```yaml
+uses: actions/setup-java@v3
+with:
+  distribution: temurin
+  java-version: 17
+```
 
-5. **Set cache key**
-   - 💻 Run: `echo "cache-key=jar-${{ github.sha }}-${{ github.run_number ...`
+#### 3. Make Gradle executable
 
-6. **Cache JAR file**
-   - 📦 Action: `actions/cache@v3`
-   - ⚙️ Config:
-     - `path`: `build/libs/*.jar...`
-     - `key`: `${{ steps.set-cache-key.outputs.cache-key }}...`
+```bash
+chmod +x gradlew
+```
 
-7. **Upload JAR as artifact**
-   - 📦 Action: `actions/upload-artifact@v3`
-   - ⚙️ Config:
-     - `name`: `built-jar...`
-     - `path`: `build/libs/*.jar...`
+#### 4. Build JAR with Gradle
 
-8. **List JAR files**
-   - 💻 Run: `ls -l build/libs...`
+```bash
+./gradlew jar --no-daemon
+```
+
+#### 5. Set cache key
+
+```bash
+echo "cache-key=jar-${{ github.sha }}-${{ github.run_number }}" >> $GITHUB_OUTPUT
+```
+
+#### 6. Cache JAR file
+
+```yaml
+uses: actions/cache@v3
+with:
+  path: build/libs/*.jar
+  key: ${{ steps.set-cache-key.outputs.cache-key }}
+```
+
+#### 7. Upload JAR as artifact
+
+```yaml
+uses: actions/upload-artifact@v3
+with:
+  name: built-jar
+  path: build/libs/*.jar
+```
+
+#### 8. List JAR files
+
+```bash
+ls -l build/libs
+```
+
+</details>
 
 ---
 
-*This documentation is auto-generated. Do not edit manually.*
+<div align="center">
+
+**📅 Last Updated:** November 25, 2025 at 10:01 UTC
+
+*Auto-generated documentation. Manual edits will be overwritten.*
+
+</div>

@@ -1,47 +1,87 @@
-# 📝 Notify App Changes on Release
+<div align="center">
 
-**Generated:** 2025-11-25 09:43:03
+# 🚀 Notify App Changes on Release
+
+![Auto-generated](https://img.shields.io/badge/docs-auto--generated-blue?style=flat-square)
+![Workflow](https://img.shields.io/badge/type-github--workflow-purple?style=flat-square)
+![Updated](https://img.shields.io/badge/updated-2025.11.25-green?style=flat-square)
+
+</div>
 
 ---
 
-## Overview
+## 📋 Overview
 
-**Workflow Name:** `Notify App Changes on Release`
+> **Workflow File:** `.github/workflows/release-reminder.yml`
 
-## Triggers
+## ⚡ Triggers
 
-*No triggers defined*
+<table>
+<tr><th>Event</th><th>Details</th></tr>
+<tr><td colspan='2'><em>No triggers defined</em></td></tr>
+</table>
 
 ## 🔨 Jobs
 
-### `check_app_change`
+### 🎯 `check_app_change`
 
-**Runner:** `ubuntu-latest`
+**🖥️ Runner:** `ubuntu-latest`
 
-**Job Outputs:**
+<details>
+<summary>📊 Job Outputs</summary>
 
-- `should_notify`: `${{ steps.check.outputs.should_notify }}`
+```yaml
+should_notify: ${{ steps.check.outputs.should_notify }}
+```
 
-**Steps:**
+</details>
 
-1. **Checkout repository**
-   - 📦 Action: `actions/checkout@v4`
-   - ⚙️ Config:
-     - `fetch-depth`: `0...`
+<details>
+<summary>📝 Steps</summary>
 
-2. **Get current release tag**
-   - 💻 Run: `echo "tag=${{ github.event.release.tag_name }}" >> $GITHUB_O...`
+#### 1. Checkout repository
 
-3. **Get previous tag**
-   - 💻 Run: `prev_tag=$(git tag --sort=-creatordate | grep -B1 "${{ steps...`
+```yaml
+uses: actions/checkout@v4
+with:
+  fetch-depth: 0
+```
 
-4. **Check if App.java changed**
-   - 💻 Run: `if git diff --name-only ${{ steps.previous_tag.outputs.prev_...`
+#### 2. Get current release tag
 
-### `notify`
+```bash
+echo "tag=${{ github.event.release.tag_name }}" >> $GITHUB_OUTPUT
+```
 
-**Calls:** `./.github/workflows/teams-notif-simple.yml`
+#### 3. Get previous tag
+
+```bash
+prev_tag=$(git tag --sort=-creatordate | grep -B1 "${{ steps.current_tag.outputs.tag }}" | head -n1)
+echo "prev_tag=$prev_tag" >> $GITHUB_OUTPUT
+```
+
+#### 4. Check if App.java changed
+
+```bash
+if git diff --name-only ${{ steps.previous_tag.outputs.prev_tag }} ${{ steps.current_tag.outputs.tag }} | grep -q 'oneProjectWed/src/java/com/miha/app/App.java'; then
+  echo "should_notify=true" >> $GITHUB_OUTPUT
+else
+  echo "should_notify=false" >> $GITHUB_OUTPUT
+fi
+```
+
+</details>
+
+### 🎯 `notify`
+
+**📞 Calls:** `./.github/workflows/teams-notif-simple.yml`
 
 ---
 
-*This documentation is auto-generated. Do not edit manually.*
+<div align="center">
+
+**📅 Last Updated:** November 25, 2025 at 10:01 UTC
+
+*Auto-generated documentation. Manual edits will be overwritten.*
+
+</div>

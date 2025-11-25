@@ -1,23 +1,38 @@
-# 📝 Test Build Installer
+<div align="center">
 
-**Generated:** 2025-11-25 09:43:03
+# 🚀 Test Build Installer
+
+![Auto-generated](https://img.shields.io/badge/docs-auto--generated-blue?style=flat-square)
+![Workflow](https://img.shields.io/badge/type-github--workflow-purple?style=flat-square)
+![Updated](https://img.shields.io/badge/updated-2025.11.25-green?style=flat-square)
+
+</div>
 
 ---
 
-## Overview
+## 📋 Overview
 
-**Workflow Name:** `Test Build Installer`
+> **Workflow File:** `.github/workflows/test-build-installer.yml`
 
-## Triggers
+## ⚡ Triggers
 
-*No triggers defined*
+<table>
+<tr><th>Event</th><th>Details</th></tr>
+<tr><td colspan='2'><em>No triggers defined</em></td></tr>
+</table>
 
 ## 🔨 Jobs
 
-### `test_build_installer`
+### 🎯 `test_build_installer`
 
-**Calls:** `./.github/workflows/build-installer.yml`
+**📞 Calls:** `./.github/workflows/build-installer.yml`
 
 ---
 
-*This documentation is auto-generated. Do not edit manually.*
+<div align="center">
+
+**📅 Last Updated:** November 25, 2025 at 10:01 UTC
+
+*Auto-generated documentation. Manual edits will be overwritten.*
+
+</div>

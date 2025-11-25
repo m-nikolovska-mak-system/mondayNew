@@ -1,114 +1,200 @@
-# 📝 Build & Release Java App
+<div align="center">
 
-**Generated:** 2025-11-25 09:43:03
+# 🚀 Build & Release Java App
+
+![Auto-generated](https://img.shields.io/badge/docs-auto--generated-blue?style=flat-square)
+![Workflow](https://img.shields.io/badge/type-github--workflow-purple?style=flat-square)
+![Updated](https://img.shields.io/badge/updated-2025.11.25-green?style=flat-square)
+
+</div>
 
 ---
 
-## Overview
+## 📋 Overview
 
-**Workflow Name:** `Build & Release Java App`
+> **Workflow File:** `.github/workflows/build-and-release.yml`
 
-## Triggers
+## ⚡ Triggers
 
-*No triggers defined*
+<table>
+<tr><th>Event</th><th>Details</th></tr>
+<tr><td colspan='2'><em>No triggers defined</em></td></tr>
+</table>
 
 ## 🔨 Jobs
 
-### `build_jar`
+### 🎯 `build_jar`
 
-**Runner:** `ubuntu-latest`
+**🖥️ Runner:** `ubuntu-latest`
 
-**Job Outputs:**
+<details>
+<summary>📊 Job Outputs</summary>
 
-- `jar_path`: `${{ steps.build.outputs.jar_path }}`
-- `jar_cache_key`: `${{ steps.build.outputs.jar_cache_key }}`
+```yaml
+jar_path: ${{ steps.build.outputs.jar_path }}
+jar_cache_key: ${{ steps.build.outputs.jar_cache_key }}
+```
 
-**Steps:**
+</details>
 
-1. **Checkout code**
-   - 📦 Action: `actions/checkout@v4`
+<details>
+<summary>📝 Steps</summary>
 
-2. **Build JAR**
-   - 📦 Action: `m-nikolovska-mak-system/reusable-actions-library/.github/workflows/build-jar.yml@main`
-   - ⚙️ Config:
-     - `release_tag`: `${{ github.event.release.tag_name || 'dev' }}...`
-     - `gradle_task`: `${{ env.GRADLE_TASK }}...`
-     - `java_version`: `${{ env.JAVA_VERSION }}...`
+#### 1. Checkout code
 
-### `detect_iss`
+```yaml
+uses: actions/checkout@v4
+```
 
-**Runner:** `ubuntu-latest`
+#### 2. Build JAR
 
-**Job Outputs:**
+```yaml
+uses: m-nikolovska-mak-system/reusable-actions-library/.github/workflows/build-jar.yml@main
+with:
+  release_tag: ${{ github.event.release.tag_name || 'dev' }}
+  gradle_task: ${{ env.GRADLE_TASK }}
+  java_version: ${{ env.JAVA_VERSION }}
+  java_distribution: ${{ env.JAVA_DISTRIBUTION }}
+```
 
-- `setup_script`: `${{ steps.detect.outputs.setup_script }}`
+</details>
 
-**Steps:**
+### 🎯 `detect_iss`
 
-1. **Checkout code**
-   - 📦 Action: `actions/checkout@v4`
+**🖥️ Runner:** `ubuntu-latest`
 
-2. **Detect ISS setup script**
-   - 📦 Action: `m-nikolovska-mak-system/reusable-actions-library/.github/workflows/detect-setup-script.yml@main`
-   - ⚙️ Config:
-     - `pattern`: `**/*.iss...`
-     - `fail_if_missing`: `True...`
+<details>
+<summary>📊 Job Outputs</summary>
 
-### `validate_inputs`
+```yaml
+setup_script: ${{ steps.detect.outputs.setup_script }}
+```
 
-**Runner:** `ubuntu-latest`
+</details>
 
-**Steps:**
+<details>
+<summary>📝 Steps</summary>
 
-1. **Validate JAR cache key**
-   - 💻 Run: `if [ -z "${{ needs.build_jar.outputs.jar_cache_key }}" ]; th...`
+#### 1. Checkout code
 
-2. **Validate JAR path**
-   - 💻 Run: `if [ -z "${{ needs.build_jar.outputs.jar_path }}" ]; then...`
+```yaml
+uses: actions/checkout@v4
+```
 
-### `build_installer`
+#### 2. Detect ISS setup script
 
-**Runner:** `ubuntu-latest`
+```yaml
+uses: m-nikolovska-mak-system/reusable-actions-library/.github/workflows/detect-setup-script.yml@main
+with:
+  pattern: **/*.iss
+  fail_if_missing: True
+```
 
-**Job Outputs:**
+</details>
 
-- `installer_artifact_name`: `${{ steps.installer.outputs.installer_artifact_name }}`
+### 🎯 `validate_inputs`
 
-**Steps:**
+**🖥️ Runner:** `ubuntu-latest`
 
-1. **Checkout code**
-   - 📦 Action: `actions/checkout@v4`
+<details>
+<summary>📝 Steps</summary>
 
-2. **Build installer**
-   - 📦 Action: `m-nikolovska-mak-system/reusable-actions-library/.github/workflows/build-installer.yml@main`
-   - ⚙️ Config:
-     - `setup_script`: `${{ needs.detect_iss.outputs.setup_script }}...`
-     - `jar_path`: `${{ needs.build_jar.outputs.jar_path }}...`
-     - `jar_cache_key`: `${{ needs.build_jar.outputs.jar_cache_key }}...`
+#### 1. Validate JAR cache key
 
-### `upload_release`
+```bash
+if [ -z "${{ needs.build_jar.outputs.jar_cache_key }}" ]; then
+  echo "::error::JAR cache key is empty - build may have failed"
+  exit 1
+fi
+echo "✓ JAR cache key validated: ${{ needs.build_jar.outputs.jar_cache_key }}"
+```
 
-**Runner:** `ubuntu-latest`
+#### 2. Validate JAR path
 
-**Steps:**
+```bash
+if [ -z "${{ needs.build_jar.outputs.jar_path }}" ]; then
+  echo "::error::JAR path is empty - artifact may not have been created"
+  exit 1
+fi
+echo "✓ JAR path validated: ${{ needs.build_jar.outputs.jar_path }}"
+```
 
-1. **Checkout code**
-   - 📦 Action: `actions/checkout@v4`
+</details>
 
-2. **Upload to release**
-   - 📦 Action: `m-nikolovska-mak-system/reusable-actions-library/.github/workflows/upload-release.yml@main`
-   - ⚙️ Config:
-     - `tag_name`: `${{ github.event.release.tag_name }}...`
-     - `artifact_name`: `${{ needs.build_installer.outputs.installer_artifa...`
+### 🎯 `build_installer`
 
-### `notify_success`
+**🖥️ Runner:** `ubuntu-latest`
 
-**Calls:** `m-nikolovska-mak-system/reusable-actions-library/.github/workflows/teams-notifier.yml@main`
+<details>
+<summary>📊 Job Outputs</summary>
 
-### `notify_failure`
+```yaml
+installer_artifact_name: ${{ steps.installer.outputs.installer_artifact_name }}
+```
 
-**Calls:** `m-nikolovska-mak-system/reusable-actions-library/.github/workflows/teams-notifier.yml@main`
+</details>
+
+<details>
+<summary>📝 Steps</summary>
+
+#### 1. Checkout code
+
+```yaml
+uses: actions/checkout@v4
+```
+
+#### 2. Build installer
+
+```yaml
+uses: m-nikolovska-mak-system/reusable-actions-library/.github/workflows/build-installer.yml@main
+with:
+  setup_script: ${{ needs.detect_iss.outputs.setup_script }}
+  jar_path: ${{ needs.build_jar.outputs.jar_path }}
+  jar_cache_key: ${{ needs.build_jar.outputs.jar_cache_key }}
+  app_name: ${{ github.event.repository.name }}
+  app_version: ${{ github.event.release.tag_name || 'dev' }}
+```
+
+</details>
+
+### 🎯 `upload_release`
+
+**🖥️ Runner:** `ubuntu-latest`
+
+<details>
+<summary>📝 Steps</summary>
+
+#### 1. Checkout code
+
+```yaml
+uses: actions/checkout@v4
+```
+
+#### 2. Upload to release
+
+```yaml
+uses: m-nikolovska-mak-system/reusable-actions-library/.github/workflows/upload-release.yml@main
+with:
+  tag_name: ${{ github.event.release.tag_name }}
+  artifact_name: ${{ needs.build_installer.outputs.installer_artifact_name }}
+```
+
+</details>
+
+### 🎯 `notify_success`
+
+**📞 Calls:** `m-nikolovska-mak-system/reusable-actions-library/.github/workflows/teams-notifier.yml@main`
+
+### 🎯 `notify_failure`
+
+**📞 Calls:** `m-nikolovska-mak-system/reusable-actions-library/.github/workflows/teams-notifier.yml@main`
 
 ---
 
-*This documentation is auto-generated. Do not edit manually.*
+<div align="center">
+
+**📅 Last Updated:** November 25, 2025 at 10:01 UTC
+
+*Auto-generated documentation. Manual edits will be overwritten.*
+
+</div>

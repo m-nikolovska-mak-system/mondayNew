@@ -1,40 +1,72 @@
-# 📝 Upload Release Artifact
+<div align="center">
 
-**Generated:** 2025-11-25 09:43:03
+# 🚀 Upload Release Artifact
+
+![Auto-generated](https://img.shields.io/badge/docs-auto--generated-blue?style=flat-square)
+![Workflow](https://img.shields.io/badge/type-github--workflow-purple?style=flat-square)
+![Updated](https://img.shields.io/badge/updated-2025.11.25-green?style=flat-square)
+
+</div>
 
 ---
 
-## Overview
+## 📋 Overview
 
-**Workflow Name:** `Upload Release Artifact`
+> **Workflow File:** `.github/workflows/upload-release.yml`
 
-## Triggers
+## ⚡ Triggers
 
-*No triggers defined*
+<table>
+<tr><th>Event</th><th>Details</th></tr>
+<tr><td colspan='2'><em>No triggers defined</em></td></tr>
+</table>
 
 ## 🔨 Jobs
 
-### `upload`
+### 🎯 `upload`
 
-**Runner:** `ubuntu-latest`
+**🖥️ Runner:** `ubuntu-latest`
 
-**Steps:**
+<details>
+<summary>📝 Steps</summary>
 
-1. **Download installer artifact**
-   - 📦 Action: `actions/download-artifact@v4`
-   - ⚙️ Config:
-     - `name`: `setup-installer...`
-     - `path`: `./release-assets...`
+#### 1. Download installer artifact
 
-2. **Verify artifact exists**
-   - 💻 Run: `echo "=== Files in release-assets ==="...`
+```yaml
+uses: actions/download-artifact@v4
+with:
+  name: setup-installer
+  path: ./release-assets
+```
 
-3. **Upload to GitHub Release**
-   - 📦 Action: `softprops/action-gh-release@v2`
-   - ⚙️ Config:
-     - `files`: `./release-assets/*.exe...`
-     - `tag_name`: `${{ inputs.tag_name }}...`
+#### 2. Verify artifact exists
+
+```bash
+echo "=== Files in release-assets ==="
+ls -lh ./release-assets/
+
+files=$(ls ./release-assets/*.exe 2>/dev/null)
+if [ -z "$files" ]; then
+# ... (truncated)
+```
+
+#### 3. Upload to GitHub Release
+
+```yaml
+uses: softprops/action-gh-release@v2
+with:
+  files: ./release-assets/*.exe
+  tag_name: ${{ inputs.tag_name }}
+```
+
+</details>
 
 ---
 
-*This documentation is auto-generated. Do not edit manually.*
+<div align="center">
+
+**📅 Last Updated:** November 25, 2025 at 10:01 UTC
+
+*Auto-generated documentation. Manual edits will be overwritten.*
+
+</div>

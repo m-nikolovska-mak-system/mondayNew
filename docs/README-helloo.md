@@ -1,28 +1,49 @@
-# 📝 Hello World Workflow
+<div align="center">
 
-**Generated:** 2025-11-25 09:43:03
+# 🚀 Hello World Workflow
+
+![Auto-generated](https://img.shields.io/badge/docs-auto--generated-blue?style=flat-square)
+![Workflow](https://img.shields.io/badge/type-github--workflow-purple?style=flat-square)
+![Updated](https://img.shields.io/badge/updated-2025.11.25-green?style=flat-square)
+
+</div>
 
 ---
 
-## Overview
+## 📋 Overview
 
-**Workflow Name:** `Hello World Workflow`
+> **Workflow File:** `.github/workflows/helloo.yml`
 
-## Triggers
+## ⚡ Triggers
 
-*No triggers defined*
+<table>
+<tr><th>Event</th><th>Details</th></tr>
+<tr><td colspan='2'><em>No triggers defined</em></td></tr>
+</table>
 
 ## 🔨 Jobs
 
-### `hello`
+### 🎯 `hello`
 
-**Runner:** `ubuntu-latest`
+**🖥️ Runner:** `ubuntu-latest`
 
-**Steps:**
+<details>
+<summary>📝 Steps</summary>
 
-1. **Print Hello**
-   - 💻 Run: `echo "Hello, world!"...`
+#### 1. Print Hello
+
+```bash
+echo "Hello, world!"
+```
+
+</details>
 
 ---
 
-*This documentation is auto-generated. Do not edit manually.*
+<div align="center">
+
+**📅 Last Updated:** November 25, 2025 at 10:01 UTC
+
+*Auto-generated documentation. Manual edits will be overwritten.*
+
+</div>

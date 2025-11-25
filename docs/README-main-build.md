@@ -1,115 +1,210 @@
-# 📝 Main Build and Release
+<div align="center">
 
-**Generated:** 2025-11-25 09:43:03
+# 🚀 Main Build and Release
+
+![Auto-generated](https://img.shields.io/badge/docs-auto--generated-blue?style=flat-square)
+![Workflow](https://img.shields.io/badge/type-github--workflow-purple?style=flat-square)
+![Updated](https://img.shields.io/badge/updated-2025.11.25-green?style=flat-square)
+
+</div>
 
 ---
 
-## Overview
+## 📋 Overview
 
-**Workflow Name:** `Main Build and Release`
+> **Workflow File:** `.github/workflows/main-build.yml`
 
-## Triggers
+## ⚡ Triggers
 
-*No triggers defined*
+<table>
+<tr><th>Event</th><th>Details</th></tr>
+<tr><td colspan='2'><em>No triggers defined</em></td></tr>
+</table>
 
 ## 🔨 Jobs
 
-### `build-jar`
+### 🎯 `build-jar`
 
-**Runner:** `ubuntu-latest`
+**🖥️ Runner:** `ubuntu-latest`
 
-**Job Outputs:**
+<details>
+<summary>📊 Job Outputs</summary>
 
-- `jar_cache_key`: `${{ steps.cache-key.outputs.key }}`
+```yaml
+jar_cache_key: ${{ steps.cache-key.outputs.key }}
+```
 
-**Steps:**
+</details>
 
-1. **Checkout code**
-   - 📦 Action: `actions/checkout@v4`
-   - ⚙️ Config:
-     - `ref`: `${{ github.event.release.tag_name || 'main' }}...`
+<details>
+<summary>📝 Steps</summary>
 
-2. **Set up Java 17**
-   - 📦 Action: `actions/setup-java@v3`
-   - ⚙️ Config:
-     - `distribution`: `temurin...`
-     - `java-version`: `17...`
+#### 1. Checkout code
 
-3. **Make Gradle wrapper executable**
-   - 💻 Run: `chmod +x gradlew...`
+```yaml
+uses: actions/checkout@v4
+with:
+  ref: ${{ github.event.release.tag_name || 'main' }}
+```
 
-4. **Cache Gradle dependencies**
-   - 📦 Action: `actions/cache@v3`
-   - ⚙️ Config:
-     - `path`: `~/.gradle/caches ~/.gradle/wrapper ...`
-     - `key`: `${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle...`
-     - `restore-keys`: `${{ runner.os }}-gradle- ...`
+#### 2. Set up Java 17
 
-5. **Build JAR with Gradle**
-   - 💻 Run: `./gradlew jar --no-daemon...`
+```yaml
+uses: actions/setup-java@v3
+with:
+  distribution: temurin
+  java-version: 17
+```
 
-6. **Validate JAR**
-   - 💻 Run: `jar_file=$(ls build/libs/*.jar 2>/dev/null | head -n 1)...`
+#### 3. Make Gradle wrapper executable
 
-7. **Generate cache key**
-   - 💻 Run: `echo "key=jar-${{ github.sha }}-${{ github.run_number }}" >>...`
+```bash
+chmod +x gradlew
+```
 
-8. **Cache built JAR**
-   - 📦 Action: `actions/cache/save@v3`
-   - ⚙️ Config:
-     - `path`: `build/libs/*.jar...`
-     - `key`: `${{ steps.cache-key.outputs.key }}...`
+#### 4. Cache Gradle dependencies
 
-### `detect-setup-script`
+```yaml
+uses: actions/cache@v3
+with:
+  path: ~/.gradle/caches ~/.gradle/wrapper 
+  key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gr...
+  restore-keys: ${{ runner.os }}-gradle- 
+```
 
-**Runner:** `ubuntu-latest`
+#### 5. Build JAR with Gradle
 
-**Job Outputs:**
+```bash
+./gradlew jar --no-daemon
+```
 
-- `setup_script`: `${{ steps.detect-iss.outputs.script }}`
+#### 6. Validate JAR
 
-**Steps:**
+```bash
+jar_file=$(ls build/libs/*.jar 2>/dev/null | head -n 1)
+if [ -z "$jar_file" ]; then
+  echo "❌ No JAR files found"
+  exit 1
+fi
+# ... (truncated)
+```
 
-1. **Checkout code**
-   - 📦 Action: `actions/checkout@v4`
+#### 7. Generate cache key
 
-2. **Detect setup script**
-   - 💻 Run: `file=$(ls *.iss 2>/dev/null | head -n 1)...`
+```bash
+echo "key=jar-${{ github.sha }}-${{ github.run_number }}" >> $GITHUB_OUTPUT
+```
 
-### `call-installer`
+#### 8. Cache built JAR
 
-**Calls:** `m-nikolovska-mak-system/reusable-actions-library/.github/workflows/build-installer.yml@main`
+```yaml
+uses: actions/cache/save@v3
+with:
+  path: build/libs/*.jar
+  key: ${{ steps.cache-key.outputs.key }}
+```
 
-### `upload-to-release`
+</details>
 
-**Runner:** `ubuntu-latest`
+### 🎯 `detect-setup-script`
 
-**Steps:**
+**🖥️ Runner:** `ubuntu-latest`
 
-1. **Download installer artifact**
-   - 📦 Action: `actions/download-artifact@v4`
-   - ⚙️ Config:
-     - `name`: `setup-installer...`
-     - `path`: `output...`
+<details>
+<summary>📊 Job Outputs</summary>
 
-2. **Verify installer exists**
-   - 💻 Run: `echo "=== Files downloaded ==="...`
+```yaml
+setup_script: ${{ steps.detect-iss.outputs.script }}
+```
 
-3. **Upload installer to GitHub Release**
-   - 📦 Action: `softprops/action-gh-release@v2`
-   - ⚙️ Config:
-     - `files`: `output/*.exe...`
-     - `tag_name`: `${{ github.event.release.tag_name }}...`
+</details>
 
-### `notify-on-failure`
+<details>
+<summary>📝 Steps</summary>
 
-**Runner:** `ubuntu-latest`
+#### 1. Checkout code
 
-**Steps:**
+```yaml
+uses: actions/checkout@v4
+```
 
-1. **Report failure**
-   - 💻 Run: `echo "❌ Workflow failed"...`
+#### 2. Detect setup script
+
+```bash
+file=$(ls *.iss 2>/dev/null | head -n 1)
+if [ -z "$file" ]; then
+  echo "❌ No .iss setup script found!"
+  exit 1
+fi
+# ... (truncated)
+```
+
+</details>
+
+### 🎯 `call-installer`
+
+**📞 Calls:** `m-nikolovska-mak-system/reusable-actions-library/.github/workflows/build-installer.yml@main`
+
+### 🎯 `upload-to-release`
+
+**🖥️ Runner:** `ubuntu-latest`
+
+<details>
+<summary>📝 Steps</summary>
+
+#### 1. Download installer artifact
+
+```yaml
+uses: actions/download-artifact@v4
+with:
+  name: setup-installer
+  path: output
+```
+
+#### 2. Verify installer exists
+
+```bash
+echo "=== Files downloaded ==="
+ls -lh output/
+
+expected="Setup-${{ github.event.release.tag_name }}.exe"
+if [ ! -f "output/$expected" ]; then
+# ... (truncated)
+```
+
+#### 3. Upload installer to GitHub Release
+
+```yaml
+uses: softprops/action-gh-release@v2
+with:
+  files: output/*.exe
+  tag_name: ${{ github.event.release.tag_name }}
+```
+
+</details>
+
+### 🎯 `notify-on-failure`
+
+**🖥️ Runner:** `ubuntu-latest`
+
+<details>
+<summary>📝 Steps</summary>
+
+#### 1. Report failure
+
+```bash
+echo "❌ Workflow failed"
+echo "Failed jobs: ${{ toJSON(needs) }}"
+```
+
+</details>
 
 ---
 
-*This documentation is auto-generated. Do not edit manually.*
+<div align="center">
+
+**📅 Last Updated:** November 25, 2025 at 10:01 UTC
+
+*Auto-generated documentation. Manual edits will be overwritten.*
+
+</div>

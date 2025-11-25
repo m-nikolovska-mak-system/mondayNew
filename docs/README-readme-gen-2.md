@@ -1,31 +1,55 @@
-# 📝 Generate Action Docs
+<div align="center">
 
-**Generated:** 2025-11-25 09:43:03
+# 🚀 Generate Action Docs
+
+![Auto-generated](https://img.shields.io/badge/docs-auto--generated-blue?style=flat-square)
+![Workflow](https://img.shields.io/badge/type-github--workflow-purple?style=flat-square)
+![Updated](https://img.shields.io/badge/updated-2025.11.25-green?style=flat-square)
+
+</div>
 
 ---
 
-## Overview
+## 📋 Overview
 
-**Workflow Name:** `Generate Action Docs`
+> **Workflow File:** `.github/workflows/readme-gen-2.yml`
 
-## Triggers
+## ⚡ Triggers
 
-*No triggers defined*
+<table>
+<tr><th>Event</th><th>Details</th></tr>
+<tr><td colspan='2'><em>No triggers defined</em></td></tr>
+</table>
 
 ## 🔨 Jobs
 
-### `generate-docs`
+### 🎯 `generate-docs`
 
-**Runner:** `ubuntu-latest`
+**🖥️ Runner:** `ubuntu-latest`
 
-**Steps:**
+<details>
+<summary>📝 Steps</summary>
 
-1. **Step 1**
-   - 📦 Action: `actions/checkout@v3`
+#### 1. Step 1
 
-2. **Generate docs**
-   - 📦 Action: `nektos/action-docs@v2`
+```yaml
+uses: actions/checkout@v3
+```
+
+#### 2. Generate docs
+
+```yaml
+uses: nektos/action-docs@v2
+```
+
+</details>
 
 ---
 
-*This documentation is auto-generated. Do not edit manually.*
+<div align="center">
+
+**📅 Last Updated:** November 25, 2025 at 10:01 UTC
+
+*Auto-generated documentation. Manual edits will be overwritten.*
+
+</div>
