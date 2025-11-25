@@ -33,13 +33,19 @@ jobs:
       - name: Generate docs
         run: |
           mkdir -p docs/workflows
-
-          for file in ${{ steps.list.outputs.files }}; do
-            name=$(basename "$file" .yml)
-            name=$(basename "$name" .yaml)
-
+      
+          for file in .github/workflows/*.yml .github/workflows/*.yaml; do
+            # Skip if no such file exists (glob failed)
+            [ -e "$file" ] || continue
+      
+            name=$(basename "$file")
+            name="${name%.*}"
+      
+            echo "Generating docs for $file → docs/workflows/${name}.md"
+      
             node .github/scripts/generate-readme.js "$file" "docs/workflows/${name}.md"
           done
+
 
       - name: Commit documentation
         uses: stefanzweifel/git-auto-commit-action@v5
