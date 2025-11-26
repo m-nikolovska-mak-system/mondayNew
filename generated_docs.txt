@@ -67,6 +67,7 @@ docs/README-notify-app-changes.md
 docs/README-checkout-and-gen-jar.md
 docs/README-detect-setup-script.md
 docs/README-test-teams-notif.md
+docs/README-generate-workflow-docs-v5.md
 docs/README-build-and-release2.md
 docs/README-secret-scanner.md
 docs/README-branchesTest.md
