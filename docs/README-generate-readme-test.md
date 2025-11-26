@@ -1,6 +1,6 @@
 # 📝 📝 Generate/Update README Documentation
 
-**Generated:** 2025-11-25 15:57:21
+**Generated:** 2025-11-26 11:57:45
 
 ---
 
@@ -20,30 +20,28 @@
 
 **Job Outputs:**
 
-- `matrix`: `${{ steps.handle_matrix.outputs.matrix }}`
+- `matrix`: `${{ steps.prep_matrix.outputs.matrix }}`
 - `pr_source_branch`: `${{ steps.get_source_branch.outputs.pr_source_branch }}`
+- `has_changes`: `${{ steps.detect.outputs.any_changed }}`
 
 **Steps:**
 
 1. **Checkout**
    - 📦 Action: `actions/checkout@v4`
-   - ⚙️ Config:
-     - `fetch-depth`: `0...`
-     - `token`: `${{ secrets.GITHUB_TOKEN }}...`
 
 2. **Detect changed workflow files**
    - 📦 Action: `tj-actions/changed-files@v44`
    - ⚙️ Config:
-     - `files`: `.github/workflows/ci-*.yml !.github/workflows/ci-r...`
+     - `files`: `.github/workflows/ci-*.yml !.github/workflows/gene...`
 
 3. **Print changed workflow files**
    - 💻 Run: `echo "Changed workflow files:"...`
 
-4. **Prepare matrix**
-   - 💻 Run: `files="${{ steps.detect.outputs.all_changed_files }}"...`
+4. **Stop if no workflows changed**
+   - 💻 Run: `echo "No workflow changes detected. Skipping documentation."...`
 
-5. **Handle empty matrix**
-   - 💻 Run: `if [ "${{ steps.detect.outputs.any_changed }}" = "false" ]; ...`
+5. **Prepare matrix JSON**
+   - 💻 Run: `json="[]"...`
 
 6. **Get PR source branch**
    - 💻 Run: `echo "pr_source_branch=${{ github.head_ref }}" >> $GITHUB_OU...`
@@ -58,7 +56,7 @@
    - 📦 Action: `actions/checkout@v4`
    - ⚙️ Config:
      - `fetch-depth`: `0...`
-     - `token`: `${{ secrets.GITHUB_TOKEN }}...`
+     - `token`: `${{ secrets.USER_TOKEN }}...`
 
 2. **Create missing READMEs**
    - 💻 Run: `TEMPLATE="docs/README-reusable.md"...`
