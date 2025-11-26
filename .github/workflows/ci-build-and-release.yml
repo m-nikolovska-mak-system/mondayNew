@@ -6,7 +6,7 @@
 # =====================================================================
 # THIS IS A DUPLICATE YML FILE FOR TESTING THE DOCS thaaaaaaaaaaais is me testing the thing hello! this is me testing the changes hello
 
-name: Build & Release Java App (version 3)
+name: Build & Release Java App (version 3) now version 4 for testing 
 
 on:
   workflow_dispatch:
