@@ -24,7 +24,7 @@ _None_
 | Setup Node | actions/setup-node@v4 |  |
 | Install dependencies |  | `run` command |
 | Generate workflow docs |  | `run` command |
-| Commit changes |  | `run` command |
+| Create Pull Request for updated workflow docs | peter-evans/create-pull-request@v6 |  |
 
 ## Full YAML
 ```yaml
@@ -42,6 +42,7 @@ on:
 jobs:
   generate-docs:
     runs-on: ubuntu-latest
+    
 
     steps:
       - uses: actions/checkout@v4
@@ -59,17 +60,14 @@ jobs:
       - name: Generate workflow docs
         run: node scripts/generate-workflow-docs.js
 
-      - name: Commit changes
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-
-          if [[ -n "$(git status --porcelain docs/workflows)" ]]; then
-            git add docs/workflows
-            git commit -m "docs: update workflow documentation"
-            git push
-          else
-            echo "No changes — skipping commit."
-          fi
+      - name: Create Pull Request for updated workflow docs
+        uses: peter-evans/create-pull-request@v6
+        with:
+          commit-message: "docs: auto-update workflow READMEs"
+          title: "docs: auto-update workflow READMEs"
+          body: "This PR updates the documentation for workflows in .github/workflows."
+          branch: "auto-doc/update-workflow-readmes"
+          base: main
+          token: ${{ secrets.GITHUB_TOKEN }}
 
 ```
