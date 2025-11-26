@@ -85,6 +85,7 @@ docs/README-build-and-release-4.md
 docs/README-ci-build-jar.md
 docs/README-jira-reminder.md
 docs/README-test-notifier.md
+docs/README-generate-readme-v4.md
 docs/README-main.md
 docs/README-build-setup.md
 docs/README-generate-docs-v3.md
