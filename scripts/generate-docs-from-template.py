@@ -6,15 +6,31 @@ from pathlib import Path
 def generate_triggers(workflow):
     """Generate triggers section"""
     triggers = workflow.get('on', {})
-    if isinstance(triggers, dict):
-        lines = [f"- `{trigger}`" for trigger in triggers.keys()]
+    
+    # Handle both dict and string cases
+    if isinstance(triggers, str):
+        return f"- `{triggers}`"
+    elif isinstance(triggers, dict):
+        lines = []
+        for trigger in triggers.keys():
+            lines.append(f"- `{trigger}`")
         return '\n'.join(lines) if lines else '_None_'
-    return f"- `{triggers}`"
+    
+    return '_None_'
 
 def generate_inputs(workflow):
     """Generate inputs table"""
     triggers = workflow.get('on', {})
-    inputs = triggers.get('workflow_call', {}).get('inputs', {})
+    
+    # Try to find inputs in workflow_call
+    workflow_call = None
+    if isinstance(triggers, dict):
+        workflow_call = triggers.get('workflow_call', {})
+    
+    if not workflow_call:
+        return '_None_'
+    
+    inputs = workflow_call.get('inputs', {})
     
     if not inputs:
         return '_None_'
@@ -26,7 +42,7 @@ def generate_inputs(workflow):
     
     for name, props in inputs.items():
         req = "yes" if props.get('required', False) else "no"
-        default = props.get('default', '')
+        default = str(props.get('default', ''))
         desc = props.get('description', '')
         typ = props.get('type', 'string')
         lines.append(f"| {name} | {typ} | {req} | {default} | {desc} |")
@@ -36,7 +52,16 @@ def generate_inputs(workflow):
 def generate_outputs(workflow):
     """Generate outputs table"""
     triggers = workflow.get('on', {})
-    outputs = triggers.get('workflow_call', {}).get('outputs', {})
+    
+    # Try to find outputs in workflow_call
+    workflow_call = None
+    if isinstance(triggers, dict):
+        workflow_call = triggers.get('workflow_call', {})
+    
+    if not workflow_call:
+        return '_None_'
+    
+    outputs = workflow_call.get('outputs', {})
     
     if not outputs:
         return '_None_'
@@ -55,7 +80,16 @@ def generate_outputs(workflow):
 def generate_secrets(workflow):
     """Generate secrets table"""
     triggers = workflow.get('on', {})
-    secrets = triggers.get('workflow_call', {}).get('secrets', {})
+    
+    # Try to find secrets in workflow_call
+    workflow_call = None
+    if isinstance(triggers, dict):
+        workflow_call = triggers.get('workflow_call', {})
+    
+    if not workflow_call:
+        return '_None_'
+    
+    secrets = workflow_call.get('secrets', {})
     
     if not secrets:
         return '_None_'
@@ -109,6 +143,10 @@ def generate_docs_from_template(workflow_path, template_path, output_path):
     # Parse workflow YAML
     with open(workflow_path, 'r') as f:
         workflow = yaml.safe_load(f)
+    
+    # Debug: Print the parsed structure
+    print(f"📋 Parsing workflow: {workflow_path}")
+    print(f"   Triggers found: {list(workflow.get('on', {}).keys())}")
     
     # Read template
     with open(template_path, 'r') as f:
