@@ -1,12 +1,12 @@
-# 📝 Build & Release Java App (version 3)
+# 📝 Build & Release Java App (version 3) brand new version
 
-**Generated:** 2025-11-25 15:57:22
+**Generated:** 2025-11-26 11:46:01
 
 ---
 
 ## Overview
 
-**Workflow Name:** `Build & Release Java App (version 3)`
+**Workflow Name:** `Build & Release Java App (version 3) brand new version`
 
 ## Triggers
 
