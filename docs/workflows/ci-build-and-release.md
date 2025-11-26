@@ -1,4 +1,4 @@
-# Build & Release Java App (version 3)
+# Build & Release Java App (version 3) brand new version v212
 
 **Source:** `ci-build-and-release.yml`
 
@@ -56,7 +56,7 @@ _None_
 # =====================================================================
 # THIS IS A DUPLICATE YML FILE FOR TESTING THE DOCS thaaaaaaaaaaais is me testing the thing hello! this is me testing the changes hello
 
-name: Build & Release Java App (version 3)
+name: Build & Release Java App (version 3) brand new version v212
 
 on:
   workflow_dispatch:

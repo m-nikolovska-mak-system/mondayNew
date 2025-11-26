@@ -23,8 +23,8 @@ _None_
 | Checkout | actions/checkout@v4 |  |
 | Detect changed workflow files | tj-actions/changed-files@v44 |  |
 | Print changed workflow files |  | `run` command |
-| Prepare matrix |  | `run` command |
-| Handle empty matrix |  | `run` command |
+| Stop if no workflows changed |  | `run` command |
+| Prepare matrix JSON |  | `run` command |
 | Get PR source branch |  | `run` command |
 
 ### update-doc
@@ -58,7 +58,6 @@ permissions:
   pull-requests: write
 
 env:
-  GITHUB_USER_TOKEN: ${{ secrets.GITHUB_TOKEN }}
   GITHUB_USER_EMAIL: email@company.net
   GITHUB_USER_NAME: user1
 
@@ -69,14 +68,13 @@ jobs:
   detect-changes:
     runs-on: ubuntu-latest
     outputs:
-      matrix: ${{ steps.handle_matrix.outputs.matrix }}
+      matrix: ${{ steps.prep_matrix.outputs.matrix }}
       pr_source_branch: ${{ steps.get_source_branch.outputs.pr_source_branch }}
+      has_changes: ${{ steps.detect.outputs.any_changed }}
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-          token: ${{ secrets.GITHUB_TOKEN }} 
 
       - name: Detect changed workflow files
         id: detect
@@ -84,7 +82,7 @@ jobs:
         with:
           files: |
             .github/workflows/ci-*.yml
-            !.github/workflows/ci-readme-docs.yml
+            !.github/workflows/generate-readme-test.yml
 
       - name: Print changed workflow files
         run: |
@@ -93,36 +91,26 @@ jobs:
             echo " - $f"
           done
 
+      - name: Stop if no workflows changed
+        if: steps.detect.outputs.any_changed == 'false'
+        run: echo "No workflow changes detected. Skipping documentation." && exit 0
 
-      - name: Prepare matrix
+      - name: Prepare matrix JSON
         id: prep_matrix
+        if: steps.detect.outputs.any_changed == 'true'
         run: |
-          files="${{ steps.detect.outputs.all_changed_files }}"
-      
-          json="["
-          sep=""
-          for f in $files; do
+          json="[]"
+
+          echo "Changed workflows:"
+          for f in ${{ steps.detect.outputs.all_changed_files }}; do
+            echo " - $f"
             base=$(basename "$f" .yml)
-            json="${json}${sep}{\"workflow\":\"$f\",\"basename\":\"$base\"}"
-            sep=","
+            json=$(echo "$json" | jq --arg wf "$f" --arg b "$base" '. += [{"workflow":$wf,"basename":$b}]')
           done
-          json="${json}]"
-      
-          echo "matrix=$json" >> $GITHUB_OUTPUT
 
-
-      - name: Handle empty matrix
-        id: handle_matrix
-        run: |
-          if [ "${{ steps.detect.outputs.any_changed }}" = "false" ]; then
-            echo "No changes. Injecting dummy matrix item."
-            echo 'matrix=[{"workflow":"none","basename":"none"}]' >> $GITHUB_OUTPUT
-          else
-            echo "Matrix already set by prep_matrix."
-            # pass through the JSON created in prep_matrix
-            echo "matrix=${{ steps.prep_matrix.outputs.matrix }}" >> $GITHUB_OUTPUT
-          fi
-
+          # Escape JSON and write safely to GITHUB_OUTPUT
+          escaped_json=$(echo "$json" | jq -c '.')
+          echo "matrix=$escaped_json" >> $GITHUB_OUTPUT
 
       - name: Get PR source branch
         id: get_source_branch
@@ -130,8 +118,8 @@ jobs:
           echo "pr_source_branch=${{ github.head_ref }}" >> $GITHUB_OUTPUT
 
   update-doc:
-    if: needs.detect-changes.outputs.matrix != '[]'
     needs: detect-changes
+    if: needs.detect-changes.outputs.has_changes == 'true'
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -145,8 +133,9 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0
-          token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 0 # Needed to push changes back to the repository
+          token: ${{ secrets.USER_TOKEN }}
+
 
       # ------------------------------
       # 3. Create missing READMEs
@@ -192,19 +181,6 @@ jobs:
           filename: ./${{ matrix.item.workflow }}
           reusable: true
           output: docs/README-${{ matrix.item.basename }}.md
-      
-          # --- ENABLE RICH README MODE ---
-          inputs: true
-          outputs: true
-          steps: detailed
-          include_html: true
-          use_code_blocks: true
-          markdown_links: true
-          markdown_format: rich
-          badges: true
-          col_max_width: 200
-          col_max_words: 999
-
 
       # ------------------------------
       # Verify README changes for this workflow
@@ -247,5 +223,6 @@ jobs:
           token: ${{ env.GITHUB_USER_TOKEN }}
           committer: ${{ env.GITHUB_USER_NAME }} <${{ env.GITHUB_USER_EMAIL }}>
           base: ${{ needs.detect-changes.outputs.pr_source_branch || github.event.pull_request.base.ref }}
+
 
 ```
