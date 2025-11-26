@@ -1,0 +1,48 @@
+# Test Secrets
+
+**Source:** `test-secrets.yml`
+
+## Triggers
+- `push`
+- `workflow_dispatch`
+
+## Inputs
+_None_
+
+## Outputs
+_None_
+
+## Secrets
+_None_
+
+## Jobs
+### test-secret
+
+| name | action | run |
+| --- | --- | --- |
+| Check if secret exists |  | `run` command |
+
+## Full YAML
+```yaml
+name: Test Secrets
+
+on: [push, workflow_dispatch]
+
+jobs:
+  test-secret:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check if secret exists
+        run: |
+          if [ -z "${{ secrets.MY_SECRET }}" ]; then
+            echo "❌ MY_SECRET is not set!"
+            exit 1
+          else
+            echo "✅ MY_SECRET is set"
+            echo "Secret length: ${#MY_SECRET} characters"
+            # Show first 3 chars for verification (safe for demo)
+            echo "Starts with: ${MY_SECRET:0:3}***"
+          fi
+        env:
+          MY_SECRET: ${{ secrets.MY_SECRET }}
+```

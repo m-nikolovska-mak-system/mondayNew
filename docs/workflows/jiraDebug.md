@@ -1,0 +1,53 @@
+# Debug Jira API
+
+**Source:** `jiraDebug.yml`
+
+## Triggers
+- `workflow_dispatch`
+
+## Inputs
+_None_
+
+## Outputs
+_None_
+
+## Secrets
+_None_
+
+## Jobs
+### debug-jira
+
+| name | action | run |
+| --- | --- | --- |
+| Debug Jira API call |  | `run` command |
+
+## Full YAML
+```yaml
+name: Debug Jira API
+
+on:
+  workflow_dispatch: # Allows manual trigger from GitHub Actions UI
+
+jobs:
+  debug-jira:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Debug Jira API call
+        run: |
+          BRANCH_NAME="${GITHUB_REF#refs/heads/}"
+          echo "Branch name: $BRANCH_NAME"
+
+          # For testing, hardcode the ticket or extract from branch
+          TICKET="M1-6"
+          echo "Checking Jira ticket: $TICKET"
+
+          curl -u "${{ secrets.JIRA_USER }}:${{ secrets.JIRA_API_TOKEN }}" \
+            -X GET \
+            -H "Accept: application/json" \
+            "${{ secrets.JIRA_BASE_URL }}/rest/api/3/issue/$TICKET" -v
+        env:
+          JIRA_USER: ${{ secrets.JIRA_USER }}
+          JIRA_API_TOKEN: ${{ secrets.JIRA_API_TOKEN }}
+          JIRA_BASE_URL: ${{ secrets.JIRA_BASE_URL }}
+
+```

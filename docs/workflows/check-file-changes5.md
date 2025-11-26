@@ -1,0 +1,78 @@
+# 🧩 Detect & Act on File Changes
+
+**Source:** `check-file-changes5.yml`
+
+## Triggers
+- `push`
+- `pull_request`
+- `workflow_dispatch`
+
+## Inputs
+_None_
+
+## Outputs
+_None_
+
+## Secrets
+_None_
+
+## Jobs
+### check_changes
+
+_None_
+
+### run_on_change
+
+| name | action | run |
+| --- | --- | --- |
+| ✅ Files changed |  | `run` command |
+
+### run_on_no_change
+
+| name | action | run |
+| --- | --- | --- |
+| ℹ️ No watched files changed |  | `run` command |
+
+## Full YAML
+```yaml
+name: 🧩 Detect & Act on File Changes
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  check_changes:
+    uses: m-nikolovska-mak-system/reusable-actions-library/.github/workflows/check-file-changes.yml@main
+    with:
+      watched_files: |
+        src/**
+        config/**
+      base_ref: main
+
+  run_on_change:
+    needs: check_changes
+    if: needs.check_changes.outputs.files_changed == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - name: ✅ Files changed
+        run: |
+          echo "Changed files:"
+          echo "${{ needs.check_changes.outputs.changed_files_list }}"
+          # Add your logic below (tests, build, deploy, etc.)
+
+  run_on_no_change:
+    needs: check_changes
+    if: needs.check_changes.outputs.files_changed == 'false'
+    runs-on: ubuntu-latest
+    steps:
+      - name: ℹ️ No watched files changed
+        run: echo "No relevant files changed. Skipping build."
+
+```
