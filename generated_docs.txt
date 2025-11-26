@@ -43,6 +43,7 @@ docs/README-hello.md
 docs/README-tag-test.md
 docs/README-test-create-jira-issue.md
 docs/README-assign-jira-issue.md
+docs/README-generate-docs-v8.md
 docs/README-check-and-notify.md
 docs/README-release-build.md
 docs/README-workflow-docs.md
@@ -75,6 +76,7 @@ docs/README-notify-my-changes.md
 docs/README-build-jar1.md
 docs/README-teams-notif-on-update.md
 docs/README-test-file-detection.md
+docs/README-jira-main-flow-v7.md
 docs/README-build-and-release-v33.md
 docs/README-branchNamingTwo.md
 docs/README-workflow_docs_v2.md
