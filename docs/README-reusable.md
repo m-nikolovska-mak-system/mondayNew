@@ -14,6 +14,10 @@ This document provides usage instructions, inputs, outputs, and behavior for the
 
 (Add auto-generated documentation below. Do not modify this section manually.)
 
+<!-- AUTO-GENERATED-DOCS -->
+<!-- END-AUTO-GENERATED-DOCS -->
+
+
 ---
 
 ## Notes
