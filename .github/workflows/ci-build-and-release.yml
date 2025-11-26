@@ -17,7 +17,7 @@ on:
         default: "17"
 
       java_distribution:
-        description: Java distribution (temurin, zulu, etc.)
+        description: Java distributions (temurin, zulu, etc.)
         required: false
         default: "temurin"
 
