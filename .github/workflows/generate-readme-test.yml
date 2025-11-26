@@ -26,6 +26,8 @@ jobs:
     outputs:
       matrix: ${{ steps.prep_matrix.outputs.matrix }}
       pr_source_branch: ${{ steps.get_source_branch.outputs.pr_source_branch }}
+      has_changes: ${{ steps.detect.outputs.any_changed }}
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -36,7 +38,7 @@ jobs:
         with:
           files: |
             .github/workflows/ci-*.yml
-            !.github/workflows/ci-readme-docs.yml
+            !.github/workflows/generate-readme-test.yml
 
       - name: Print changed workflow files
         run: |
@@ -51,6 +53,7 @@ jobs:
 
       - name: Prepare matrix JSON
         id: prep_matrix
+        if: steps.detect.outputs.any_changed == 'true'
         run: |
           json="[]"
 
@@ -72,6 +75,7 @@ jobs:
 
   update-doc:
     needs: detect-changes
+    if: needs.detect-changes.outputs.has_changes == 'true'
     runs-on: ubuntu-latest
     permissions:
       contents: write
