@@ -30,8 +30,8 @@ jobs:
         uses: tj-actions/changed-files@v44
         with:
           files: |
-            .github/workflows/ci-*.yml
-            !.github/workflows/ci-readme-docs.yml
+            .github/workflows/*.yml
+            !.github/workflows/generate-docs-v8.yml
 
       - name: Stop if no workflows changed
         if: steps.detect.outputs.any_changed == 'false'
