@@ -1,4 +1,4 @@
-# Build JAR this is a duplicate with a differenect name to test readmethis is a change hi hello hiii
+# Build JAR this is a duplicate with a differenect name to test readmethis is a change hi hello hiii hi
 **Source:** `ci-build-jar.yml`
 
 ## Triggers
@@ -29,7 +29,7 @@ _None_
 
 ## Full YAML
 ```yaml
-name: Build JAR this is a duplicate with a differenect name to test readmethis is a change hi hello hiii
+name: Build JAR this is a duplicate with a differenect name to test readmethis is a change hi hello hiii hi
 
 on:
   workflow_call:
