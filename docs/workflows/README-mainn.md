@@ -1,6 +1,6 @@
 # 📝 mainn
 
-**Generated:** 2025-11-25 14:50:21 UTC
+**Generated:** 2025-11-26 12:27:54 UTC
 
 ---
 
@@ -31,7 +31,7 @@
      - `who-to-greet`: `Mona the Octocat`
 
 3. **Step 3**
-   - 💻 Run: `echo random-number "$RANDOM_NUMBER"...`
+   - 💻 Run: `echo random-number "$RANDOM_NUMBER"`
 
 ---
 

@@ -1,6 +1,6 @@
 # 📝 Build & Release Java App version 3
 
-**Generated:** 2025-11-25 14:50:21 UTC
+**Generated:** 2025-11-26 12:27:54 UTC
 
 ---
 
@@ -35,7 +35,7 @@
 **Steps:**
 
 1. **Check jar_cache_key**
-   - 💻 Run: `if [ -z "${{ needs.build_jar.outputs.jar_cache_key }}" ]; then   echo "::error::JAR cache key is empty!"   exit 1 fi...`
+   - 💻 Run: `if [ -z "${{ needs.build_jar.outputs.jar_cache_key }}" ]; then   echo "::error::JAR cache key is empty!"   exit 1 fi`
 
 ### `build_installer`
 

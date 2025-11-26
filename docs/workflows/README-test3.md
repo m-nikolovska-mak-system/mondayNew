@@ -1,6 +1,6 @@
 # 📝 test3
 
-**Generated:** 2025-11-25 14:50:21 UTC
+**Generated:** 2025-11-26 12:27:54 UTC
 
 ---
 
@@ -23,7 +23,7 @@
 **Steps:**
 
 1. **Print greeting**
-   - 💻 Run: `echo "${{ github.event.inputs.GREETING }}, ${{ github.event.inputs.NAME }}!"...`
+   - 💻 Run: `echo "${{ github.event.inputs.GREETING }}, ${{ github.event.inputs.NAME }}!"`
 
 ---
 

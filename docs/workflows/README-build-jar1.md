@@ -1,6 +1,6 @@
 # 📝 OVA TREBA DA RABOTI Build JAR
 
-**Generated:** 2025-11-25 14:50:21 UTC
+**Generated:** 2025-11-26 12:27:54 UTC
 
 ---
 
@@ -38,7 +38,7 @@
      - `java-version`: `17`
 
 3. **Make Gradle wrapper executable**
-   - 💻 Run: `chmod +x gradlew...`
+   - 💻 Run: `chmod +x gradlew`
 
 4. **Cache Gradle dependencies**
    - 📦 Action: `actions/cache@v3`
@@ -51,7 +51,7 @@
 `
 
 5. **Build JAR with Gradle**
-   - 💻 Run: `./gradlew clean jar --no-daemon...`
+   - 💻 Run: `./gradlew clean jar --no-daemon`
 
 6. **Upload JAR as artifact**
    - 📦 Action: `actions/upload-artifact@v4`
@@ -60,7 +60,7 @@
      - `path`: `build/libs/*.jar`
 
 7. **Generate cache key**
-   - 💻 Run: `echo "key=jar-${{ github.sha }}-${{ github.run_number }}" >> $GITHUB_OUTPUT...`
+   - 💻 Run: `echo "key=jar-${{ github.sha }}-${{ github.run_number }}" >> $GITHUB_OUTPUT`
 
 8. **Cache built JAR**
    - 📦 Action: `actions/cache/save@v3`
@@ -89,16 +89,16 @@
    - 💻 Run: `$jar = Get-ChildItem build\libs\*.jar | Select-Object -First 1 if ($jar.Name -ne "App.jar") {   Rename-Item $jar.FullNam...`
 
 4. **Verify JAR**
-   - 💻 Run: `dir build\libs...`
+   - 💻 Run: `dir build\libs`
 
 5. **Install Inno Setup**
-   - 💻 Run: `choco install innosetup --no-progress -y...`
+   - 💻 Run: `choco install innosetup --no-progress -y`
 
 6. **Build setup.exe**
-   - 💻 Run: `& "C:\Program Files (x86)\Inno Setup 6\ISCC.exe" setup-script.iss...`
+   - 💻 Run: `& "C:\Program Files (x86)\Inno Setup 6\ISCC.exe" setup-script.iss`
 
 7. **Check output folder**
-   - 💻 Run: `dir output...`
+   - 💻 Run: `dir output`
 
 8. **Upload setup.exe to GitHub Release**
    - 📦 Action: `softprops/action-gh-release@v2`

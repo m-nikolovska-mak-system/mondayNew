@@ -1,6 +1,6 @@
 # 📝 Checkout on Release
 
-**Generated:** 2025-11-25 14:50:21 UTC
+**Generated:** 2025-11-26 12:27:54 UTC
 
 ---
 
@@ -28,7 +28,7 @@
      - `ref`: `${{ github.event.release.tag_name }}`
 
 2. **Show current commit and tag**
-   - 💻 Run: `echo "Checked out tag: ${{ github.event.release.tag_name }}" git log -1...`
+   - 💻 Run: `echo "Checked out tag: ${{ github.event.release.tag_name }}" git log -1`
 
 ---
 

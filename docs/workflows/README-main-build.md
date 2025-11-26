@@ -1,6 +1,6 @@
 # 📝 Main Build and Release
 
-**Generated:** 2025-11-25 14:50:21 UTC
+**Generated:** 2025-11-26 12:27:54 UTC
 
 ---
 
@@ -38,7 +38,7 @@
      - `java-version`: `17`
 
 3. **Make Gradle wrapper executable**
-   - 💻 Run: `chmod +x gradlew...`
+   - 💻 Run: `chmod +x gradlew`
 
 4. **Cache Gradle dependencies**
    - 📦 Action: `actions/cache@v3`
@@ -51,13 +51,13 @@
 `
 
 5. **Build JAR with Gradle**
-   - 💻 Run: `./gradlew jar --no-daemon...`
+   - 💻 Run: `./gradlew jar --no-daemon`
 
 6. **Validate JAR**
    - 💻 Run: `jar_file=$(ls build/libs/*.jar 2>/dev/null | head -n 1) if [ -z "$jar_file" ]; then   echo "❌ No JAR files found"   exit...`
 
 7. **Generate cache key**
-   - 💻 Run: `echo "key=jar-${{ github.sha }}-${{ github.run_number }}" >> $GITHUB_OUTPUT...`
+   - 💻 Run: `echo "key=jar-${{ github.sha }}-${{ github.run_number }}" >> $GITHUB_OUTPUT`
 
 8. **Cache built JAR**
    - 📦 Action: `actions/cache/save@v3`
@@ -115,7 +115,7 @@
 **Steps:**
 
 1. **Report failure**
-   - 💻 Run: `echo "❌ Workflow failed" echo "Failed jobs: ${{ toJSON(needs) }}"...`
+   - 💻 Run: `echo "❌ Workflow failed" echo "Failed jobs: ${{ toJSON(needs) }}"`
 
 ---
 

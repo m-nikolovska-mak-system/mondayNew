@@ -1,6 +1,6 @@
 # 📝 Generate Workflow Docs
 
-**Generated:** 2025-11-25 14:50:21 UTC
+**Generated:** 2025-11-26 12:27:54 UTC
 
 ---
 
@@ -26,7 +26,7 @@
    - 📦 Action: `actions/checkout@v4`
 
 2. **Ensure output directory exists**
-   - 💻 Run: `mkdir -p $(dirname "${{ github.event.inputs.output }}")...`
+   - 💻 Run: `mkdir -p $(dirname "${{ github.event.inputs.output }}")`
 
 3. **Generate README with auto-doc**
    - 📦 Action: `tj-actions/auto-doc@v3`
@@ -35,7 +35,7 @@
      - `output`: `${{ github.event.inputs.output }}`
 
 4. **Debug git status**
-   - 💻 Run: `git status --short...`
+   - 💻 Run: `git status --short`
 
 5. **Commit generated docs**
    - 📦 Action: `EndBug/add-and-commit@v9`

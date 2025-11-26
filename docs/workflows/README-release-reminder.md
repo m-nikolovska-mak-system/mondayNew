@@ -1,6 +1,6 @@
 # 📝 Notify App Changes on Release
 
-**Generated:** 2025-11-25 14:50:21 UTC
+**Generated:** 2025-11-26 12:27:54 UTC
 
 ---
 
@@ -32,7 +32,7 @@
      - `fetch-depth`: `0`
 
 2. **Get current release tag**
-   - 💻 Run: `echo "tag=${{ github.event.release.tag_name }}" >> $GITHUB_OUTPUT...`
+   - 💻 Run: `echo "tag=${{ github.event.release.tag_name }}" >> $GITHUB_OUTPUT`
 
 3. **Get previous tag**
    - 💻 Run: `prev_tag=$(git tag --sort=-creatordate | grep -B1 "${{ steps.current_tag.outputs.tag }}" | head -n1) echo "prev_tag=$pre...`

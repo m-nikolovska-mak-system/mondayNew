@@ -1,6 +1,6 @@
 # 📝 Simple README Generator
 
-**Generated:** 2025-11-25 14:50:21 UTC
+**Generated:** 2025-11-26 12:27:54 UTC
 
 ---
 
@@ -31,7 +31,7 @@
    - 💻 Run: `echo "workflow_file=.github/workflows/build-installer.yml" >> $GITHUB_OUTPUT echo "basename=build-installer" >> $GITHUB_...`
 
 3. **Ensure docs folder exists**
-   - 💻 Run: `mkdir -p docs...`
+   - 💻 Run: `mkdir -p docs`
 
 4. **Prepare initial README if needed**
    - 💻 Run: `FILE=docs/README-${{ steps.select.outputs.basename }}.md if [ ! -f "$FILE" ]; then   echo "Creating template at $FILE"  ...`
@@ -50,7 +50,7 @@
      - `file_pattern`: `docs/*`
 
 7. **Show result**
-   - 💻 Run: `echo "==== README OUTPUT ====" cat docs/README-${{ steps.select.outputs.basename }}.md echo "========================"...`
+   - 💻 Run: `echo "==== README OUTPUT ====" cat docs/README-${{ steps.select.outputs.basename }}.md echo "========================"`
 
 ---
 

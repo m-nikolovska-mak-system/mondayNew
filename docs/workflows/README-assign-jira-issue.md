@@ -1,6 +1,6 @@
 # 📝 Assign Jira Issue
 
-**Generated:** 2025-11-25 14:50:21 UTC
+**Generated:** 2025-11-26 12:27:54 UTC
 
 ---
 
@@ -23,7 +23,7 @@
 **Steps:**
 
 1. **Install jq and python3**
-   - 💻 Run: `sudo apt-get update -y sudo apt-get install -y jq python3...`
+   - 💻 Run: `sudo apt-get update -y sudo apt-get install -y jq python3`
 
 2. **Assign issue in Jira**
    - 💻 Run: `set -e if [ -z "$JIRA_EMAIL" ] || [ -z "$JIRA_API_TOKEN" ] || [ -z "$JIRA_URL" ]; then   echo "Missing Jira secrets: JIR...`

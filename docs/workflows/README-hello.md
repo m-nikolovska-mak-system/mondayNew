@@ -1,6 +1,6 @@
 # 📝 Hello World Workflow
 
-**Generated:** 2025-11-25 14:50:21 UTC
+**Generated:** 2025-11-26 12:27:54 UTC
 
 ---
 
@@ -26,7 +26,7 @@
    - 📦 Action: `actions/checkout@v3`
 
 2. **Say Hello**
-   - 💻 Run: `echo "👋 Hello from GitHub Actions!"...`
+   - 💻 Run: `echo "👋 Hello from GitHub Actions!"`
 
 ---
 

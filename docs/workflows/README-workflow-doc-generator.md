@@ -1,6 +1,6 @@
 # 📝 Generate Workflow Documentation
 
-**Generated:** 2025-11-25 14:50:21 UTC
+**Generated:** 2025-11-26 12:27:54 UTC
 
 ---
 
@@ -33,7 +33,7 @@
      - `python-version`: `3.11`
 
 3. **Install dependencies**
-   - 💻 Run: `pip install pyyaml...`
+   - 💻 Run: `pip install pyyaml`
 
 4. **List all workflows**
    - 💻 Run: `echo "=== All workflow files ===" find .github/workflows -name "*.yml" -o -name "*.yaml" echo "=========================...`

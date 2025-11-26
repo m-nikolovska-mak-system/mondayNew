@@ -1,6 +1,6 @@
 # 📝 Generate Workflow Documentation
 
-**Generated:** 2025-11-25 14:50:21 UTC
+**Generated:** 2025-11-26 12:27:54 UTC
 
 ---
 
@@ -31,13 +31,13 @@
      - `python-version`: `3.11`
 
 3. **Step 3**
-   - 💻 Run: `pip install pyyaml...`
+   - 💻 Run: `pip install pyyaml`
 
 4. **Generate documentation**
-   - 💻 Run: `mkdir -p docs/workflows python scripts/generate-docs-v2.py...`
+   - 💻 Run: `mkdir -p docs/workflows python scripts/generate-docs-v2.py`
 
 5. **Check for changes**
-   - 💻 Run: `if git diff --quiet docs/; then   echo "changed=false" >> $GITHUB_OUTPUT else   echo "changed=true" >> $GITHUB_OUTPUT...`
+   - 💻 Run: `if git diff --quiet docs/; then   echo "changed=false" >> $GITHUB_OUTPUT else   echo "changed=true" >> $GITHUB_OUTPUT`
 
 6. **Create Pull Request**
    - 📦 Action: `peter-evans/create-pull-request@v6`

@@ -1,6 +1,6 @@
 # 📝 Build Windows Installer
 
-**Generated:** 2025-11-25 14:50:21 UTC
+**Generated:** 2025-11-26 12:27:54 UTC
 
 ---
 
@@ -34,13 +34,13 @@
      - `path`: `build/libs`
 
 3. **Verify JAR**
-   - 💻 Run: `dir build\libs...`
+   - 💻 Run: `dir build\libs`
 
 4. **Install Inno Setup**
-   - 💻 Run: `choco install innosetup --no-progress -y...`
+   - 💻 Run: `choco install innosetup --no-progress -y`
 
 5. **Build setup.exe**
-   - 💻 Run: `"C:\Program Files (x86)\Inno Setup 6\ISCC.exe" .github\setup-script.iss...`
+   - 💻 Run: `"C:\Program Files (x86)\Inno Setup 6\ISCC.exe" .github\setup-script.iss`
 
 6. **Upload setup.exe as artifact**
    - 📦 Action: `actions/upload-artifact@v4`
@@ -49,7 +49,7 @@
      - `path`: `output/OneProjectWed-Setup.exe`
 
 7. **Check output folder**
-   - 💻 Run: `dir output...`
+   - 💻 Run: `dir output`
 
 8. **Upload setup.exe to GitHub Release**
    - 📦 Action: `softprops/action-gh-release@v2`

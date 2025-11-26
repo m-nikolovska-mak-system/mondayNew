@@ -1,6 +1,6 @@
 # 📝 🧪 Test File Change Detection
 
-**Generated:** 2025-11-25 14:50:21 UTC
+**Generated:** 2025-11-26 12:27:54 UTC
 
 ---
 
@@ -35,7 +35,7 @@
 **Steps:**
 
 1. **✅ Watched files changed**
-   - 💻 Run: `echo "Changed files:" echo "${{ needs.check_changes.outputs.changed_files_list }}"...`
+   - 💻 Run: `echo "Changed files:" echo "${{ needs.check_changes.outputs.changed_files_list }}"`
 
 ### `on_no_changes`
 
@@ -44,7 +44,7 @@
 **Steps:**
 
 1. **ℹ️ No relevant changes**
-   - 💻 Run: `echo "No watched files changed!"...`
+   - 💻 Run: `echo "No watched files changed!"`
 
 ---
 

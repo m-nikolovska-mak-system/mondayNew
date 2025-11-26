@@ -1,6 +1,6 @@
 # 📝 Build JAR on Release
 
-**Generated:** 2025-11-25 14:50:21 UTC
+**Generated:** 2025-11-26 12:27:54 UTC
 
 ---
 
@@ -34,13 +34,13 @@
      - `java-version`: `17`
 
 3. **Make Gradle executable**
-   - 💻 Run: `chmod +x gradlew...`
+   - 💻 Run: `chmod +x gradlew`
 
 4. **Build JAR with Gradle**
-   - 💻 Run: `./gradlew jar --no-daemon...`
+   - 💻 Run: `./gradlew jar --no-daemon`
 
 5. **Set cache key**
-   - 💻 Run: `echo "cache-key=jar-${{ github.sha }}-${{ github.run_number }}" >> $GITHUB_OUTPUT...`
+   - 💻 Run: `echo "cache-key=jar-${{ github.sha }}-${{ github.run_number }}" >> $GITHUB_OUTPUT`
 
 6. **Cache JAR file**
    - 📦 Action: `actions/cache@v3`
@@ -55,7 +55,7 @@
      - `path`: `build/libs/*.jar`
 
 8. **List JAR files**
-   - 💻 Run: `ls -l build/libs...`
+   - 💻 Run: `ls -l build/libs`
 
 ---
 

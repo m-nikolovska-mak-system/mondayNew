@@ -1,6 +1,6 @@
 # 📝 Generate Workflow Docs
 
-**Generated:** 2025-11-25 14:50:21 UTC
+**Generated:** 2025-11-26 12:27:54 UTC
 
 ---
 
@@ -34,7 +34,7 @@
      - `node-version`: `18`
 
 4. **Install dependencies**
-   - 💻 Run: `npm install js-yaml...`
+   - 💻 Run: `npm install js-yaml`
 
 5. **Generate docs**
    - 💻 Run: `mkdir -p docs/workflows  for file in .github/workflows/*.yml .github/workflows/*.yaml; do   # Skip if no such file exist...`

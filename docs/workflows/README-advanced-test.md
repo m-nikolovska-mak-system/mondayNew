@@ -1,6 +1,6 @@
 # 📝 Advanced ACT Test
 
-**Generated:** 2025-11-25 14:50:21 UTC
+**Generated:** 2025-11-26 12:27:54 UTC
 
 ---
 
@@ -28,7 +28,7 @@
      - `node-version`: `${{ matrix.node }}`
 
 2. **Print Environment**
-   - 💻 Run: `echo "Running on ${{ matrix.os }} with Node.js ${{ matrix.node }}"...`
+   - 💻 Run: `echo "Running on ${{ matrix.os }} with Node.js ${{ matrix.node }}"`
 
 ### `validate-inputs`
 
@@ -46,7 +46,7 @@
 **Steps:**
 
 1. **Print secret (simulated)**
-   - 💻 Run: `echo "Secret is set (not printing for safety)"...`
+   - 💻 Run: `echo "Secret is set (not printing for safety)"`
 
 ### `conditional-step`
 
@@ -55,7 +55,7 @@
 **Steps:**
 
 1. **Run only in dev**
-   - 💻 Run: `echo "Running in development environment"...`
+   - 💻 Run: `echo "Running in development environment"`
 
 ### `concurrency-test`
 
@@ -64,7 +64,7 @@
 **Steps:**
 
 1. **Simulate long task**
-   - 💻 Run: `sleep 10...`
+   - 💻 Run: `sleep 10`
 
 ### `post-run-cleanup`
 
@@ -73,10 +73,10 @@
 **Steps:**
 
 1. **Setup**
-   - 💻 Run: `echo "Setting up resources"...`
+   - 💻 Run: `echo "Setting up resources"`
 
 2. **Cleanup**
-   - 💻 Run: `echo "Cleaning up resources"...`
+   - 💻 Run: `echo "Cleaning up resources"`
 
 ---
 

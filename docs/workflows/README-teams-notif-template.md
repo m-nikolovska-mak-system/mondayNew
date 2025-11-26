@@ -1,6 +1,6 @@
 # 📝 Teams Notification Template
 
-**Generated:** 2025-11-25 14:50:21 UTC
+**Generated:** 2025-11-26 12:27:54 UTC
 
 ---
 
@@ -26,13 +26,13 @@
    - 📦 Action: `actions/checkout@v4`
 
 2. **Make script executable**
-   - 💻 Run: `chmod +x ./scripts/send-teams-notification.sh...`
+   - 💻 Run: `chmod +x ./scripts/send-teams-notification.sh`
 
 3. **Send Microsoft Teams notification**
-   - 💻 Run: `./scripts/send-teams-notification.sh...`
+   - 💻 Run: `./scripts/send-teams-notification.sh`
 
 4. **Test failure message**
-   - 💻 Run: `echo "This should fail" && false...`
+   - 💻 Run: `echo "This should fail" && false`
 
 ---
 

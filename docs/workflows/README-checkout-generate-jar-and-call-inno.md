@@ -1,6 +1,6 @@
 # 📝 Build JAR on Release
 
-**Generated:** 2025-11-25 14:50:21 UTC
+**Generated:** 2025-11-26 12:27:54 UTC
 
 ---
 
@@ -34,13 +34,13 @@
      - `java-version`: `17`
 
 3. **Make Gradle executable**
-   - 💻 Run: `chmod +x gradlew...`
+   - 💻 Run: `chmod +x gradlew`
 
 4. **Build JAR with Gradle**
-   - 💻 Run: `./gradlew jar --no-daemon...`
+   - 💻 Run: `./gradlew jar --no-daemon`
 
 5. **Set cache key**
-   - 💻 Run: `echo "cache-key=jar-${{ github.sha }}-${{ github.run_number }}" >> $GITHUB_OUTPUT...`
+   - 💻 Run: `echo "cache-key=jar-${{ github.sha }}-${{ github.run_number }}" >> $GITHUB_OUTPUT`
 
 6. **Cache JAR file**
    - 📦 Action: `actions/cache@v3`
@@ -52,7 +52,7 @@
    - 💻 Run: `sudo apt-get update sudo apt-get install -y wine wget https://jrsoftware.org/download.php/is.exe -O is.exe wine is.exe /...`
 
 8. **Build setup.exe with Inno Setup**
-   - 💻 Run: `wine "C:\\Program Files\\Inno Setup\\ISCC.exe" .github/setup-script.iss...`
+   - 💻 Run: `wine "C:\\Program Files\\Inno Setup\\ISCC.exe" .github/setup-script.iss`
 
 9. **Upload setup.exe as artifact**
    - 📦 Action: `actions/upload-artifact@v4`
@@ -61,7 +61,7 @@
      - `path`: `output/setup.exe`
 
 10. **List JAR files**
-   - 💻 Run: `ls -l build/libs...`
+   - 💻 Run: `ls -l build/libs`
 
 ---
 

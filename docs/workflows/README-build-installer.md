@@ -1,6 +1,6 @@
 # 📝 Build Installer
 
-**Generated:** 2025-11-25 14:50:21 UTC
+**Generated:** 2025-11-26 12:27:54 UTC
 
 ---
 
@@ -38,13 +38,13 @@
      - `key`: `${{ inputs.jar_cache_key }}`
 
 3. **Check JAR presence**
-   - 💻 Run: `if (!(Test-Path "build\libs\*.jar")) {   Write-Error "JAR file not found after cache restore."   exit 1 }...`
+   - 💻 Run: `if (!(Test-Path "build\libs\*.jar")) {   Write-Error "JAR file not found after cache restore."   exit 1 }`
 
 4. **Get JAR filename**
    - 💻 Run: `$jar = Get-ChildItem "build\libs" -Filter *.jar -ErrorAction Stop | Select-Object -First 1 if (!$jar) {   Write-Error "N...`
 
 5. **Install Inno Setup**
-   - 💻 Run: `choco install innosetup --no-progress -y...`
+   - 💻 Run: `choco install innosetup --no-progress -y`
 
 6. **Validate Inno Setup install**
    - 💻 Run: `if (!(Test-Path "C:\Program Files (x86)\Inno Setup 6\ISCC.exe")) {   Write-Error "Inno Setup not installed correctly."  ...`
@@ -65,7 +65,7 @@
      - `path`: `output/*.exe`
 
 11. **Installer Build Complete**
-   - 💻 Run: `echo "✅ Installer successfully built and uploaded."...`
+   - 💻 Run: `echo "✅ Installer successfully built and uploaded."`
 
 ---
 

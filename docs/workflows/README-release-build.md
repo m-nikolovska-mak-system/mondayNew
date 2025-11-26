@@ -1,6 +1,6 @@
 # 📝 Build and Release
 
-**Generated:** 2025-11-25 14:50:21 UTC
+**Generated:** 2025-11-26 12:27:54 UTC
 
 ---
 
@@ -69,7 +69,7 @@
      - `fail_on_unmatched_files`: `True`
 
 4. **Success notification**
-   - 💻 Run: `echo "✅ Installer successfully uploaded to release ${{ github.event.release.tag_name }}"...`
+   - 💻 Run: `echo "✅ Installer successfully uploaded to release ${{ github.event.release.tag_name }}"`
 
 ### `test-summary`
 

@@ -1,6 +1,6 @@
 # 📝 Main Build and Release
 
-**Generated:** 2025-11-25 14:50:21 UTC
+**Generated:** 2025-11-26 12:27:54 UTC
 
 ---
 
@@ -47,7 +47,7 @@
 **Steps:**
 
 1. **Report failure**
-   - 💻 Run: `echo "❌ Workflow failed" echo "Failed jobs: ${{ toJSON(needs) }}"...`
+   - 💻 Run: `echo "❌ Workflow failed" echo "Failed jobs: ${{ toJSON(needs) }}"`
 
 ---
 

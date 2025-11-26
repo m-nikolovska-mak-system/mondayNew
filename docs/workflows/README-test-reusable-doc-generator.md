@@ -1,4 +1,4 @@
-# 📝 Test Tag Push
+# 📝 Update Workflow Docs
 
 **Generated:** 2025-11-26 12:27:54 UTC
 
@@ -6,7 +6,7 @@
 
 ## Overview
 
-**Workflow File:** `.github/workflows/tag-test.yml`
+**Workflow File:** `.github/workflows/test-reusable-doc-generator.yml`
 
 ## ⚡ Triggers
 
@@ -16,14 +16,11 @@
 
 ## 🔨 Jobs
 
-### `print-tag`
+### `generate-docs`
 
-**Runner:** `ubuntu-latest`
+**Runner:** `unknown`
 
 **Steps:**
-
-1. **Show pushed tag**
-   - 💻 Run: `echo "Tag pushed: ${{ github.event.ref }}"`
 
 ---
 

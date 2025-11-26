@@ -1,4 +1,4 @@
-# 📝 Build & Release Java App hi this is me testing this hello!
+# 📝 Build & Release Java App
 
 **Generated:** 2025-11-26 12:27:54 UTC
 
@@ -6,7 +6,7 @@
 
 ## Overview
 
-**Workflow File:** `.github/workflows/build-and-release-v10.yml`
+**Workflow File:** `.github/workflows/build-and-release2.yml`
 
 ## ⚡ Triggers
 
@@ -53,12 +53,6 @@
 **Steps:**
 
 ### `notify_success`
-
-**Runner:** `unknown`
-
-**Steps:**
-
-### `notify_failure`
 
 **Runner:** `unknown`
 

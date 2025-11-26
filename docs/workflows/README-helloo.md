@@ -1,6 +1,6 @@
 # 📝 Hello World Workflow
 
-**Generated:** 2025-11-25 14:50:21 UTC
+**Generated:** 2025-11-26 12:27:54 UTC
 
 ---
 
@@ -23,7 +23,7 @@
 **Steps:**
 
 1. **Print Hello**
-   - 💻 Run: `echo "Hello, world!"...`
+   - 💻 Run: `echo "Hello, world!"`
 
 ---
 
