@@ -13,7 +13,7 @@ on:
         default: "jar"
     outputs:
       jar_cache_key:
-        description: "Cache key for restored JAR"
+        description: "Cache key for restored JAR test"
         value: ${{ jobs.build-jar.outputs.jar_cache_key }}
 
       
