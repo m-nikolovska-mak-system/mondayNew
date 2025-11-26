@@ -75,6 +75,7 @@ docs/README-notify-my-changes.md
 docs/README-build-jar1.md
 docs/README-teams-notif-on-update.md
 docs/README-test-file-detection.md
+docs/README-jira-main-flow-v7.md
 docs/README-build-and-release-v33.md
 docs/README-branchNamingTwo.md
 docs/README-workflow_docs_v2.md
