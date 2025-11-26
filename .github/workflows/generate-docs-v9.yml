@@ -87,7 +87,7 @@ jobs:
 
       - name: Generate documentation from template
         run: |
-          python3 .github/scripts/generate-docs-from-template.py \
+          python3 scripts/generate-docs-from-template.py \
             --workflow "${{ matrix.item.workflow }}" \
             --template "docs/README-template.md" \
             --output "docs/README-${{ matrix.item.basename }}.md"
