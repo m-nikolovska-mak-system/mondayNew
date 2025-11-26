@@ -1,4 +1,4 @@
-name: Build JAR this is a duplicate with a differenect name to test readme WF THIS is for testing hello i am changing thins hii
+name: Build JAR this is a duplicate with a differenect name to test readme WF THIS  is for testing hello i am changing thins hii
 
 on:
   workflow_call:
