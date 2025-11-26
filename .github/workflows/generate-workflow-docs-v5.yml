@@ -38,4 +38,4 @@ jobs:
           body: "This PR updates the documentation for workflows in .github/workflows."
           branch: "auto-doc/update-workflow-readmes"
           base: main
-          token: ${{ secrets.GH_TOKEN }}
+          token: ${{ secrets.GITHUB_TOKEN }}
