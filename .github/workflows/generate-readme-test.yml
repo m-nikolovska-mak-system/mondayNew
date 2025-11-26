@@ -166,7 +166,7 @@ jobs:
       - name: Create Pull Request for Documentation Update
         if: steps.verify.outputs.files_changed == 'true'
         uses: peter-evans/create-pull-request@v6
-        with:z
+        with:
           commit-message: "docs: auto-update README for ${{ matrix.item.basename }}"
           title: "docs: auto-update README for ${{ matrix.item.basename }}"
           body: "This PR was automatically generated to update the documentation for workflow `${{ matrix.item.basename }}`."
