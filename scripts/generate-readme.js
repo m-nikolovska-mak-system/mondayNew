@@ -65,10 +65,20 @@ ${(job.steps || [])
 `;
 }
 
-const [workflowFile, outputFile] = process.argv.slice(2);
-const yamlData = yaml.load(fs.readFileSync(workflowFile, "utf8"));
+const [workflowFile, outputFile, templateFile] = process.argv.slice(2);
 
-const markdown = generateMarkdown(yamlData, workflowFile);
-fs.writeFileSync(outputFile, markdown);
+const yamlData = yaml.load(fs.readFileSync(workflowFile, "utf8"));
+const autoDoc = generateMarkdown(yamlData, workflowFile);
+
+// Read the template
+let template = fs.readFileSync(templateFile, "utf8");
+
+// Replace placeholder block with our auto-doc
+template = template.replace(
+  /<!-- AUTO-GENERATED-DOCS -->([\s\S]*?)<!-- END-AUTO-GENERATED-DOCS -->/,
+  `<!-- AUTO-GENERATED-DOCS -->\n${autoDoc}\n<!-- END-AUTO-GENERATED-DOCS -->`
+);
+
+fs.writeFileSync(outputFile, template);
 
 console.log("Generated:", outputFile);
