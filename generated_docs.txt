@@ -7,7 +7,6 @@ docs/README-build-jar.md
 docs/README-test-basic-actions.md
 docs/README-test3.md
 docs/README-upload-release.md
-docs/README-generate-readme-test.md
 docs/README-test-jira-main-flow-v2.md
 docs/README-readmeGenTest.md
 docs/README-build-and-release-v44.md
@@ -67,6 +66,7 @@ docs/README-notify-app-changes.md
 docs/README-checkout-and-gen-jar.md
 docs/README-detect-setup-script.md
 docs/README-test-teams-notif.md
+docs/README-generate-workflow-docs-v5.md
 docs/README-build-and-release2.md
 docs/README-secret-scanner.md
 docs/README-branchesTest.md
