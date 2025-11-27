@@ -279,7 +279,8 @@ def generate_docs_from_template(workflow_path, template_path, output_path):
     # 🔍 DEBUG: what did we actually load?
     print(f"Loaded workflow file: {workflow_path}")
     print(f"Top-level keys: {list(workflow.keys())}")
-    print(f\"'on' section raw value: {workflow.get('on')}\")
+    print(f"'on' section raw value: {workflow.get('on')}")
+
     
     # Read template
     try:
