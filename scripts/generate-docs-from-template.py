@@ -20,14 +20,20 @@ def generate_triggers(workflow):
     # Handle dict triggers
     lines = []
     for trigger, config in triggers.items():
-        if config is None:
+        if config is None or config == {}:
             lines.append(f"- **`{trigger}`**")
         elif isinstance(config, dict) and config:
             lines.append(f"- **`{trigger}`**")
             # Add trigger details
             if 'paths' in config:
                 paths = config['paths'] if isinstance(config['paths'], list) else [config['paths']]
-                lines.append(f"  - Paths: `{', '.join(paths)}`")
+                # Filter out negations and group them
+                includes = [p for p in paths if not p.startswith('!')]
+                excludes = [p[1:] for p in paths if p.startswith('!')]
+                if includes:
+                    lines.append(f"  - Includes: `{', '.join(includes)}`")
+                if excludes:
+                    lines.append(f"  - Excludes: `{', '.join(excludes)}`")
             if 'branches' in config:
                 branches = config['branches'] if isinstance(config['branches'], list) else [config['branches']]
                 lines.append(f"  - Branches: `{', '.join(branches)}`")
@@ -44,13 +50,13 @@ def generate_inputs(workflow):
     triggers = workflow.get('on', {})
     inputs = {}
     
-    # Try workflow_call first
+    # Try workflow_call first, then workflow_dispatch (merge both if they exist)
     if isinstance(triggers, dict):
         if 'workflow_call' in triggers and isinstance(triggers['workflow_call'], dict):
-            inputs = triggers['workflow_call'].get('inputs', {})
+            inputs.update(triggers['workflow_call'].get('inputs', {}))
         # Also check workflow_dispatch
-        elif 'workflow_dispatch' in triggers and isinstance(triggers['workflow_dispatch'], dict):
-            inputs = triggers['workflow_dispatch'].get('inputs', {})
+        if 'workflow_dispatch' in triggers and isinstance(triggers['workflow_dispatch'], dict):
+            inputs.update(triggers['workflow_dispatch'].get('inputs', {}))
     
     if not inputs:
         return '_This workflow does not accept any inputs._'
@@ -208,9 +214,11 @@ def generate_jobs(workflow):
                     if isinstance(run_text, str):
                         # Remove extra whitespace and newlines
                         run_text_clean = ' '.join(run_text.strip().split())
-                        if len(run_text_clean) > 50:
+                        if len(run_text_clean) > 60:
                             run_cmd = '✅ Yes (see YAML)'
                         else:
+                            # Escape pipe characters that might break markdown tables
+                            run_text_clean = run_text_clean.replace('|', '\\|')
                             run_cmd = f'`{run_text_clean}`'
                     else:
                         run_cmd = '✅ Yes'
@@ -252,27 +260,41 @@ def generate_docs_from_template(workflow_path, template_path, output_path):
     
     # Parse workflow YAML
     try:
-        with open(workflow_path, 'r') as f:
+        with open(workflow_path, 'r', encoding='utf-8') as f:
             workflow = yaml.safe_load(f)
-    except Exception as e:
+    except yaml.YAMLError as e:
         print(f"❌ Error parsing YAML: {e}")
         return
+    except FileNotFoundError:
+        print(f"❌ Workflow file not found: {workflow_path}")
+        return
+    except Exception as e:
+        print(f"❌ Unexpected error reading workflow: {e}")
+        return
     
-    if not workflow:
-        print(f"❌ Empty or invalid YAML file")
+    if not workflow or not isinstance(workflow, dict):
+        print(f"❌ Empty or invalid YAML file: {workflow_path}")
         return
     
     # Read template
     try:
-        with open(template_path, 'r') as f:
+        with open(template_path, 'r', encoding='utf-8') as f:
             template = f.read()
     except FileNotFoundError:
         print(f"❌ Template file not found: {template_path}")
+        print(f"💡 Make sure the template exists at: {template_path}")
+        return
+    except Exception as e:
+        print(f"❌ Error reading template: {e}")
         return
     
     # Read full YAML content
-    with open(workflow_path, 'r') as f:
-        full_yaml = f.read().rstrip()
+    try:
+        with open(workflow_path, 'r', encoding='utf-8') as f:
+            full_yaml = f.read().rstrip()
+    except Exception as e:
+        print(f"❌ Error reading workflow file for full content: {e}")
+        return
     
     # Generate workflow type
     workflow_type = determine_workflow_type(workflow)
