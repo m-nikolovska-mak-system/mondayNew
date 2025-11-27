@@ -1,11 +1,11 @@
-# {{WORKFLOW_NAME}}
+# Build JAR this is a duplicate with a differenect name to HELLOO aaaaaaaaaaa testing 22aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa hi testing hello hello again once more a test
 
-> **Type:** {{WORKFLOW_TYPE}}  
-> **Source:** `{{WORKFLOW_FILE}}`
+> **Type:** Standard Workflow  
+> **Source:** `ci-build-jar.yml`
 
 ## 📋 Overview
 
-This document provides comprehensive documentation for the `{{WORKFLOW_NAME}}` workflow.
+This document provides comprehensive documentation for the `Build JAR this is a duplicate with a differenect name to HELLOO aaaaaaaaaaa testing 22aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa hi testing hello hello again once more a test` workflow.
 
 ---
 
@@ -23,19 +23,40 @@ _No inputs defined._
 
 ## 📤 Outputs
 
-{{OUTPUTS}}
+_No outputs defined._
 
 ---
 
 ## 🔐 Secrets
 
-{{SECRETS}}
+_No secrets defined._
 
 ---
 
 ## 💼 Jobs
 
-{{JOBS}}
+### `build-jar`
+
+**Runs on:** `ubuntu-latest`
+
+| Step | Uses | Run Command |
+| ---- | ---- | ----------- |
+| Checkout code | `actions/checkout@v4` |  |
+| Set up Java 17 | `actions/setup-java@v3` |  |
+| Make Gradle wrapper executable | `` | `chmod +x gradlew` |
+| Cache Gradle dependencies | `actions/cache@v3` |  |
+| Build JAR | `` | `./gradlew ${{ inputs.gradle_task }} --no-daemon` |
+| Validate JAR | `` | `jar_file=$(ls build/libs/*.jar 2>/dev/null | head -n 1)
+if [ -z "$jar_file" ]; then
+  echo "❌ No JAR files found"
+  exit 1
+fi
+echo "✓ Found $(basename "$jar_file")"
+` |
+| Generate cache key | `` | `echo "key=jar-${{ github.sha }}-${{ github.run_number }}" >> $GITHUB_OUTPUT` |
+| Cache built JAR | `actions/cache/save@v3` |  |
+
+
 
 ---
 
@@ -45,12 +66,86 @@ _No inputs defined._
 <summary>Click to expand full YAML definition</summary>
 
 ```yaml
-{{FULL_YAML}}
+name: Build JAR this is a duplicate with a differenect name to HELLOO aaaaaaaaaaa testing 22aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa hi testing hello hello again once more a test
+
+on:
+  workflow_call:
+    inputs:
+      release_tag:
+        required: false
+        type: string
+        default: "main"
+      gradle_task:
+        required: false
+        type: string
+        default: "jar"
+      gradle_task_twooooooooooo:
+        required: false
+        type: string
+        default: "jar3"
+    outputs:
+      jar_cache_key:
+        description: "Cache key for restored JAR"
+        value: ${{ jobs.build-jar.outputs.jar_cache_key }}
+
+      
+
+jobs:
+  build-jar:
+    runs-on: ubuntu-latest
+    outputs:
+      jar_cache_key: ${{ steps.cache-key.outputs.key }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.release_tag }}
+
+      - name: Set up Java 17
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Make Gradle wrapper executable
+        run: chmod +x gradlew
+
+      - name: Cache Gradle dependencies
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-
+
+      - name: Build JAR
+        run: ./gradlew ${{ inputs.gradle_task }} --no-daemon
+
+      - name: Validate JAR
+        run: |
+          jar_file=$(ls build/libs/*.jar 2>/dev/null | head -n 1)
+          if [ -z "$jar_file" ]; then
+            echo "❌ No JAR files found"
+            exit 1
+          fi
+          echo "✓ Found $(basename "$jar_file")"
+
+      - name: Generate cache key
+        id: cache-key
+        run: echo "key=jar-${{ github.sha }}-${{ github.run_number }}" >> $GITHUB_OUTPUT
+
+      - name: Cache built JAR
+        uses: actions/cache/save@v3
+        with:
+          path: build/libs/*.jar
+          key: ${{ steps.cache-key.outputs.key }}
 ```
 
 </details>
 
 ---
 
-**Generated on:** {{GENERATION_DATE}}  
+**Generated on:** 2025-11-27 13:53:31  
 **Last Updated:** Check the workflow file history for the most recent changes.
