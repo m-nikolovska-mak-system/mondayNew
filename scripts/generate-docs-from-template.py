@@ -12,13 +12,21 @@ def generate_triggers(workflow):
     print(f"[DEBUG] generate_triggers: type(on)={type(triggers)}, value={triggers}")
 
     if not triggers:
-        return '_This workflow has no triggers defined._'
+    return "_This workflow has no triggers defined._"
 
+    # Case 1: triggers is a simple string
     if isinstance(triggers, str):
         return f"- **`{triggers}`**"
-
+    
+    # Case 2: triggers is a list (e.g. on: [push, pull_request])
     if isinstance(triggers, list):
-        return '\n'.join([f"- **`{t}`**" for t in triggers])
+        return "\n".join([f"- **`{t}`**" for t in triggers])
+    
+    # Case 3: triggers is NOT a dict → unexpected, but avoid crashing
+    if not isinstance(triggers, dict):
+        print("[DEBUG] generate_triggers: 'on' is not dict/list/str")
+        return "_This workflow has no triggers defined._"
+
 
     # Handle dict triggers
     lines = []
