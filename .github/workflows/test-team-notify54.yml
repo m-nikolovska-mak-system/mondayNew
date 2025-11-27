@@ -2,9 +2,9 @@ name: Notify Teams on Changes
 
 on:
   # Trigger on pushes to main branch
-  push:
-    branches:
-      - main
+ # push:
+#    branches:
+ #     - main
   
   # Allow manual triggering for testing
   workflow_dispatch:
