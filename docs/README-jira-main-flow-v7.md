@@ -1,12 +1,12 @@
-# 📝 Test Create Jira Issue
+# 📝 Mega Jira Workflow
 
-**Generated:** 2025-11-27 09:39:49
+**Generated:** 2025-11-27 09:39:50
 
 ---
 
 ## Overview
 
-**Workflow Name:** `Test Create Jira Issue`
+**Workflow Name:** `Mega Jira Workflow`
 
 ## Triggers
 
@@ -14,9 +14,13 @@
 
 ## 🔨 Jobs
 
-### `create_issue`
+### `create`
 
 **Calls:** `m-nikolovska-mak-system/reusable-actions-library/.github/workflows/create-jira-issue.yml@main`
+
+### `assign`
+
+**Calls:** `m-nikolovska-mak-system/reusable-actions-library/.github/workflows/assign-jira-ticket.yml@main`
 
 ---
 
