@@ -1,11 +1,8 @@
-# Build JAR this is a duplicate with a differenect name to HELLOO aaaaaaaaaaa testing 22aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa hi testing hello hello again once more a test
-
-> **Type:** Standard Workflow  
-> **Source:** `ci-build-jar.yml`
+# Build JAR this is a duplicate with a differenect name to HELLOO aaaaaaaaaaa testing 22aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaahhhhhhaaaaaa hi testing hello hello again once more a testaaaaaaaaaaaaaaaaaaaa
 
 ## 📋 Overview
 
-This document provides comprehensive documentation for the `Build JAR this is a duplicate with a differenect name to HELLOO aaaaaaaaaaa testing 22aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa hi testing hello hello again once more a test` workflow.
+This document provides comprehensive documentation for the **Build JAR this is a duplicate with a differenect name to HELLOO aaaaaaaaaaa testing 22aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaahhhhhhaaaaaa hi testing hello hello again once more a testaaaaaaaaaaaaaaaaaaaa** workflow.
 
 ---
 
@@ -17,19 +14,19 @@ This document provides comprehensive documentation for the `Build JAR this is a 
 
 ## 📥 Inputs
 
-_No inputs defined._
+_This workflow does not accept any inputs._
 
 ---
 
 ## 📤 Outputs
 
-_No outputs defined._
+_This workflow does not expose any outputs._
 
 ---
 
 ## 🔐 Secrets
 
-_No secrets defined._
+_This workflow does not require any secrets._
 
 ---
 
@@ -43,20 +40,12 @@ _No secrets defined._
 | ---- | ---- | ----------- |
 | Checkout code | `actions/checkout@v4` |  |
 | Set up Java 17 | `actions/setup-java@v3` |  |
-| Make Gradle wrapper executable | `` | `chmod +x gradlew` |
+| Make Gradle wrapper executable |  | `chmod +x gradlew` |
 | Cache Gradle dependencies | `actions/cache@v3` |  |
-| Build JAR | `` | `./gradlew ${{ inputs.gradle_task }} --no-daemon` |
-| Validate JAR | `` | `jar_file=$(ls build/libs/*.jar 2>/dev/null | head -n 1)
-if [ -z "$jar_file" ]; then
-  echo "❌ No JAR files found"
-  exit 1
-fi
-echo "✓ Found $(basename "$jar_file")"
-` |
-| Generate cache key | `` | `echo "key=jar-${{ github.sha }}-${{ github.run_number }}" >> $GITHUB_OUTPUT` |
+| Build JAR |  | `./gradlew ${{ inputs.gradle_task }} --no-daemon` |
+| Validate JAR |  | ✅ Yes (see YAML) |
+| Generate cache key |  | ✅ Yes (see YAML) |
 | Cache built JAR | `actions/cache/save@v3` |  |
-
-
 
 ---
 
@@ -66,7 +55,7 @@ echo "✓ Found $(basename "$jar_file")"
 <summary>Click to expand full YAML definition</summary>
 
 ```yaml
-name: Build JAR this is a duplicate with a differenect name to HELLOO aaaaaaaaaaa testing 22aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa hi testing hello hello again once more a test
+name: Build JAR this is a duplicate with a differenect name to HELLOO aaaaaaaaaaa testing 22aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaahhhhhhaaaaaa hi testing hello hello again once more a testaaaaaaaaaaaaaaaaaaaa
 
 on:
   workflow_call:
@@ -79,7 +68,7 @@ on:
         required: false
         type: string
         default: "jar"
-      gradle_task_twooooooooooo:
+      gradle_task_two0aao:
         required: false
         type: string
         default: "jar3"
@@ -147,5 +136,4 @@ jobs:
 
 ---
 
-**Generated on:** 2025-11-27 13:53:31  
-**Last Updated:** Check the workflow file history for the most recent changes.
+**Generated on:** 2025-11-27 15:17:38
