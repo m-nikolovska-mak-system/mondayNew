@@ -102,6 +102,24 @@ jobs:
           fetch-depth: 0
           token: ${{ env.GITHUB_USER_TOKEN }}
 
+
+      
+      - name: Create missing README
+        run: |
+          TEMPLATE="docs/README-template.md"
+          readme="docs/README-${{ matrix.item.basename }}.md"
+          if [ ! -f "$readme" ]; then
+            echo "Creating $readme"
+            cp "$TEMPLATE" "$readme"
+          fi
+
+    
+      - name: Print workflow and README paths
+        run: |
+          echo "Workflow: ${{ matrix.item.workflow }}"
+          echo "README: docs/README-${{ matrix.item.basename }}.md"
+
+
       - name: Install PyYAML
         run: pip install pyyaml
 
