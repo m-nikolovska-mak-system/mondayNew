@@ -275,6 +275,24 @@ def generate_docs_from_template(workflow_path, template_path, output_path):
     if not workflow or not isinstance(workflow, dict):
         print(f"❌ Empty or invalid YAML file: {workflow_path}")
         return
+
+    # 🔍 DEBUG: what did we actually load?
+    print(f"Loaded workflow file: {workflow_path}")
+    print(f"Top-level keys: {list(workflow.keys())}")
+    print(f\"'on' section raw value: {workflow.get('on')}\")
+    
+    # Read template
+    try:
+        with open(template_path, 'r', encoding='utf-8') as f:
+            template = f.read()
+    except FileNotFoundError:
+        print(f"❌ Template file not found: {template_path}")
+        print(f"💡 Make sure the template exists at: {template_path}")
+        return
+    except Exception as e:
+        print(f"❌ Error reading template: {e}")
+        return
+
     
     # Read template
     try:
