@@ -24,5 +24,7 @@ workflow = yaml.safe_load(Path(".github/workflows/ci-build-jar.yml").read_text()
 template = Path("docs/README-template.md").read_text()
 filled = template.replace("{{TRIGGERS}}", generate_triggers(workflow.get("on", {})))
 filled = filled.replace("{{INPUTS}}", generate_inputs(workflow.get("on", {})))
+print("=== Generated README Preview ===")
+print(filled[:500])
 Path("docs/README-ci-build-jar.md").write_text(filled)
 
