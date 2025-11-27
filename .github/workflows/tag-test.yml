@@ -1,9 +1,10 @@
 name: Test Tag Push
 
 on:
-  push:
-    tags:
-      - '*'  
+ # push:
+  #  tags:
+   #   - '*'  
+   workflow_dispatch: 
 
 jobs:
   print-tag:
