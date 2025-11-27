@@ -1,8 +1,9 @@
 name: Update README with Action Docs
 on:
-  push:
-    branches:
-      - main
+#  push:
+#    branches:
+ #     - main
+ workflow_dispatch: 
 
 jobs:
   update-doc:
