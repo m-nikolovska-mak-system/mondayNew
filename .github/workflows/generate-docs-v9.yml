@@ -127,11 +127,11 @@ jobs:
         if: steps.verify.outputs.files_changed == 'true'
         uses: peter-evans/create-pull-request@v6
         with:
+          token: ${{ secrets.GITHUB_TOKEN }}
           commit-message: "docs: auto-update README for ${{ matrix.item.basename }}"
           title: "docs: auto-update README for ${{ matrix.item.basename }}"
           body: "This PR was automatically generated to update the documentation for workflow `${{ matrix.item.basename }}`."
           branch: "auto-doc/update-readme-${{ matrix.item.basename }}"
-          token: ${{ env.GITHUB_USER_TOKEN }}
           committer: ${{ env.GITHUB_USER_NAME }} <${{ env.GITHUB_USER_EMAIL }}>
           base: ${{ needs.detect-changes.outputs.pr_source_branch || github.event.pull_request.base.ref }}
 
