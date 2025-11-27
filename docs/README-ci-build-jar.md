@@ -1,103 +1,65 @@
-# Build JAR this is a duplicate with a differenect name to test readmethis is a change hi hello hiii hi
-**Source:** `ci-build-jar.yml`
+# 📝 Build JAR this is a duplicate with a differenect name to test readmethis is a change hi hello hiii hi hello
+
+**Generated:** 2025-11-27 09:13:17
+
+---
+
+## Overview
+
+**Workflow Name:** `Build JAR this is a duplicate with a differenect name to test readmethis is a change hi hello hiii hi hello`
 
 ## Triggers
-_None_
 
-## Inputs
-_None_
+*No triggers defined*
 
-## Outputs
-_None_
+## 🔨 Jobs
 
-## Secrets
-_None_
+### `build-jar`
 
-## Jobs
-### build-jar
+**Runner:** `ubuntu-latest`
 
-| name | action | run |
-| --- | --- | --- |
-| Checkout code | actions/checkout@v4 |  |
-| Set up Java 17 | actions/setup-java@v3 |  |
-| Make Gradle wrapper executable |  | `run` command |
-| Cache Gradle dependencies | actions/cache@v3 |  |
-| Build JAR |  | `run` command |
-| Validate JAR |  | `run` command |
-| Generate cache key |  | `run` command |
-| Cache built JAR | actions/cache/save@v3 |  |
+**Job Outputs:**
 
-## Full YAML
-```yaml
-name: Build JAR this is a duplicate with a differenect name to test readmethis is a change hi hello hiii hi
+- `jar_cache_key`: `${{ steps.cache-key.outputs.key }}`
 
-on:
-  workflow_call:
-    inputs:
-      release_tag:
-        required: false
-        type: string
-        default: "main"
-      gradle_task:
-        required: false
-        type: string
-        default: "jar"
-    outputs:
-      jar_cache_key:
-        description: "Cache key for restored JAR"
-        value: ${{ jobs.build-jar.outputs.jar_cache_key }}
+**Steps:**
 
-      
+1. **Checkout code**
+   - 📦 Action: `actions/checkout@v4`
+   - ⚙️ Config:
+     - `ref`: `${{ inputs.release_tag }}...`
 
-jobs:
-  build-jar:
-    runs-on: ubuntu-latest
-    outputs:
-      jar_cache_key: ${{ steps.cache-key.outputs.key }}
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-        with:
-          ref: ${{ inputs.release_tag }}
+2. **Set up Java 17**
+   - 📦 Action: `actions/setup-java@v3`
+   - ⚙️ Config:
+     - `distribution`: `temurin...`
+     - `java-version`: `17...`
 
-      - name: Set up Java 17
-        uses: actions/setup-java@v3
-        with:
-          distribution: 'temurin'
-          java-version: '17'
+3. **Make Gradle wrapper executable**
+   - 💻 Run: `chmod +x gradlew...`
 
-      - name: Make Gradle wrapper executable
-        run: chmod +x gradlew
+4. **Cache Gradle dependencies**
+   - 📦 Action: `actions/cache@v3`
+   - ⚙️ Config:
+     - `path`: `~/.gradle/caches ~/.gradle/wrapper ...`
+     - `key`: `${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle...`
+     - `restore-keys`: `${{ runner.os }}-gradle- ...`
 
-      - name: Cache Gradle dependencies
-        uses: actions/cache@v3
-        with:
-          path: |
-            ~/.gradle/caches
-            ~/.gradle/wrapper
-          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
-          restore-keys: |
-            ${{ runner.os }}-gradle-
+5. **Build JAR**
+   - 💻 Run: `./gradlew ${{ inputs.gradle_task }} --no-daemon...`
 
-      - name: Build JAR
-        run: ./gradlew ${{ inputs.gradle_task }} --no-daemon
+6. **Validate JAR**
+   - 💻 Run: `jar_file=$(ls build/libs/*.jar 2>/dev/null | head -n 1)...`
 
-      - name: Validate JAR
-        run: |
-          jar_file=$(ls build/libs/*.jar 2>/dev/null | head -n 1)
-          if [ -z "$jar_file" ]; then
-            echo "❌ No JAR files found"
-            exit 1
-          fi
-          echo "✓ Found $(basename "$jar_file")"
+7. **Generate cache key**
+   - 💻 Run: `echo "key=jar-${{ github.sha }}-${{ github.run_number }}" >>...`
 
-      - name: Generate cache key
-        id: cache-key
-        run: echo "key=jar-${{ github.sha }}-${{ github.run_number }}" >> $GITHUB_OUTPUT
+8. **Cache built JAR**
+   - 📦 Action: `actions/cache/save@v3`
+   - ⚙️ Config:
+     - `path`: `build/libs/*.jar...`
+     - `key`: `${{ steps.cache-key.outputs.key }}...`
 
-      - name: Cache built JAR
-        uses: actions/cache/save@v3
-        with:
-          path: build/libs/*.jar
-          key: ${{ steps.cache-key.outputs.key }}
-```
+---
+
+*This documentation is auto-generated. Do not edit manually.*
