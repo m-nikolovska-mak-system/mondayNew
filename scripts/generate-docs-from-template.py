@@ -293,14 +293,15 @@ def generate_docs_from_template(workflow_path, template_path, output_path):
         print(f"❌ Unexpected error reading workflow: {e}")
         return
     
+    # after loading workflow and before using it
     if not workflow or not isinstance(workflow, dict):
         print(f"❌ Empty or invalid YAML file: {workflow_path}")
         return
 
-    # 🔍 DEBUG: what did we actually load?
-    print(f"Loaded workflow file: {workflow_path}")
-    print(f"Top-level keys: {list(workflow.keys())}")
-    print(f"'on' section raw value: {workflow.get('on')}")
+    print(f"[DEBUG] Loaded workflow file: {workflow_path}")
+    print(f"[DEBUG] Top-level keys: {list(workflow.keys())}")
+    print(f"[DEBUG] 'on' section raw value: {workflow.get('on')}")
+
 
     
     # Read template
