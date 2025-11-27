@@ -1,0 +1,42 @@
+name: 🧪 Test Simple README Generation
+
+on:
+  workflow_dispatch:  # Manual trigger only
+
+permissions:
+  contents: write
+
+jobs:
+  test-readme:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Create docs directory if it doesn't exist
+        run: mkdir -p docs
+
+      - name: Run simple Python script
+        run: python3 scripts/simple-fill-readme.py
+
+      - name: Check if README was created
+        run: |
+          echo "📂 Checking docs directory..."
+          ls -lh docs/
+          echo ""
+          echo "📄 README content:"
+          cat docs/README-test.md
+
+      - name: Commit and push if changed
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add docs/README-test.md
+          
+          if git diff --staged --quiet; then
+            echo "ℹ️ No changes to commit"
+          else
+            git commit -m "docs: update test README"
+            git push
+            echo "✅ Changes committed and pushed"
+          fi
