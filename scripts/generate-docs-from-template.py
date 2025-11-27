@@ -282,7 +282,7 @@ def generate_docs_from_template(workflow_path, template_path, output_path):
     # Parse workflow YAML
     try:
         with open(workflow_path, 'r', encoding='utf-8') as f:
-            workflow = yaml.safe_load(f)
+        workflow = yaml.load(f, Loader=yaml.FullLoader)
     except yaml.YAMLError as e:
         print(f"❌ Error parsing YAML: {e}")
         return
