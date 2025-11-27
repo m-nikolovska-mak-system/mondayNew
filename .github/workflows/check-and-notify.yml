@@ -1,9 +1,9 @@
 name: Detect File Change + MS Teams Notification
 
 on:
-  push:
-    tags:
-      - "v*"
+ # push:
+#    tags:
+#      - "v*"
   workflow_dispatch:
     inputs:
       watched_file:
