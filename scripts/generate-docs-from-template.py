@@ -5,29 +5,37 @@ from pathlib import Path
 from datetime import datetime
 
 def generate_triggers(workflow):
-    """Generate triggers section with better formatting"""
+    """Generate triggers section with better formatting (supports workflow_call, workflow_dispatch, etc.)"""
     triggers = workflow.get('on', {})
-    
+
+    # Debug to see what we actually got
+    print(f"[DEBUG] generate_triggers: type(on)={type(triggers)}, value={triggers}")
+
     if not triggers:
         return '_This workflow has no triggers defined._'
-    
+
     if isinstance(triggers, str):
         return f"- **`{triggers}`**"
-    
+
     if isinstance(triggers, list):
         return '\n'.join([f"- **`{t}`**" for t in triggers])
-    
+
     # Handle dict triggers
     lines = []
     for trigger, config in triggers.items():
+        # Nicer label for reusable workflows
+        if trigger == 'workflow_call':
+            label = 'workflow_call (reusable workflow)'
+        else:
+            label = trigger
+
         if config is None or config == {}:
-            lines.append(f"- **`{trigger}`**")
+            lines.append(f"- **`{label}`**")
         elif isinstance(config, dict) and config:
-            lines.append(f"- **`{trigger}`**")
+            lines.append(f"- **`{label}`**")
             # Add trigger details
             if 'paths' in config:
                 paths = config['paths'] if isinstance(config['paths'], list) else [config['paths']]
-                # Filter out negations and group them
                 includes = [p for p in paths if not p.startswith('!')]
                 excludes = [p[1:] for p in paths if p.startswith('!')]
                 if includes:
@@ -41,38 +49,46 @@ def generate_triggers(workflow):
                 types = config['types'] if isinstance(config['types'], list) else [config['types']]
                 lines.append(f"  - Types: `{', '.join(types)}`")
         else:
-            lines.append(f"- **`{trigger}`**")
-    
+            lines.append(f"- **`{label}`**")
+
     return '\n'.join(lines) if lines else '_This workflow has no triggers defined._'
+
 
 def generate_inputs(workflow):
     """Generate inputs table - works for both workflow_call and workflow_dispatch"""
     triggers = workflow.get('on', {})
     inputs = {}
-    
-    # Try workflow_call first, then workflow_dispatch (merge both if they exist)
+
+    # Debug to see structure of triggers
+    print(f"[DEBUG] generate_inputs: type(on)={type(triggers)}, value={triggers}")
+
     if isinstance(triggers, dict):
-        if 'workflow_call' in triggers and isinstance(triggers['workflow_call'], dict):
-            inputs.update(triggers['workflow_call'].get('inputs', {}))
-        # Also check workflow_dispatch
-        if 'workflow_dispatch' in triggers and isinstance(triggers['workflow_dispatch'], dict):
-            inputs.update(triggers['workflow_dispatch'].get('inputs', {}))
-    
+        wf_call = triggers.get('workflow_call')
+        wf_dispatch = triggers.get('workflow_dispatch')
+        print(f"[DEBUG] generate_inputs: workflow_call={type(wf_call)}, workflow_dispatch={type(wf_dispatch)}")
+
+        # Reusable workflow inputs
+        if isinstance(wf_call, dict):
+            inputs.update(wf_call.get('inputs', {}))
+        # Manual dispatch inputs
+        if isinstance(wf_dispatch, dict):
+            inputs.update(wf_dispatch.get('inputs', {}))
+
     if not inputs:
         return '_This workflow does not accept any inputs._'
-    
+
     lines = [
         "| Name | Type | Required | Default | Description |",
         "| ---- | ---- | -------- | ------- | ----------- |"
     ]
-    
+
     for name, props in inputs.items():
         if not isinstance(props, dict):
             continue
-            
+
         req = "✅ Yes" if props.get('required', False) else "❌ No"
         default = props.get('default', '')
-        
+
         if default != '':
             if isinstance(default, str):
                 default = f"`{default}`"
@@ -80,39 +96,43 @@ def generate_inputs(workflow):
                 default = f"`{str(default)}`"
         else:
             default = '_not set_'
-            
+
         desc = props.get('description', '_No description provided_')
         typ = f"`{props.get('type', 'string')}`"
         lines.append(f"| `{name}` | {typ} | {req} | {default} | {desc} |")
-    
+
     return '\n'.join(lines)
+
 
 def generate_outputs(workflow):
     """Generate outputs table - works for workflow_call"""
     triggers = workflow.get('on', {})
     outputs = {}
-    
-    if isinstance(triggers, dict) and 'workflow_call' in triggers:
-        workflow_call = triggers['workflow_call']
-        if isinstance(workflow_call, dict):
-            outputs = workflow_call.get('outputs', {})
-    
+
+    # Debug to see structure of triggers
+    print(f"[DEBUG] generate_outputs: type(on)={type(triggers)}, value={triggers}")
+
+    if isinstance(triggers, dict):
+        wf_call = triggers.get('workflow_call')
+        print(f"[DEBUG] generate_outputs: workflow_call={type(wf_call)}")
+        if isinstance(wf_call, dict):
+            outputs = wf_call.get('outputs', {})
+
     if not outputs:
         return '_This workflow does not expose any outputs._'
-    
+
     lines = [
         "| Name | Description | Value |",
         "| ---- | ----------- | ----- |"
     ]
-    
+
     for name, props in outputs.items():
         if not isinstance(props, dict):
             continue
-            
+
         desc = props.get('description', '_No description provided_')
         value = props.get('value', '_not specified_')
-        
-        # Format value nicely
+
         if isinstance(value, str):
             if len(value) > 60:
                 value = f"`{value[:57]}...`"
@@ -120,10 +140,11 @@ def generate_outputs(workflow):
                 value = f"`{value}`"
         else:
             value = f"`{str(value)}`"
-            
+
         lines.append(f"| `{name}` | {desc} | {value} |")
-    
+
     return '\n'.join(lines)
+
 
 def generate_secrets(workflow):
     """Generate secrets table - works for workflow_call"""
