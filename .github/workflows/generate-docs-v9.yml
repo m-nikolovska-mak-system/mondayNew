@@ -3,8 +3,8 @@ name: 📝 Generate/Update README Documentation
 on:
   workflow_dispatch:
   pull_request:
-   paths:
-    - ".github/workflows/*.yml"
+    paths:
+      - ".github/workflows/*.yml"
 
 permissions:
   contents: write
@@ -20,6 +20,7 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       matrix: ${{ steps.prep_matrix.outputs.matrix }}
+      has_changes: ${{ steps.prep_matrix.outputs.has_changes }}
       pr_source_branch: ${{ steps.get_source_branch.outputs.pr_source_branch }}
     steps:
       - name: Checkout
@@ -36,28 +37,38 @@ jobs:
       - name: Print changed workflow files
         run: |
           echo "Changed workflow files:"
-          for f in ${{ steps.detect.outputs.all_changed_files }}; do
-            echo " - $f"
-          done
-
-      - name: Stop if no workflows changed
-        if: steps.detect.outputs.any_changed == 'false'
-        run: echo "No workflow changes detected. Skipping documentation." && exit 0
+          if [ -n "${{ steps.detect.outputs.all_changed_files }}" ]; then
+            for f in ${{ steps.detect.outputs.all_changed_files }}; do
+              echo " - $f"
+            done
+          else
+            echo " - (none)"
+          fi
 
       - name: Prepare matrix JSON
         id: prep_matrix
         run: |
           json="[]"
+          has_changes="false"
 
-          echo "Changed workflows:"
-          for f in ${{ steps.detect.outputs.all_changed_files }}; do
-            echo " - $f"
-            base=$(basename "$f" .yml)
-            json=$(echo "$json" | jq --arg wf "$f" --arg b "$base" '. += [{"workflow":$wf,"basename":$b}]')
-          done
+          if [ "${{ steps.detect.outputs.any_changed }}" == "true" ]; then
+            echo "✅ Changed workflows detected:"
+            for f in ${{ steps.detect.outputs.all_changed_files }}; do
+              echo " - $f"
+              base=$(basename "$f" .yml)
+              json=$(echo "$json" | jq --arg wf "$f" --arg b "$base" '. += [{"workflow":$wf,"basename":$b}]')
+            done
+            has_changes="true"
+          else
+            echo "ℹ️ No workflow changes detected. Documentation update will be skipped."
+          fi
 
           escaped_json=$(echo "$json" | jq -c '.')
           echo "matrix=$escaped_json" >> $GITHUB_OUTPUT
+          echo "has_changes=$has_changes" >> $GITHUB_OUTPUT
+          
+          echo "Matrix output: $escaped_json"
+          echo "Has changes: $has_changes"
 
       - name: Get PR source branch
         id: get_source_branch
@@ -66,6 +77,8 @@ jobs:
 
   update-doc:
     needs: detect-changes
+    # Only run this job if there are actual changes
+    if: needs.detect-changes.outputs.has_changes == 'true'
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -102,9 +115,10 @@ jobs:
         run: |
           if [ "${{ steps.verify.outputs.files_changed }}" == "true" ]; then
             echo "✅ README updated: docs/README-${{ matrix.item.basename }}.md"
-            echo "--- Content ---"
-            cat docs/README-${{ matrix.item.basename }}.md
-            echo "---------------"
+            echo "--- Content Preview (first 20 lines) ---"
+            head -n 20 docs/README-${{ matrix.item.basename }}.md
+            echo "..."
+            echo "--- (Full content in artifact) ---"
           else
             echo "ℹ️ No changes detected for docs/README-${{ matrix.item.basename }}.md"
           fi
@@ -120,3 +134,31 @@ jobs:
           token: ${{ env.GITHUB_USER_TOKEN }}
           committer: ${{ env.GITHUB_USER_NAME }} <${{ env.GITHUB_USER_EMAIL }}>
           base: ${{ needs.detect-changes.outputs.pr_source_branch || github.event.pull_request.base.ref }}
+
+  # Optional: Summary job to report what happened
+  summary:
+    needs: [detect-changes, update-doc]
+    # Always run to provide feedback
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Workflow Summary
+        run: |
+          echo "## 📝 Documentation Generation Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          if [ "${{ needs.detect-changes.outputs.has_changes }}" == "true" ]; then
+            echo "✅ **Workflow changes detected**" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "Documentation was generated for the changed workflows." >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "**Status:** ${{ needs.update-doc.result }}" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "ℹ️ **No workflow changes detected**" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "No workflows matching the pattern were changed, so documentation generation was skipped." >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "**Patterns monitored:**" >> $GITHUB_STEP_SUMMARY
+            echo "- \`.github/workflows/ci-*.yml\`" >> $GITHUB_STEP_SUMMARY
+            echo "- Excluding: \`ci-readme-docs.yml\`" >> $GITHUB_STEP_SUMMARY
+          fi
