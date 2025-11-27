@@ -1,4 +1,4 @@
-name: Build JAR this is a duplicate with a differenect name to HELLOO aaaaaaaaaaa testing 22aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa hi testing hello hello again once more a testaaaaaaaaaaaa
+name: Build JAR this is a duplicate with a differenect name to HELLOO aaaaaaaaaaa testing 22aaaaaaaaaaaaaaaaaaaaaaaaahhhhhhaaaaaa hi testing hello hello again once more a testaaaaaaaaaaaa
 
 on:
   workflow_call:
@@ -11,7 +11,7 @@ on:
         required: false
         type: string
         default: "jar"
-      gradle_task_twooooooooooo:
+      gradle_task_two0o:
         required: false
         type: string
         default: "jar3"
