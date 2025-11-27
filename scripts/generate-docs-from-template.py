@@ -12,26 +12,25 @@ def generate_triggers(workflow):
     print(f"[DEBUG] generate_triggers: type(on)={type(triggers)}, value={triggers}")
 
     if not triggers:
-    return "_This workflow has no triggers defined._"
+        return "_This workflow has no triggers defined._"
 
     # Case 1: triggers is a simple string
     if isinstance(triggers, str):
         return f"- **`{triggers}`**"
-    
+
     # Case 2: triggers is a list (e.g. on: [push, pull_request])
     if isinstance(triggers, list):
         return "\n".join([f"- **`{t}`**" for t in triggers])
-    
-    # Case 3: triggers is NOT a dict → unexpected, but avoid crashing
+
+    # Case 3: triggers is NOT a dict
     if not isinstance(triggers, dict):
         print("[DEBUG] generate_triggers: 'on' is not dict/list/str")
         return "_This workflow has no triggers defined._"
 
+    # ---- existing dict logic below (unchanged) ----
 
-    # Handle dict triggers
     lines = []
     for trigger, config in triggers.items():
-        # Nicer label for reusable workflows
         if trigger == 'workflow_call':
             label = 'workflow_call (reusable workflow)'
         else:
@@ -41,7 +40,6 @@ def generate_triggers(workflow):
             lines.append(f"- **`{label}`**")
         elif isinstance(config, dict) and config:
             lines.append(f"- **`{label}`**")
-            # Add trigger details
             if 'paths' in config:
                 paths = config['paths'] if isinstance(config['paths'], list) else [config['paths']]
                 includes = [p for p in paths if not p.startswith('!')]
@@ -59,8 +57,7 @@ def generate_triggers(workflow):
         else:
             lines.append(f"- **`{label}`**")
 
-    return '\n'.join(lines) if lines else '_This workflow has no triggers defined._'
-
+    return "\n".join(lines) if lines else "_This workflow has no triggers defined._"
 
 def generate_inputs(workflow):
     """Generate inputs table - works for both workflow_call and workflow_dispatch"""
