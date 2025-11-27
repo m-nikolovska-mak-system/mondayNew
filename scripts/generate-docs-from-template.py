@@ -20,8 +20,8 @@ def generate_inputs(on):
         rows.append(f"| `{name}` | {'✅' if props.get('required') else '❌'} | {props.get('description','_No description_')} |")
     return "\n".join(rows)
 
-workflow = yaml.safe_load(Path("workflow.yml").read_text())
+workflow = yaml.safe_load(Path("ci-build-jar.yml").read_text())
 template = Path("README_TEMPLATE.md").read_text()
 filled = template.replace("{{TRIGGERS}}", generate_triggers(workflow.get("on", {})))
 filled = filled.replace("{{INPUTS}}", generate_inputs(workflow.get("on", {})))
-Path("README.md").write_text(filled)
+Path("README-ci-build-jar.md").write_text(filled)
