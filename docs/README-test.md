@@ -1,4 +1,4 @@
-# Build JAR this is a duplicate with a differenect name to HELLOO aaaaaaaaaaa testing 22aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaahhhhhhaaaaaa hi testing hello hello again once more a testaaaaaaaaaaaaaaaaaaaa
+# 🧪 Test Simple README Generation
 
 ## Description
 Workflow documentation
