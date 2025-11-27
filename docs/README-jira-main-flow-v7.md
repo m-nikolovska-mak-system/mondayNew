@@ -1,4 +1,4 @@
-# 📝 Test Jira Assignment
+# 📝 Mega Jira Workflow
 
 **Generated:** 2025-11-27 09:41:23
 
@@ -6,13 +6,17 @@
 
 ## Overview
 
-**Workflow Name:** `Test Jira Assignment`
+**Workflow Name:** `Mega Jira Workflow`
 
 ## Triggers
 
 *No triggers defined*
 
 ## 🔨 Jobs
+
+### `create`
+
+**Calls:** `m-nikolovska-mak-system/reusable-actions-library/.github/workflows/create-jira-issue.yml@main`
 
 ### `assign`
 
