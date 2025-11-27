@@ -21,7 +21,9 @@ jobs:
           python3 scripts/simple-fill-readme.py \
             --template docs/template-simple.md \
             --output docs/README-test.md \
-            --title "My Custom Title"
+            --title "My Custom Title hiiiiiiiiiiii" \
+            --description "This description came from the workflow HELLO !!" \
+            --version "2.3.4" \
 
       - name: Check if README was created
         run: |
