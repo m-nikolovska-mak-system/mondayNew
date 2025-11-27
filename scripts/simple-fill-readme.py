@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 import argparse
 import sys
+from datetime import datetime
+
 
 def main():
     parser = argparse.ArgumentParser(description="Generate a simple README")
@@ -13,7 +15,7 @@ def main():
     data = {
         "{{TITLE}}": args.title,
         "{{DESCRIPTION}}": "This is a test workflow",
-        "{{DATE}}": "2025-01-01",
+        "{{DATE}}": datetime.utcnow().strftime("%Y-%m-%d"),
         "{{VERSION}}": "1.0",
     }
 
