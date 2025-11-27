@@ -1,5 +1,6 @@
 name: Test Act Workflow
-on: push
+on: 
+  workflow_dispatch:
 
 jobs:
   test:

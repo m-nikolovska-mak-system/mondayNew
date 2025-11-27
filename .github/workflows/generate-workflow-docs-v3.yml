@@ -2,10 +2,10 @@ name: Generate Workflow Docs
 
 on:
   workflow_dispatch:
-  push:
-    paths:
-      - ".github/workflows/*.yml"
-      - ".github/workflows/*.yaml"
+#  push:
+#    paths:
+#      - ".github/workflows/*.yml"
+#      - ".github/workflows/*.yaml"
 
 jobs:
   docs:
