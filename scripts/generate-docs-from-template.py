@@ -5,59 +5,84 @@ from pathlib import Path
 from datetime import datetime
 
 def generate_triggers(workflow):
-    """Generate triggers section with better formatting (supports workflow_call, workflow_dispatch, etc.)"""
-    triggers = workflow.get('on', {})
+    """Generate a clean, correct Markdown description of GitHub workflow triggers."""
+    triggers = workflow.get("on", {})
 
-    # Debug to see what we actually got
+    # Debug
     print(f"[DEBUG] generate_triggers: type(on)={type(triggers)}, value={triggers}")
 
+    # --- CASE 0: missing or empty ---
     if not triggers:
         return "_This workflow has no triggers defined._"
 
-    # Case 1: triggers is a simple string
+    # --- CASE 1: string ---
+    # on: push
     if isinstance(triggers, str):
         return f"- **`{triggers}`**"
 
-    # Case 2: triggers is a list (e.g. on: [push, pull_request])
+    # --- CASE 2: list ---
+    # on: [push, pull_request]
     if isinstance(triggers, list):
-        return "\n".join([f"- **`{t}`**" for t in triggers])
+        return "\n".join(f"- **`{t}`**" for t in triggers)
 
-    # Case 3: triggers is NOT a dict
+    # --- CASE 3: invalid type ---
     if not isinstance(triggers, dict):
-        print("[DEBUG] generate_triggers: 'on' is not dict/list/str")
         return "_This workflow has no triggers defined._"
 
-    # ---- existing dict logic below (unchanged) ----
+    # --- CASE 4: dict ---
+    # on:
+    #   push:
+    #     branches: [...]
+    #   pull_request:
+    #     paths: [...]
 
     lines = []
-    for trigger, config in triggers.items():
-        if trigger == 'workflow_call':
-            label = 'workflow_call (reusable workflow)'
-        else:
-            label = trigger
 
-        if config is None or config == {}:
+    for trigger, config in triggers.items():
+
+        # Human-friendly name for workflow_call
+        label = "workflow_call (reusable workflow)" if trigger == "workflow_call" else trigger
+
+        # CASE: config is empty or None
+        if not config:
             lines.append(f"- **`{label}`**")
-        elif isinstance(config, dict) and config:
+            continue
+
+        # Only dict configs contain detailed filters
+        if isinstance(config, dict):
             lines.append(f"- **`{label}`**")
-            if 'paths' in config:
-                paths = config['paths'] if isinstance(config['paths'], list) else [config['paths']]
-                includes = [p for p in paths if not p.startswith('!')]
-                excludes = [p[1:] for p in paths if p.startswith('!')]
+
+            # Paths
+            if "paths" in config:
+                raw_paths = config["paths"]
+                paths = raw_paths if isinstance(raw_paths, list) else [raw_paths]
+
+                includes = [p for p in paths if not p.startswith("!")]
+                excludes = [p[1:] for p in paths if p.startswith("!")]
+
                 if includes:
                     lines.append(f"  - Includes: `{', '.join(includes)}`")
                 if excludes:
                     lines.append(f"  - Excludes: `{', '.join(excludes)}`")
-            if 'branches' in config:
-                branches = config['branches'] if isinstance(config['branches'], list) else [config['branches']]
+
+            # Branches
+            if "branches" in config:
+                b = config["branches"]
+                branches = b if isinstance(b, list) else [b]
                 lines.append(f"  - Branches: `{', '.join(branches)}`")
-            if 'types' in config:
-                types = config['types'] if isinstance(config['types'], list) else [config['types']]
+
+            # Types
+            if "types" in config:
+                t = config["types"]
+                types = t if isinstance(t, list) else [t]
                 lines.append(f"  - Types: `{', '.join(types)}`")
+
         else:
+            # Weird case: config is not dict
             lines.append(f"- **`{label}`**")
 
     return "\n".join(lines) if lines else "_This workflow has no triggers defined._"
+
 
 def generate_inputs(workflow):
     """Generate inputs table - works for both workflow_call and workflow_dispatch"""
