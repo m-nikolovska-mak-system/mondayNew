@@ -1,35 +1,69 @@
-# Build JAR this is a duplicate with a differenect name to test readmethis is a change hi hello hiii hi
-**Source:** `ci-build-jar.yml`
+# Build JAR this is a duplicate with a differenect name to test readmethis is a change hi hello hiii hi hello
 
-## Triggers
-_None_
+> **Type:** Standard Workflow  
+> **Source:** `ci-build-jar.yml`
 
-## Inputs
-_None_
+## 📋 Overview
 
-## Outputs
-_None_
+This document provides comprehensive documentation for the `Build JAR this is a duplicate with a differenect name to test readmethis is a change hi hello hiii hi hello` workflow.
 
-## Secrets
-_None_
+---
 
-## Jobs
-### build-jar
+## 🎯 Triggers
 
-| name | action | run |
-| --- | --- | --- |
-| Checkout code | actions/checkout@v4 |  |
-| Set up Java 17 | actions/setup-java@v3 |  |
-| Make Gradle wrapper executable |  | `run` command |
-| Cache Gradle dependencies | actions/cache@v3 |  |
-| Build JAR |  | `run` command |
-| Validate JAR |  | `run` command |
-| Generate cache key |  | `run` command |
-| Cache built JAR | actions/cache/save@v3 |  |
+_This workflow has no triggers defined._
 
-## Full YAML
+---
+
+## 📥 Inputs
+
+_This workflow does not accept any inputs._
+
+---
+
+## 📤 Outputs
+
+_This workflow does not expose any outputs._
+
+---
+
+## 🔐 Secrets
+
+_This workflow does not require any secrets._
+
+---
+
+## 💼 Jobs
+
+### 🔧 `build-jar`
+
+**Runs on:** `ubuntu-latest`
+**Outputs:** 1 output(s)
+
+
+
+| Step | Uses | Run Command |
+| ---- | ---- | ----------- |
+| Checkout code | `actions/checkout@v4` |  |
+| Set up Java 17 | `actions/setup-java@v3` |  |
+| Make Gradle wrapper executable |  | `chmod +x gradlew` |
+| Cache Gradle dependencies | `actions/cache@v3` |  |
+| Build JAR |  | `./gradlew ${{ inputs.gradle_task }} --no-daemon` |
+| Validate JAR |  | ✅ Yes (see YAML) |
+| Generate cache key |  | ✅ Yes (see YAML) |
+| Cache built JAR | `actions/cache/save@v3` |  |
+
+
+
+---
+
+## 📄 Full Workflow YAML
+
+<details>
+<summary>Click to expand full YAML definition</summary>
+
 ```yaml
-name: Build JAR this is a duplicate with a differenect name to test readmethis is a change hi hello hiii hi
+name: Build JAR this is a duplicate with a differenect name to test readmethis is a change hi hello hiii hi hello
 
 on:
   workflow_call:
@@ -101,3 +135,10 @@ jobs:
           path: build/libs/*.jar
           key: ${{ steps.cache-key.outputs.key }}
 ```
+
+</details>
+
+---
+
+**Generated on:** {{GENERATION_DATE}}  
+**Last Updated:** Check the workflow file history for the most recent changes.
