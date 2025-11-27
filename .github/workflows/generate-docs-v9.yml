@@ -17,11 +17,14 @@ env:
 
 jobs:
   detect-changes:
+    # ⬅️ Prevent bot-trigger loops
+    if: ${{ github.actor != 'github-actions[bot]' }}
     runs-on: ubuntu-latest
     outputs:
       matrix: ${{ steps.prep_matrix.outputs.matrix }}
       has_changes: ${{ steps.prep_matrix.outputs.has_changes }}
       pr_source_branch: ${{ steps.get_source_branch.outputs.pr_source_branch }}
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -30,6 +33,9 @@ jobs:
         id: detect
         uses: tj-actions/changed-files@v44
         with:
+          # ⬅️ Correct PR comparison to avoid false/no changes
+          base_sha: ${{ github.event.pull_request.base.sha }}
+          sha: ${{ github.event.pull_request.head.sha }}
           files: |
             .github/workflows/*.yml
             !.github/workflows/ci-readme-docs.yml
@@ -66,7 +72,7 @@ jobs:
           escaped_json=$(echo "$json" | jq -c '.')
           echo "matrix=$escaped_json" >> $GITHUB_OUTPUT
           echo "has_changes=$has_changes" >> $GITHUB_OUTPUT
-          
+
           echo "Matrix output: $escaped_json"
           echo "Has changes: $has_changes"
 
@@ -77,12 +83,13 @@ jobs:
 
   update-doc:
     needs: detect-changes
-    # Only run this job if there are actual changes
-    if: needs.detect-changes.outputs.has_changes == 'true'
+    # ⬅️ Prevent bot from running this job as well
+    if: ${{ github.actor != 'github-actions[bot]' && needs.detect-changes.outputs.has_changes == 'true' }}
     runs-on: ubuntu-latest
     permissions:
       contents: write
       pull-requests: write
+
     strategy:
       fail-fast: false
       matrix:
@@ -118,7 +125,6 @@ jobs:
             echo "--- Content Preview (first 20 lines) ---"
             head -n 20 docs/README-${{ matrix.item.basename }}.md
             echo "..."
-            echo "--- (Full content in artifact) ---"
           else
             echo "ℹ️ No changes detected for docs/README-${{ matrix.item.basename }}.md"
           fi
@@ -134,31 +140,3 @@ jobs:
           branch: "auto-doc/update-readme-${{ matrix.item.basename }}"
           committer: ${{ env.GITHUB_USER_NAME }} <${{ env.GITHUB_USER_EMAIL }}>
           base: ${{ needs.detect-changes.outputs.pr_source_branch || github.event.pull_request.base.ref }}
-
-  # Optional: Summary job to report what happened
-  summary:
-    needs: [detect-changes, update-doc]
-    # Always run to provide feedback
-    if: always()
-    runs-on: ubuntu-latest
-    steps:
-      - name: Workflow Summary
-        run: |
-          echo "## 📝 Documentation Generation Summary" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          
-          if [ "${{ needs.detect-changes.outputs.has_changes }}" == "true" ]; then
-            echo "✅ **Workflow changes detected**" >> $GITHUB_STEP_SUMMARY
-            echo "" >> $GITHUB_STEP_SUMMARY
-            echo "Documentation was generated for the changed workflows." >> $GITHUB_STEP_SUMMARY
-            echo "" >> $GITHUB_STEP_SUMMARY
-            echo "**Status:** ${{ needs.update-doc.result }}" >> $GITHUB_STEP_SUMMARY
-          else
-            echo "ℹ️ **No workflow changes detected**" >> $GITHUB_STEP_SUMMARY
-            echo "" >> $GITHUB_STEP_SUMMARY
-            echo "No workflows matching the pattern were changed, so documentation generation was skipped." >> $GITHUB_STEP_SUMMARY
-            echo "" >> $GITHUB_STEP_SUMMARY
-            echo "**Patterns monitored:**" >> $GITHUB_STEP_SUMMARY
-            echo "- \`.github/workflows/ci-*.yml\`" >> $GITHUB_STEP_SUMMARY
-            echo "- Excluding: \`ci-readme-docs.yml\`" >> $GITHUB_STEP_SUMMARY
-          fi
