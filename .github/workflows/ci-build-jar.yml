@@ -11,7 +11,7 @@ on:
         required: false
         type: string
         default: "jar"
-      gradle_task_twoo:
+      gradle_task_twooooooooooo:
         required: false
         type: string
         default: "jar3"
