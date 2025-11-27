@@ -1,4 +1,4 @@
-# My Awesome Workflow
+# My Custom Title
 
 ## Description
 This is a test workflow
