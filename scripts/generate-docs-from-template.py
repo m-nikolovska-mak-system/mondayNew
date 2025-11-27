@@ -109,5 +109,5 @@ This document provides comprehensive documentation for the **{name}** workflow.
 {Path(yaml_file).read_text()}
 Generated on: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
 """
-return doc
+    return doc
 
