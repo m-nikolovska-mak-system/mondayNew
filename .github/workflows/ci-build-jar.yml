@@ -1,4 +1,4 @@
-name: Build JAR this is a duplicate with a differenect name to HELLOO aaaaaaaaaaa testing
+name: Build JAR this is a duplicate with a differenect name to HELLOO aaaaaaaaaaa testing 2
 
 on:
   workflow_call:
