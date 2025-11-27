@@ -4,136 +4,178 @@ import argparse
 from pathlib import Path
 
 def generate_triggers(workflow):
-    """Generate triggers section"""
+    """Generate triggers section with better formatting"""
     triggers = workflow.get('on', {})
     
-    # Handle both dict and string cases
+    if not triggers:
+        return '_This workflow has no triggers defined._'
+    
     if isinstance(triggers, str):
         return f"- `{triggers}`"
-    elif isinstance(triggers, dict):
-        lines = []
-        for trigger in triggers.keys():
-            lines.append(f"- `{trigger}`")
-        return '\n'.join(lines) if lines else '_None_'
     
-    return '_None_'
+    if isinstance(triggers, list):
+        return '\n'.join([f"- `{t}`" for t in triggers])
+    
+    # Handle dict triggers
+    lines = []
+    for trigger, config in triggers.items():
+        if config is None or config == {}:
+            lines.append(f"- **`{trigger}`**")
+        elif isinstance(config, dict):
+            lines.append(f"- **`{trigger}`**")
+            # Add trigger details
+            if 'paths' in config:
+                lines.append(f"  - Paths: `{', '.join(config['paths'])}`")
+            if 'branches' in config:
+                lines.append(f"  - Branches: `{', '.join(config['branches'])}`")
+        else:
+            lines.append(f"- **`{trigger}`**")
+    
+    return '\n'.join(lines) if lines else '_This workflow has no triggers defined._'
 
 def generate_inputs(workflow):
-    """Generate inputs table"""
+    """Generate inputs table with better handling"""
     triggers = workflow.get('on', {})
     
-    # Try to find inputs in workflow_call
-    workflow_call = None
+    # Handle workflow_call inputs
     if isinstance(triggers, dict):
         workflow_call = triggers.get('workflow_call', {})
-    
-    if not workflow_call:
-        return '_None_'
-    
-    inputs = workflow_call.get('inputs', {})
+        inputs = workflow_call.get('inputs', {})
+    else:
+        inputs = {}
     
     if not inputs:
-        return '_None_'
+        return '_This workflow does not accept any inputs._'
     
     lines = [
-        "| name | type | required | default | description |",
-        "| --- | --- | --- | --- | --- |"
+        "| Name | Type | Required | Default | Description |",
+        "| ---- | ---- | -------- | ------- | ----------- |"
     ]
     
     for name, props in inputs.items():
-        req = "yes" if props.get('required', False) else "no"
-        default = str(props.get('default', ''))
-        desc = props.get('description', '')
-        typ = props.get('type', 'string')
-        lines.append(f"| {name} | {typ} | {req} | {default} | {desc} |")
+        req = "✅ Yes" if props.get('required', False) else "❌ No"
+        default = f"`{props.get('default', '')}`" if props.get('default', '') else '_not set_'
+        desc = props.get('description', '_No description provided_')
+        typ = f"`{props.get('type', 'string')}`"
+        lines.append(f"| `{name}` | {typ} | {req} | {default} | {desc} |")
     
     return '\n'.join(lines)
 
 def generate_outputs(workflow):
-    """Generate outputs table"""
+    """Generate outputs table with better formatting"""
     triggers = workflow.get('on', {})
     
-    # Try to find outputs in workflow_call
-    workflow_call = None
     if isinstance(triggers, dict):
         workflow_call = triggers.get('workflow_call', {})
-    
-    if not workflow_call:
-        return '_None_'
-    
-    outputs = workflow_call.get('outputs', {})
+        outputs = workflow_call.get('outputs', {})
+    else:
+        outputs = {}
     
     if not outputs:
-        return '_None_'
+        return '_This workflow does not expose any outputs._'
     
     lines = [
-        "| name | description |",
-        "| --- | --- |"
+        "| Name | Description | Value |",
+        "| ---- | ----------- | ----- |"
     ]
     
     for name, props in outputs.items():
-        desc = props.get('description', '')
-        lines.append(f"| {name} | {desc} |")
+        desc = props.get('description', '_No description provided_')
+        value = props.get('value', '_not specified_')
+        # Truncate long values for readability
+        if len(str(value)) > 50:
+            value = f"`{str(value)[:47]}...`"
+        else:
+            value = f"`{value}`"
+        lines.append(f"| `{name}` | {desc} | {value} |")
     
     return '\n'.join(lines)
 
 def generate_secrets(workflow):
-    """Generate secrets table"""
+    """Generate secrets table with better formatting"""
     triggers = workflow.get('on', {})
     
-    # Try to find secrets in workflow_call
-    workflow_call = None
     if isinstance(triggers, dict):
         workflow_call = triggers.get('workflow_call', {})
-    
-    if not workflow_call:
-        return '_None_'
-    
-    secrets = workflow_call.get('secrets', {})
+        secrets = workflow_call.get('secrets', {})
+    else:
+        secrets = {}
     
     if not secrets:
-        return '_None_'
+        return '_This workflow does not require any secrets._'
     
     lines = [
-        "| name | required | description |",
-        "| --- | --- | --- |"
+        "| Name | Required | Description |",
+        "| ---- | -------- | ----------- |"
     ]
     
     for name, props in secrets.items():
-        req = "yes" if props.get('required', False) else "no"
-        desc = props.get('description', '')
-        lines.append(f"| {name} | {req} | {desc} |")
+        req = "✅ Yes" if props.get('required', False) else "❌ No"
+        desc = props.get('description', '_No description provided_')
+        lines.append(f"| `{name}` | {req} | {desc} |")
     
     return '\n'.join(lines)
 
 def generate_jobs(workflow):
-    """Generate jobs section"""
+    """Generate jobs section with improved formatting"""
     jobs = workflow.get('jobs', {})
     
     if not jobs:
-        return '_None_'
+        return '_This workflow has no jobs defined._'
     
     sections = []
     
     for job_name, job in jobs.items():
-        sections.append(f"### {job_name}")
+        # Job header
+        sections.append(f"### 🔧 `{job_name}`")
+        
+        # Add job-level info if available
+        job_info = []
+        if 'runs-on' in job:
+            job_info.append(f"**Runs on:** `{job['runs-on']}`")
+        if 'outputs' in job:
+            job_info.append(f"**Outputs:** {len(job['outputs'])} output(s)")
+        if 'needs' in job:
+            needs = job['needs'] if isinstance(job['needs'], list) else [job['needs']]
+            job_info.append(f"**Depends on:** {', '.join([f'`{n}`' for n in needs])}")
+        
+        if job_info:
+            sections.append('\n'.join(job_info))
+            sections.append('')  # blank line
+        
+        # Steps table
         steps = job.get('steps', [])
         
         if steps:
             lines = [
-                "| name | action | run |",
-                "| --- | --- | --- |"
+                "| Step | Uses | Run Command |",
+                "| ---- | ---- | ----------- |"
             ]
             
-            for step in steps:
-                name = step.get('name', '')
+            for i, step in enumerate(steps, 1):
+                name = step.get('name', f'_Step {i}_')
                 action = step.get('uses', '')
-                run = '`run` command' if 'run' in step else ''
-                lines.append(f"| {name} | {action} | {run} |")
+                
+                # Handle run commands
+                run_cmd = ''
+                if 'run' in step:
+                    run_text = step['run']
+                    # Truncate long run commands
+                    if isinstance(run_text, str) and len(run_text) > 50:
+                        run_cmd = '✅ Yes (see YAML)'
+                    elif isinstance(run_text, str):
+                        run_cmd = f'`{run_text}`'
+                    else:
+                        run_cmd = '✅ Yes'
+                
+                action_display = f"`{action}`" if action else ''
+                lines.append(f"| {name} | {action_display} | {run_cmd} |")
             
             sections.append('\n'.join(lines))
         else:
-            sections.append('_No steps defined_')
+            sections.append('_This job has no steps defined._')
+        
+        sections.append('')  # blank line between jobs
     
     return '\n\n'.join(sections)
 
@@ -144,10 +186,6 @@ def generate_docs_from_template(workflow_path, template_path, output_path):
     with open(workflow_path, 'r') as f:
         workflow = yaml.safe_load(f)
     
-    # Debug: Print the parsed structure
-    print(f"📋 Parsing workflow: {workflow_path}")
-    print(f"   Triggers found: {list(workflow.get('on', {}).keys())}")
-    
     # Read template
     with open(template_path, 'r') as f:
         template = f.read()
@@ -156,10 +194,15 @@ def generate_docs_from_template(workflow_path, template_path, output_path):
     with open(workflow_path, 'r') as f:
         full_yaml = f.read().rstrip()
     
+    # Generate workflow type
+    triggers = workflow.get('on', {})
+    workflow_type = 'Reusable Workflow' if isinstance(triggers, dict) and 'workflow_call' in triggers else 'Standard Workflow'
+    
     # Generate all sections
     replacements = {
         '{{WORKFLOW_NAME}}': workflow.get('name', Path(workflow_path).stem),
         '{{WORKFLOW_FILE}}': Path(workflow_path).name,
+        '{{WORKFLOW_TYPE}}': workflow_type,
         '{{TRIGGERS}}': generate_triggers(workflow),
         '{{INPUTS}}': generate_inputs(workflow),
         '{{OUTPUTS}}': generate_outputs(workflow),
