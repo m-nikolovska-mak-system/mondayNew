@@ -1,11 +1,11 @@
-# Build JAR this is a duplicate with a differenect name to HELLOO
+# Build JAR this is a duplicate with a differenect name to HELLOO aaaaaaaaaaa test
 
 > **Type:** Standard Workflow  
 > **Source:** `ci-build-jar.yml`
 
 ## 📋 Overview
 
-This document provides comprehensive documentation for the `Build JAR this is a duplicate with a differenect name to HELLOO` workflow.
+This document provides comprehensive documentation for the `Build JAR this is a duplicate with a differenect name to HELLOO aaaaaaaaaaa test` workflow.
 
 ---
 
@@ -63,7 +63,7 @@ _This workflow does not require any secrets._
 <summary>Click to expand full YAML definition</summary>
 
 ```yaml
-name: Build JAR this is a duplicate with a differenect name to HELLOO
+name: Build JAR this is a duplicate with a differenect name to HELLOO aaaaaaaaaaa test
 
 on:
   workflow_call:
@@ -140,5 +140,5 @@ jobs:
 
 ---
 
-**Generated on:** 2025-11-27 09:55:42  
+**Generated on:** 2025-11-27 10:25:55  
 **Last Updated:** Check the workflow file history for the most recent changes.
