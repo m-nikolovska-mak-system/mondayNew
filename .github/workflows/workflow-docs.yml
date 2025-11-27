@@ -2,11 +2,11 @@ name: Generate Workflow Docs
 
 on:
   workflow_dispatch:
-  push:
-    paths:
-      - ".github/workflows/**"
-    branches:
-      - main
+#  push:
+#    paths:
+#      - ".github/workflows/**"
+#    branches:
+#      - main
 
 permissions:
   contents: write
