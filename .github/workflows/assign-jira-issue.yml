@@ -1,4 +1,4 @@
-name: Assign Jira Issue
+name: Assign Jira Issue hi
 
 on:
   workflow_dispatch:
