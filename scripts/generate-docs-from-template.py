@@ -21,7 +21,8 @@ def generate_inputs(on):
     return "\n".join(rows)
 
 workflow = yaml.safe_load(Path(".github/workflows/ci-build-jar.yml").read_text())
-template = Path("README_TEMPLATE.md").read_text()
+template = Path("docs/README-template.md").read_text()
 filled = template.replace("{{TRIGGERS}}", generate_triggers(workflow.get("on", {})))
 filled = filled.replace("{{INPUTS}}", generate_inputs(workflow.get("on", {})))
-Path("README-ci-build-jar.md").write_text(filled)
+Path("docs/README-ci-build-jar.md").write_text(filled)
+
