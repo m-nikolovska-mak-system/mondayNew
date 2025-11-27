@@ -1,7 +1,17 @@
 name: 🧪 Test Simple README Generation
 
 on:
-  workflow_dispatch:  # Manual trigger only
+  workflow_dispatch:
+    inputs:
+      title:
+        description: "Title for README"
+        default: "My Custom Title"
+      description:
+        description: "Description for README"
+        default: "This description came from the workflow HELLO !!"
+      version:
+        description: "Version"
+        default: "2.3.4"
 
 permissions:
   contents: write
