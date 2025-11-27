@@ -16,7 +16,7 @@ def main():
     # Data used for placeholder replacement
     data = {
         "{{TITLE}}": args.title,
-        "{{DESCRIPTION}}": "This is a test workflow",
+        "{{DESCRIPTION}}": args.description or "This is a test workflow",
         "{{DATE}}": datetime.utcnow().strftime("%Y-%m-%d"),
         "{{VERSION}}": args.version or "1.0",
     }
