@@ -19,11 +19,10 @@ jobs:
       - name: Run simple Python script
         run: |
           python3 scripts/simple-fill-readme.py \
+            --workflow .github/workflows/ci-build-jar.yml \
             --template docs/template-simple.md \
             --output docs/README-test.md \
-            --title "My Custom Title hiiiiiiiiiiii" \
-            --description "This description came from the workflow HELLO !!" \
-            --version "2.3.4" \
+        
 
       - name: Check if README was created
         run: |
