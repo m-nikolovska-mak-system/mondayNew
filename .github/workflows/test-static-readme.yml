@@ -12,8 +12,8 @@ jobs:
       - name: Run generator
         run: |
           python3 generate_static_readme.py \
-            --template .github/template.md \
-            --output README.md
+            --template .github/template-simple.md \
+            --output README-test.md
 
       - name: Show diff
         run: git diff --color
@@ -22,6 +22,6 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add README.md
+          git add README-test.md
           git commit -m "Update static README" || echo "ℹ️ No changes to commit"
           git push
