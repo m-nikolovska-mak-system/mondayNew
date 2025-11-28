@@ -1,10 +1,11 @@
-name: Hello World Workflow
+name: Test – Push Trigger
 on:
-  workflow_dispatch:
+  push:
+    branches:
+      - main
 
 jobs:
   hello:
     runs-on: ubuntu-latest
     steps:
-      - name: Print Hello
-        run: echo "Hello, world!"
+      - run: echo "push test"
