@@ -21,4 +21,12 @@ jobs:
 
       - name: Run extractor script
         run: |
-          python scripts/extract.py .github/workflows/ci-build-jar.yml
+          python scripts/extract.py \
+            .github/workflows/ci-build-jar.yml \
+            docs/ci-build-jar.md
+
+      - name: Upload generated README
+        uses: actions/upload-artifact@v4
+        with:
+          name: ci-doc
+          path: docs/ci-build-jar.md
