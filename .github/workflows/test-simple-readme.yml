@@ -1,17 +1,7 @@
-name: 🧪 Test Simple README Generation
+name: 🧪 Test Workflow Call README
 
 on:
   workflow_dispatch:
-    inputs:
-      title:
-        description: "Title for README"
-        default: "My Custom Title"
-      description:
-        description: "Description for README"
-        default: "This description came from the workflow HELLO !!"
-      version:
-        description: "Version"
-        default: "2.3.4"
 
 permissions:
   contents: write
@@ -23,35 +13,34 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Create docs directory if it doesn't exist
+      - name: Install PyYAML
+        run: pip install pyyaml
+
+      - name: Create docs directory
         run: mkdir -p docs
 
-      - name: Run simple Python script
+      - name: Generate README for build-jar workflow
         run: |
           python3 scripts/simple-fill-readme.py \
             --workflow .github/workflows/ci-build-jar.yml \
             --template docs/template-simple.md \
-            --output docs/README-test.md \
-        
+            --output docs/README-test.md
 
-      - name: Check if README was created
+      - name: Check generated README
         run: |
-          echo "📂 Checking docs directory..."
-          ls -lh docs/
-          echo ""
           echo "📄 README content:"
-          cat docs/README-test.md
+          cat docs/README-build-jar.md
 
       - name: Commit and push if changed
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add docs/README-test.md
+          git add docs/README-build-jar.md
           
           if git diff --staged --quiet; then
             echo "ℹ️ No changes to commit"
           else
-            git commit -m "docs: update test README"
+            git commit -m "docs: generate README for build-jar workflow"
             git push
             echo "✅ Changes committed and pushed"
           fi
