@@ -59,7 +59,7 @@ if __name__ == "__main__":
     outputs_md = format_outputs(outputs)
 
     # Load template
-    template_path = Path("templates/workflow_readme.md.tpl")
+    template_path = Path("docs/workflow_readme.md.tpl")
     template_text = template_path.read_text(encoding="utf-8")
 
     final_md = (
