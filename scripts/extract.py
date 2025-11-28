@@ -6,47 +6,21 @@ def load_yaml(path):
     with open(path, "r", encoding="utf-8") as f:
         return yaml.safe_load(f)
 
+def get_on_section(workflow):
+    # Handle both correct YAML and the "True:" parsing bug
+    if "on" in workflow:
+        return workflow["on"]
+    if True in workflow:
+        return workflow[True]
+    return {}
+
 def extract_inputs(workflow):
-    """Safely get workflow_call.inputs even if YAML structure varies."""
-    try:
-        on_section = workflow.get("on", {})
-
-        # Sometimes PyYAML parses a single trigger as a dict
-        if isinstance(on_section, dict):
-            wf_call = on_section.get("workflow_call", {})
-            return wf_call.get("inputs", {}) or {}
-
-        # Sometimes "on" is parsed as a list of events
-        if isinstance(on_section, list):
-            for item in on_section:
-                if isinstance(item, dict) and "workflow_call" in item:
-                    return item["workflow_call"].get("inputs", {}) or {}
-
-        return {}
-
-    except Exception:
-        return {}
-
+    on_section = get_on_section(workflow)
+    return on_section.get("workflow_call", {}).get("inputs", {})
 
 def extract_outputs(workflow):
-    """Safely get workflow_call.outputs even if YAML structure varies."""
-    try:
-        on_section = workflow.get("on", {})
-
-        if isinstance(on_section, dict):
-            wf_call = on_section.get("workflow_call", {})
-            return wf_call.get("outputs", {}) or {}
-
-        if isinstance(on_section, list):
-            for item in on_section:
-                if isinstance(item, dict) and "workflow_call" in item:
-                    return item["workflow_call"].get("outputs", {}) or {}
-
-        return {}
-
-    except Exception:
-        return {}
-
+    on_section = get_on_section(workflow)
+    return on_section.get("workflow_call", {}).get("outputs", {})
 
 if __name__ == "__main__":
     if len(sys.argv) != 2:
@@ -59,7 +33,6 @@ if __name__ == "__main__":
     print("DEBUG STRUCTURE:")
     print(workflow)
     print("---------------")
-
 
     inputs = extract_inputs(workflow)
     outputs = extract_outputs(workflow)
