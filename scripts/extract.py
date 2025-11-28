@@ -1,11 +1,13 @@
 #!/usr/bin/env python3
 import yaml
 import sys
+from datetime import datetime
+from pathlib import Path
 
 def main():
     # Get arguments
-    workflow_file = sys.argv[1]  # e.g., .github/workflows/ci-build-jar.yml
-    output_file = sys.argv[2]    # e.g., docs/ci-build-jar.md
+    workflow_file = sys.argv[1]
+    output_file = sys.argv[2]
     
     print(f"📖 Reading: {workflow_file}")
     
@@ -13,111 +15,227 @@ def main():
     with open(workflow_file, 'r') as f:
         workflow = yaml.safe_load(f)
     
-    # Debug: print entire workflow structure
-    print(f"🔍 Full workflow keys: {list(workflow.keys())}")
-    print(f"🔍 Raw keys with repr:")
-    for key in workflow.keys():
-        print(f"   - {repr(key)}: {type(workflow[key])}")
-    print()
+    # Get workflow name
+    workflow_name = workflow.get('name', 'Unnamed Workflow')
+    print(f"✅ Workflow: {workflow_name}")
     
     # Try to find 'on' key - it might be parsed as boolean True!
     on_key = None
     if 'on' in workflow:
         on_key = 'on'
-        print(f"🔍 Found 'on' key as string")
     elif True in workflow:
         on_key = True
-        print(f"🔍 Found 'on' key as boolean True (YAML quirk!)")
+        print("🔍 Note: 'on' key parsed as boolean True (YAML quirk)")
     else:
         print("❌ Could not find 'on' key in workflow!")
-        print("Available keys:", list(workflow.keys()))
         sys.exit(1)
     
-    # Get workflow name
-    workflow_name = workflow.get('name', 'Unnamed Workflow')
-    print(f"✅ Workflow: {workflow_name}")
-    
-    # Get 'on' section
     on_section = workflow.get(on_key, {})
-    print(f"🔍 'on' section type: {type(on_section)}")
-    print(f"🔍 'on' section content: {on_section}")
-    print(f"🔍 Triggers: {list(on_section.keys()) if isinstance(on_section, dict) else 'NOT A DICT'}")
-    print()
     
-    # Extract inputs
+    # ========== EXTRACT TRIGGERS ==========
+    triggers = list(on_section.keys()) if isinstance(on_section, dict) else []
+    print(f"✅ Triggers: {triggers}")
+    
+    # ========== EXTRACT INPUTS ==========
     inputs = {}
-    
-    # Check workflow_call
     if 'workflow_call' in on_section:
         wf_call = on_section['workflow_call']
-        print(f"🔍 workflow_call type: {type(wf_call)}")
-        print(f"🔍 workflow_call value: {wf_call}")
-        
-        if wf_call is not None and isinstance(wf_call, dict):
-            call_inputs = wf_call.get('inputs', {})
-            print(f"🔍 workflow_call inputs: {call_inputs}")
-            if call_inputs:
-                inputs.update(call_inputs)
+        if wf_call and isinstance(wf_call, dict):
+            inputs.update(wf_call.get('inputs', {}))
     
-    # Check workflow_dispatch
     if 'workflow_dispatch' in on_section:
         wf_dispatch = on_section['workflow_dispatch']
-        if wf_dispatch is not None and isinstance(wf_dispatch, dict):
-            dispatch_inputs = wf_dispatch.get('inputs', {})
-            if dispatch_inputs:
-                inputs.update(dispatch_inputs)
+        if wf_dispatch and isinstance(wf_dispatch, dict):
+            inputs.update(wf_dispatch.get('inputs', {}))
     
-    print(f"✅ Found {len(inputs)} input(s): {list(inputs.keys())}")
+    print(f"✅ Inputs: {list(inputs.keys())}")
     
-    # Extract outputs
+    # ========== EXTRACT OUTPUTS ==========
     outputs = {}
-    
     if 'workflow_call' in on_section:
         wf_call = on_section['workflow_call']
-        print(f"🔍 workflow_call for outputs type: {type(wf_call)}")
-        
-        if wf_call is not None and isinstance(wf_call, dict):
-            call_outputs = wf_call.get('outputs', {})
-            print(f"🔍 workflow_call outputs: {call_outputs}")
-            if call_outputs:
-                outputs.update(call_outputs)
+        if wf_call and isinstance(wf_call, dict):
+            outputs = wf_call.get('outputs', {})
     
-    print(f"✅ Found {len(outputs)} output(s): {list(outputs.keys())}")
+    print(f"✅ Outputs: {list(outputs.keys())}")
     
-    # Format inputs table
+    # ========== EXTRACT SECRETS ==========
+    secrets = {}
+    if 'workflow_call' in on_section:
+        wf_call = on_section['workflow_call']
+        if wf_call and isinstance(wf_call, dict):
+            secrets = wf_call.get('secrets', {})
+    
+    print(f"✅ Secrets: {list(secrets.keys())}")
+    
+    # ========== EXTRACT JOBS ==========
+    jobs = workflow.get('jobs', {})
+    print(f"✅ Jobs: {list(jobs.keys())}")
+    
+    # ========== DETERMINE WORKFLOW TYPE ==========
+    workflow_types = []
+    if 'workflow_call' in triggers:
+        workflow_types.append('Reusable Workflow')
+    if 'workflow_dispatch' in triggers:
+        workflow_types.append('Manual Dispatch')
+    if any(t in triggers for t in ['push', 'pull_request', 'schedule', 'release']):
+        workflow_types.append('Automated')
+    
+    workflow_type = ' + '.join(workflow_types) if workflow_types else 'Standard Workflow'
+    
+    # ========== FORMAT TRIGGERS ==========
+    triggers_text = '\n'.join([f"- **`{t}`**" for t in triggers]) if triggers else '_No triggers defined._'
+    
+    # ========== FORMAT INPUTS ==========
     if inputs:
-        inputs_text = "| Name | Type | Required | Default |\n"
-        inputs_text += "| ---- | ---- | -------- | ------- |\n"
+        inputs_text = "| Name | Type | Required | Default | Description |\n"
+        inputs_text += "| ---- | ---- | -------- | ------- | ----------- |\n"
         for name, props in inputs.items():
             inp_type = props.get('type', 'string')
-            required = 'Yes' if props.get('required', False) else 'No'
-            default = props.get('default', '')
-            inputs_text += f"| `{name}` | `{inp_type}` | {required} | `{default}` |\n"
+            required = '✅ Yes' if props.get('required', False) else '❌ No'
+            default = props.get('default', '_not set_')
+            desc = props.get('description', '_No description provided_')
+            inputs_text += f"| `{name}` | `{inp_type}` | {required} | `{default}` | {desc} |\n"
     else:
-        inputs_text = "_No inputs defined._"
+        inputs_text = "_This workflow does not accept any inputs._"
     
-    # Format outputs table
+    # ========== FORMAT OUTPUTS ==========
     if outputs:
-        outputs_text = "| Name | Description |\n"
-        outputs_text += "| ---- | ----------- |\n"
+        outputs_text = "| Name | Description | Value |\n"
+        outputs_text += "| ---- | ----------- | ----- |\n"
         for name, props in outputs.items():
-            desc = props.get('description', '')
-            outputs_text += f"| `{name}` | {desc} |\n"
+            desc = props.get('description', '_No description provided_')
+            value = props.get('value', '_not specified_')
+            # Truncate long values
+            if len(str(value)) > 60:
+                value = f"{str(value)[:57]}..."
+            outputs_text += f"| `{name}` | {desc} | `{value}` |\n"
     else:
-        outputs_text = "_No outputs defined._"
+        outputs_text = "_This workflow does not expose any outputs._"
     
-    # Create README content
-    readme = f"""# 📘 Workflow Documentation
+    # ========== FORMAT SECRETS ==========
+    if secrets:
+        secrets_text = "| Name | Required | Description |\n"
+        secrets_text += "| ---- | -------- | ----------- |\n"
+        for name, props in secrets.items():
+            required = '✅ Yes' if props.get('required', False) else '❌ No'
+            desc = props.get('description', '_No description provided_')
+            secrets_text += f"| `{name}` | {required} | {desc} |\n"
+    else:
+        secrets_text = "_This workflow does not require any secrets._"
+    
+    # ========== FORMAT JOBS ==========
+    if jobs:
+        jobs_text = ""
+        for job_name, job_config in jobs.items():
+            if not isinstance(job_config, dict):
+                continue
+            
+            jobs_text += f"### 🔧 `{job_name}`\n\n"
+            
+            # Job metadata
+            runs_on = job_config.get('runs-on', '')
+            if runs_on:
+                jobs_text += f"**Runs on:** `{runs_on}`\n\n"
+            
+            # Steps
+            steps = job_config.get('steps', [])
+            if steps:
+                jobs_text += "| Step | Uses | Run Command |\n"
+                jobs_text += "| ---- | ---- | ----------- |\n"
+                for i, step in enumerate(steps, 1):
+                    if not isinstance(step, dict):
+                        continue
+                    
+                    name = step.get('name', f'Step {i}')
+                    uses = step.get('uses', '')
+                    run_cmd = step.get('run', '')
+                    
+                    # Format run command
+                    if run_cmd:
+                        run_display = ' '.join(str(run_cmd).strip().split())
+                        if len(run_display) > 50:
+                            run_display = '✅ Yes (see YAML)'
+                        else:
+                            run_display = f'`{run_display}`'
+                    else:
+                        run_display = ''
+                    
+                    uses_display = f'`{uses}`' if uses else ''
+                    jobs_text += f"| {name} | {uses_display} | {run_display} |\n"
+                
+                jobs_text += "\n"
+            else:
+                jobs_text += "_No steps defined._\n\n"
+    else:
+        jobs_text = "_This workflow has no jobs defined._"
+    
+    # ========== READ FULL YAML ==========
+    with open(workflow_file, 'r') as f:
+        full_yaml = f.read().rstrip()
+    
+    # ========== GENERATE DATE ==========
+    generation_date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+    
+    # ========== CREATE README ==========
+    workflow_file_name = Path(workflow_file).name
+    
+    readme = f"""# {workflow_name}
 
-Generated from: {workflow_name}
+> **Type:** {workflow_type}  
+> **Source:** `{workflow_file_name}`
 
-## 🧩 Inputs
+## 📋 Overview
+
+This document provides comprehensive documentation for the `{workflow_name}` workflow.
+
+---
+
+## 🎯 Triggers
+
+{triggers_text}
+
+---
+
+## 📥 Inputs
 
 {inputs_text}
 
-## 🧪 Outputs
+---
+
+## 📤 Outputs
 
 {outputs_text}
+
+---
+
+## 🔐 Secrets
+
+{secrets_text}
+
+---
+
+## 💼 Jobs
+
+{jobs_text}
+
+---
+
+## 📄 Full Workflow YAML
+
+<details>
+<summary>Click to expand full YAML definition</summary>
+
+```yaml
+{full_yaml}
+```
+
+</details>
+
+---
+
+**Generated on:** {generation_date}  
+**Last Updated:** Check the workflow file history for the most recent changes.
 """
     
     # Write output
@@ -125,6 +243,7 @@ Generated from: {workflow_name}
         f.write(readme)
     
     print(f"✅ Created: {output_file}")
+    print(f"   Size: {len(readme)} bytes")
 
 if __name__ == '__main__':
     main()
