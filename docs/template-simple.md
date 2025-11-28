@@ -1,14 +1,16 @@
 # {{TITLE}}
 
-## Description
-{{DESCRIPTION}}
+## 📋 Overview
+Generated on: {{DATE}}
 
-## Info
-- Generated on: {{DATE}}
-- Status: ✅ Working
-- Version: {{VERSION}}
+## 🎯 Triggers
+{{TRIGGERS}}
 
-## Details
-This README was generated from a template!
+## 📥 Inputs
+{{INPUTS}}
 
-Custom content goes here.
+## 📤 Outputs
+{{OUTPUTS}}
+
+## 🔐 Secrets
+{{SECRETS}}
