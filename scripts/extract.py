@@ -56,6 +56,11 @@ if __name__ == "__main__":
     path = sys.argv[1]
     workflow = load_yaml(path)
 
+    print("DEBUG STRUCTURE:")
+    print(workflow)
+    print("---------------")
+
+
     inputs = extract_inputs(workflow)
     outputs = extract_outputs(workflow)
 
