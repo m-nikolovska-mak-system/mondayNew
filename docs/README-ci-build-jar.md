@@ -1,38 +1,53 @@
-# Build JAR this is a duplicate with a differenect name to HELLOO aaaaaaaaaaa testing 22aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaahhhhhhaaaaaa hi testing hello hello again once more a testaaaaaaaaaaaaaaaaaaaa
+# Build JAR this is a duplicate with a differenect name to HELLOO aaaaaaaaaaa testing 22aag hello hello again once more a testaaaaaaaaaaaaaaaaaaaa
+
+> **Type:** Reusable Workflow  
+> **Source:** `ci-build-jar.yml`
 
 ## 📋 Overview
 
-This document provides comprehensive documentation for the **Build JAR this is a duplicate with a differenect name to HELLOO aaaaaaaaaaa testing 22aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaahhhhhhaaaaaa hi testing hello hello again once more a testaaaaaaaaaaaaaaaaaaaa** workflow.
+This document provides comprehensive documentation for the `Build JAR this is a duplicate with a differenect name to HELLOO aaaaaaaaaaa testing 22aag hello hello again once more a testaaaaaaaaaaaaaaaaaaaa` workflow.
 
 ---
 
 ## 🎯 Triggers
 
+- **`workflow_call`**
 
 
 ---
 
 ## 📥 Inputs
 
-_This workflow does not accept any inputs._
+| Name | Type | Required | Default | Description |
+| ---- | ---- | -------- | ------- | ----------- |
+| `release_tag` | `string` | ❌ No | `main` | _No description provided_ |
+| `gradle_task` | `string` | ❌ No | `jar` | _No description provided_ |
+| `gradle_task_two0aao` | `string` | ❌ No | `jar3` | _No description provided_ |
+
 
 ---
 
 ## 📤 Outputs
 
-_This workflow does not expose any outputs._
+| Name | Description | Value |
+| ---- | ----------- | ----- |
+| `jar_cache_key` | Cache key for restored JAR | `${{ jobs.build-jar.outputs.jar_cache_key }}` |
+
 
 ---
 
 ## 🔐 Secrets
 
-_This workflow does not require any secrets._
+| Name | Required | Description |
+| ---- | -------- | ----------- |
+| `TEST_SECRETT` | ✅ Yes | _No description provided_ |
+
 
 ---
 
 ## 💼 Jobs
 
-### `build-jar`
+### 🔧 `build-jar`
 
 **Runs on:** `ubuntu-latest`
 
@@ -47,6 +62,8 @@ _This workflow does not require any secrets._
 | Generate cache key |  | ✅ Yes (see YAML) |
 | Cache built JAR | `actions/cache/save@v3` |  |
 
+
+
 ---
 
 ## 📄 Full Workflow YAML
@@ -55,7 +72,7 @@ _This workflow does not require any secrets._
 <summary>Click to expand full YAML definition</summary>
 
 ```yaml
-name: Build JAR this is a duplicate with a differenect name to HELLOO aaaaaaaaaaa testing 22aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaahhhhhhaaaaaa hi testing hello hello again once more a testaaaaaaaaaaaaaaaaaaaa
+name: Build JAR this is a duplicate with a differenect name to HELLOO aaaaaaaaaaa testing 22aag hello hello again once more a testaaaaaaaaaaaaaaaaaaaa
 
 on:
   workflow_call:
@@ -76,6 +93,9 @@ on:
       jar_cache_key:
         description: "Cache key for restored JAR"
         value: ${{ jobs.build-jar.outputs.jar_cache_key }}
+    secrets:
+      TEST_SECRETT:
+        required: true
 
       
 
@@ -136,4 +156,5 @@ jobs:
 
 ---
 
-**Generated on:** 2025-11-27 15:17:38
+**Generated on:** 2025-11-28 15:22:43  
+**Last Updated:** Check the workflow file history for the most recent changes.
