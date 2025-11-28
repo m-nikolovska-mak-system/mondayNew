@@ -30,14 +30,17 @@ This document provides comprehensive documentation for the `Build JAR this is a 
 
 | Name | Description | Value |
 | ---- | ----------- | ----- |
-| `jar_cache_key` | Cache key for restored JAaaaaaaaaaaaaR | `${{ jobs.build-jar.outputs.jar_cache_key }}` |
+| `jar_cache_key` | Cache key for restored JAR | `${{ jobs.build-jar.outputs.jar_cache_key }}` |
 
 
 ---
 
 ## 🔐 Secrets
 
-_This workflow does not require any secrets._
+| Name | Required | Description |
+| ---- | -------- | ----------- |
+| `TEST_SECRET` | ✅ Yes | _No description provided_ |
+
 
 ---
 
@@ -87,8 +90,11 @@ on:
         default: "jar3"
     outputs:
       jar_cache_key:
-        description: "Cache key for restored JAaaaaaaaaaaaaR"
+        description: "Cache key for restored JAR"
         value: ${{ jobs.build-jar.outputs.jar_cache_key }}
+    secrets:
+      TEST_SECRET:
+        required: true
 
       
 
@@ -149,5 +155,5 @@ jobs:
 
 ---
 
-**Generated on:** 2025-11-28 15:09:09  
+**Generated on:** 2025-11-28 15:11:34  
 **Last Updated:** Check the workflow file history for the most recent changes.
