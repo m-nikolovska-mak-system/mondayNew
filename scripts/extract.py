@@ -19,20 +19,45 @@ def main():
     
     # Get 'on' section
     on_section = workflow.get('on', {})
+    print(f"🔍 Triggers: {list(on_section.keys())}")
     
     # Extract inputs
     inputs = {}
-    if 'workflow_call' in on_section and on_section['workflow_call']:
-        inputs = on_section['workflow_call'].get('inputs', {})
-    if 'workflow_dispatch' in on_section and on_section['workflow_dispatch']:
-        inputs.update(on_section['workflow_dispatch'].get('inputs', {}))
+    
+    # Check workflow_call
+    if 'workflow_call' in on_section:
+        wf_call = on_section['workflow_call']
+        print(f"🔍 workflow_call type: {type(wf_call)}")
+        print(f"🔍 workflow_call value: {wf_call}")
+        
+        if wf_call is not None and isinstance(wf_call, dict):
+            call_inputs = wf_call.get('inputs', {})
+            print(f"🔍 workflow_call inputs: {call_inputs}")
+            if call_inputs:
+                inputs.update(call_inputs)
+    
+    # Check workflow_dispatch
+    if 'workflow_dispatch' in on_section:
+        wf_dispatch = on_section['workflow_dispatch']
+        if wf_dispatch is not None and isinstance(wf_dispatch, dict):
+            dispatch_inputs = wf_dispatch.get('inputs', {})
+            if dispatch_inputs:
+                inputs.update(dispatch_inputs)
     
     print(f"✅ Found {len(inputs)} input(s): {list(inputs.keys())}")
     
     # Extract outputs
     outputs = {}
-    if 'workflow_call' in on_section and on_section['workflow_call']:
-        outputs = on_section['workflow_call'].get('outputs', {})
+    
+    if 'workflow_call' in on_section:
+        wf_call = on_section['workflow_call']
+        print(f"🔍 workflow_call for outputs type: {type(wf_call)}")
+        
+        if wf_call is not None and isinstance(wf_call, dict):
+            call_outputs = wf_call.get('outputs', {})
+            print(f"🔍 workflow_call outputs: {call_outputs}")
+            if call_outputs:
+                outputs.update(call_outputs)
     
     print(f"✅ Found {len(outputs)} output(s): {list(outputs.keys())}")
     
