@@ -5,7 +5,7 @@ import sys
 def main():
     # Get arguments
     workflow_file = sys.argv[1]  # e.g., .github/workflows/ci-build-jar.yml
-    output_file = sys.argv[2]    # e.g., docs/ci-build-jar.md
+    output_file = sys.argv[2]    # e.g., docs/README-ci-build-jar.md
     
     print(f"📖 Reading: {workflow_file}")
     
@@ -13,13 +13,35 @@ def main():
     with open(workflow_file, 'r') as f:
         workflow = yaml.safe_load(f)
     
+    # Debug: print entire workflow structure
+    print(f"🔍 Full workflow keys: {list(workflow.keys())}")
+    print(f"🔍 Raw keys with repr:")
+    for key in workflow.keys():
+        print(f"   - {repr(key)}: {type(workflow[key])}")
+    print()
+    
+    # Try to find 'on' key (might have weird characters)
+    on_key = None
+    for key in workflow.keys():
+        if 'on' in key.lower():
+            on_key = key
+            print(f"🔍 Found 'on'-like key: {repr(key)}")
+            break
+    
+    if on_key is None:
+        print("❌ Could not find 'on' key in workflow!")
+        on_key = 'on'  # fallback
+    
     # Get workflow name
     workflow_name = workflow.get('name', 'Unnamed Workflow')
     print(f"✅ Workflow: {workflow_name}")
     
     # Get 'on' section
-    on_section = workflow.get('on', {})
-    print(f"🔍 Triggers: {list(on_section.keys())}")
+    on_section = workflow.get(on_key, {})
+    print(f"🔍 'on' section type: {type(on_section)}")
+    print(f"🔍 'on' section content: {on_section}")
+    print(f"🔍 Triggers: {list(on_section.keys()) if isinstance(on_section, dict) else 'NOT A DICT'}")
+    print()
     
     # Extract inputs
     inputs = {}
