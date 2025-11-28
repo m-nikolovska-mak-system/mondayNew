@@ -12,8 +12,8 @@ jobs:
       - name: Run generator
         run: |
            python3 ./scripts/generate_static_readme.py \
-           --template .github/template-simple.md \
-            --output README-test.md
+            --template ./docs/template-simple.md
+            --output ./docs/README-test.md
 
       - name: Show diff
         run: git diff --color
