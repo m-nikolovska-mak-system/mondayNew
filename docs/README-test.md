@@ -1,14 +1,19 @@
-# 🧪 Test Simple README Generation
+# {{TITLE}}
 
-## Description
-Workflow documentation
+## 📋 Overview
+Generated on: {{DATE}}
 
-## Info
-- Generated on: 2025-11-27
-- Status: ✅ Working
-- Version: 1.0
+## 🎯 Triggers
+{{TRIGGERS}}
 
-## Details
-This README was generated from a template!
+## 📥 Inputs
+{{INPUTS}}
 
-Custom content goes here.
+## 📤 Outputs
+{{OUTPUTS}}
+
+## 🔐 Secrets
+{{SECRETS}}
+
+---
+_This documentation was auto-generated from the workflow YAML._
