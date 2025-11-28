@@ -24,7 +24,7 @@ jobs:
           python3 scripts/simple-fill-readme.py \
             --workflow .github/workflows/ci-build-jar.yml \
             --template docs/template-simple.md \
-            --output docs/README-test.md
+            --output docs/README-test2.md
 
       - name: Check generated README
         run: |
