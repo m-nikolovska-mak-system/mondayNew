@@ -7,39 +7,33 @@ def load_yaml(path):
     with open(path, "r", encoding="utf-8") as f:
         return yaml.safe_load(f)
 
+def extract_workflow_call_section(workflow):
+    """
+    Returns the workflow_call section no matter if 'on' is parsed normally or as True.
+    """
+    on_section = workflow.get("on")
+    
+    # Normal case
+    if isinstance(on_section, dict) and "workflow_call" in on_section:
+        return on_section["workflow_call"]
+    
+    # Fallback if PyYAML parsed it as {True: {...}}
+    if isinstance(on_section, dict):
+        for key, value in on_section.items():
+            if isinstance(value, dict) and "workflow_call" in value:
+                return value["workflow_call"]
+    
+    # Nothing found
+    return {}
+
 def extract_inputs(workflow):
-    try:
-        return workflow["on"]["workflow_call"].get("inputs", {})
-    except Exception:
-        return {}
+    wf_call = extract_workflow_call_section(workflow)
+    return wf_call.get("inputs", {})
 
 def extract_outputs(workflow):
-    try:
-        return workflow["on"]["workflow_call"].get("outputs", {})
-    except Exception:
-        return {}
+    wf_call = extract_workflow_call_section(workflow)
+    return wf_call.get("outputs", {})
 
-def format_inputs(inputs):
-    if not inputs:
-        return "*(none)*"
-
-    lines = []
-    for name, data in inputs.items():
-        lines.append(f"- **{name}**")
-        for k, v in data.items():
-            lines.append(f"  - {k}: `{v}`")
-    return "\n".join(lines)
-
-def format_outputs(outputs):
-    if not outputs:
-        return "*(none)*"
-
-    lines = []
-    for name, data in outputs.items():
-        lines.append(f"- **{name}**")
-        for k, v in data.items():
-            lines.append(f"  - {k}: `{v}`")
-    return "\n".join(lines)
 
 if __name__ == "__main__":
     if len(sys.argv) != 3:
