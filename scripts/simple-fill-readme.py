@@ -11,7 +11,19 @@ def main():
     parser.add_argument("--output", required=True, help="Path to save the generated README")
     args = parser.parse_args()
 
+    parser.add_argument("--title", help="Title for the README")
+    parser.add_argument("--description", help="Description for the README")
+    parser.add_argument("--version", help="Version number")
     # Load workflow YAML
+
+    args = parser.parse_args()
+    
+    print("🔍 Debug - Arguments received:")
+    print(f"   --title: {args.title}")
+    print(f"   --description: {args.description}")
+    print(f"   --version: {args.version}")
+    print()
+    
     try:
         with open(args.workflow, "r", encoding="utf-8") as f:
             workflow = yaml.safe_load(f)
@@ -20,12 +32,11 @@ def main():
         sys.exit(1)
 
     workflow_name = workflow.get("name", "Unnamed Workflow")
-    inputs = workflow.get("on", {}).get("workflow_dispatch", {}).get("inputs", {})
 
-    # Extract placeholders from workflow inputs (use defaults if not defined)
-    title = inputs.get("title", {}).get("default", workflow_name)
-    description = inputs.get("description", {}).get("default", "Workflow documentation")
-    version = inputs.get("version", {}).get("default", "1.0")
+
+    title = args.title if args.title else workflow_name
+    description = args.description if args.description else "Workflow documentation"
+    version = args.version if args.version else "1.0"
     date = datetime.now().strftime("%Y-%m-%d")
 
     data = {
