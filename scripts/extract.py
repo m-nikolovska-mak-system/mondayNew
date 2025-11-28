@@ -34,6 +34,29 @@ def extract_outputs(workflow):
     wf_call = extract_workflow_call_section(workflow)
     return wf_call.get("outputs", {})
 
+def format_inputs(inputs):
+    """Convert inputs dict into Markdown string"""
+    if not inputs:
+        return "*(none)*"
+    lines = []
+    for name, data in inputs.items():
+        lines.append(f"- {name}:")
+        for k, v in data.items():
+            lines.append(f"    {k}: {v}")
+    return "\n".join(lines)
+
+def format_outputs(outputs):
+    """Convert outputs dict into Markdown string"""
+    if not outputs:
+        return "*(none)*"
+    lines = []
+    for name, data in outputs.items():
+        lines.append(f"- {name}:")
+        for k, v in data.items():
+            lines.append(f"    {k}: {v}")
+    return "\n".join(lines)
+
+
 
 if __name__ == "__main__":
     if len(sys.argv) != 3:
