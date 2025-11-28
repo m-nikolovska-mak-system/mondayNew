@@ -1,19 +1,14 @@
-# {{TITLE}}
+# Build JAR this is a duplicate with a differenect name to HELLOO aaaaaaaaaaa testing 22aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaahhhhhhaaaaaa hi testing hello hello again once more a testaaaaaaaaaaaaaaaaaaaa
 
-## 📋 Overview
-Generated on: {{DATE}}
+## Description
+{{DESCRIPTION}}
 
-## 🎯 Triggers
-{{TRIGGERS}}
+## Info
+- Generated on: 2025-11-28
+- Status: ✅ Working
+- Version: {{VERSION}}
 
-## 📥 Inputs
-{{INPUTS}}
+## Details
+This README was generated from a template!
 
-## 📤 Outputs
-{{OUTPUTS}}
-
-## 🔐 Secrets
-{{SECRETS}}
-
----
-_This documentation was auto-generated from the workflow YAML._
+Custom content goes here.
