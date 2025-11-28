@@ -7,18 +7,46 @@ def load_yaml(path):
         return yaml.safe_load(f)
 
 def extract_inputs(workflow):
-    """Return dict of workflow_call.inputs"""
+    """Safely get workflow_call.inputs even if YAML structure varies."""
     try:
-        return workflow["on"]["workflow_call"].get("inputs", {})
+        on_section = workflow.get("on", {})
+
+        # Sometimes PyYAML parses a single trigger as a dict
+        if isinstance(on_section, dict):
+            wf_call = on_section.get("workflow_call", {})
+            return wf_call.get("inputs", {}) or {}
+
+        # Sometimes "on" is parsed as a list of events
+        if isinstance(on_section, list):
+            for item in on_section:
+                if isinstance(item, dict) and "workflow_call" in item:
+                    return item["workflow_call"].get("inputs", {}) or {}
+
+        return {}
+
     except Exception:
         return {}
 
+
 def extract_outputs(workflow):
-    """Return dict of workflow_call.outputs"""
+    """Safely get workflow_call.outputs even if YAML structure varies."""
     try:
-        return workflow["on"]["workflow_call"].get("outputs", {})
+        on_section = workflow.get("on", {})
+
+        if isinstance(on_section, dict):
+            wf_call = on_section.get("workflow_call", {})
+            return wf_call.get("outputs", {}) or {}
+
+        if isinstance(on_section, list):
+            for item in on_section:
+                if isinstance(item, dict) and "workflow_call" in item:
+                    return item["workflow_call"].get("outputs", {}) or {}
+
+        return {}
+
     except Exception:
         return {}
+
 
 if __name__ == "__main__":
     if len(sys.argv) != 2:
