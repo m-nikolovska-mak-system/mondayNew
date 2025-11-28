@@ -1,16 +1,20 @@
-# Build JAR this is a duplicate with a differenect name to HELLOO aaaaaaaaaaa testing 22aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaahhhhhhaaaaaa hi testing hello hello again once more a testaaaaaaaaaaaaaaaaaaaa
+# Static Test Title
 
 ## 📋 Overview
 Generated on: 2025-11-28
 
 ## 🎯 Triggers
-_None_
+- static trigger A
+- static trigger B
 
 ## 📥 Inputs
-_None_
+- input A: value
+- input B: value
 
 ## 📤 Outputs
-_None_
+- output A
+- output B
 
 ## 🔐 Secrets
-_None_
+- SECRET_A
+- SECRET_B
