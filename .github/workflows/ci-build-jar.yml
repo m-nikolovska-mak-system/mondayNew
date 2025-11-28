@@ -1,4 +1,4 @@
-name: Build JAR this is a duplicate with a differenect name to HELLOO aaaaaaaaaaa testing 22aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaahhhhhhaaaaaa hi testing hello hello again once more a testaaaaaaaaaaaaaaaaaaaa
+name: Build JAR this is a duplicate with a differenect name to HELLOO aaaaaaaaaaa testing 22aag hello hello again once more a testaaaaaaaaaaaaaaaaaaaa
 
 on:
   workflow_call:
@@ -20,7 +20,7 @@ on:
         description: "Cache key for restored JAR"
         value: ${{ jobs.build-jar.outputs.jar_cache_key }}
     secrets:
-      TEST_SECRET:
+      TEST_SECRETT:
         required: true
 
       
