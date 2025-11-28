@@ -2,74 +2,135 @@
 import argparse
 import yaml
 from datetime import datetime
+from pathlib import Path
 import sys
 
+
+def format_section(title, data_dict):
+    """Return clean markdown list or placeholder text."""
+    if not data_dict:
+        return "_None_"
+
+    lines = []
+    for key, val in data_dict.items():
+        if isinstance(val, dict):
+            default = val.get("default", "")
+            desc = val.get("description", "")
+            t = val.get("type", "")
+            extra = []
+
+            if desc:
+                extra.append(f"desc: {desc}")
+            if t:
+                extra.append(f"type: {t}")
+            if default:
+                extra.append(f"default: {default}")
+
+            meta = f" ({', '.join(extra)})" if extra else ""
+            lines.append(f"- **{key}**{meta}")
+        else:
+            lines.append(f"- **{key}**")
+
+    return "\n".join(lines)
+
+
+def extract_triggers(on_section):
+    """
+    Convert every trigger into clean Markdown.
+    Covers:
+      - push
+      - pull_request
+      - workflow_dispatch
+      - workflow_call
+      - schedule
+      - release
+      - ANY other event GitHub supports
+    """
+    if not on_section:
+        return "_None_"
+
+    lines = []
+    for event, value in on_section.items():
+        if value in (None, {}, []) or isinstance(value, bool):
+            # simple triggers: "push:", "release:"
+            lines.append(f"- **{event}**")
+        elif isinstance(value, list):
+            # e.g. schedule: [ cron: "..." ]
+            lines.append(f"- **{event}**: list ({len(value)} items)")
+        elif isinstance(value, dict):
+            # e.g. push: { branches: [...], tags: [...] }
+            details = ", ".join(value.keys())
+            lines.append(f"- **{event}** ({details})")
+        else:
+            lines.append(f"- **{event}**")
+
+    return "\n".join(lines)
+
+
 def main():
-    parser = argparse.ArgumentParser(description="Generate README from workflow YAML and template")
-    parser.add_argument("--workflow", required=True, help="Path to workflow YAML")
-    parser.add_argument("--template", required=True, help="Path to template file")
-    parser.add_argument("--output", required=True, help="Path to save the generated README")
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--workflow", required=True)
+    parser.add_argument("--template", required=True)
+    parser.add_argument("--output", required=True)
     args = parser.parse_args()
 
-    parser.add_argument("--title", help="Title for the README")
-    parser.add_argument("--description", help="Description for the README")
-    parser.add_argument("--version", help="Version number")
     # Load workflow YAML
-
-    args = parser.parse_args()
-    
-    print("🔍 Debug - Arguments received:")
-    print(f"   --title: {args.title}")
-    print(f"   --description: {args.description}")
-    print(f"   --version: {args.version}")
-    print()
-    
     try:
-        with open(args.workflow, "r", encoding="utf-8") as f:
-            workflow = yaml.safe_load(f)
+        workflow = yaml.safe_load(Path(args.workflow).read_text(encoding="utf-8"))
     except FileNotFoundError:
-        print(f"❌ Workflow file not found: {args.workflow}")
+        print(f"❌ Workflow not found: {args.workflow}")
         sys.exit(1)
 
-    workflow_name = workflow.get("name", "Unnamed Workflow")
-
-
-    title = args.title if args.title else workflow_name
-    description = args.description if args.description else "Workflow documentation"
-    version = args.version if args.version else "1.0"
+    # Base metadata
+    name = workflow.get("name", "Unnamed Workflow")
     date = datetime.now().strftime("%Y-%m-%d")
 
-    data = {
-        "{{TITLE}}": title,
-        "{{DESCRIPTION}}": description,
-        "{{VERSION}}": version,
-        "{{DATE}}": date,
-    }
+    # Extract triggers
+    on_section = workflow.get("on", {})
+    triggers_md = extract_triggers(on_section)
+
+    # Extract inputs (dispatch + call)
+    inputs = {}
+    dispatch = on_section.get("workflow_dispatch", {})
+    if isinstance(dispatch, dict):
+        inputs.update(dispatch.get("inputs", {}))
+
+    call = on_section.get("workflow_call", {})
+    if isinstance(call, dict):
+        inputs.update(call.get("inputs", {}))
+
+    inputs_md = format_section("Inputs", inputs)
+
+    # Outputs
+    outputs = call.get("outputs", {}) if isinstance(call, dict) else {}
+    outputs_md = format_section("Outputs", outputs)
+
+    # Secrets
+    secrets = call.get("secrets", {}) if isinstance(call, dict) else {}
+    secrets_md = format_section("Secrets", secrets)
 
     # Read template
     try:
-        with open(args.template, "r", encoding="utf-8") as f:
-            template_content = f.read()
+        template = Path(args.template).read_text(encoding="utf-8")
     except FileNotFoundError:
-        print(f"❌ Template file not found: {args.template}")
+        print(f"❌ Template not found: {args.template}")
         sys.exit(1)
 
     # Replace placeholders
-    readme_content = template_content
-    for placeholder, value in data.items():
-        readme_content = readme_content.replace(placeholder, value)
+    final = (
+        template
+        .replace("{{TITLE}}", name)
+        .replace("{{DATE}}", date)
+        .replace("{{TRIGGERS}}", triggers_md)
+        .replace("{{INPUTS}}", inputs_md)
+        .replace("{{OUTPUTS}}", outputs_md)
+        .replace("{{SECRETS}}", secrets_md)
+    )
 
     # Write output
-    with open(args.output, "w", encoding="utf-8") as f:
-        f.write(readme_content)
+    Path(args.output).write_text(final, encoding="utf-8")
+    print(f"✅ README generated → {args.output}")
 
-    # Debug info
-    print(f"✅ README created: {args.output}")
-    print(f"   TITLE: {title}")
-    print(f"   DESCRIPTION: {description}")
-    print(f"   VERSION: {version}")
-    print(f"   DATE: {date}")
-    print(f"   Size: {len(readme_content)} characters")
 
 if __name__ == "__main__":
     main()
