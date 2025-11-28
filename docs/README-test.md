@@ -1,20 +1,19 @@
-# Static Test Title
+# 📘 Workflow Documentation
 
-## 📋 Overview
-Generated on: 2025-11-28
+Generated from: Build JAR this is a duplicate with a differenect name to HELLOO aaaaaaaaaaa testing 22aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaahhhhhhaaaaaa hi testing hello hello again once more a testaaaaaaaaaaaaaaaaaaaa
 
-## 🎯 Triggers
-- static trigger A
-- static trigger B
+## 🧩 Inputs
 
-## 📥 Inputs
-- input A: value
-- input B: value
+| Name | Type | Required | Default |
+| ---- | ---- | -------- | ------- |
+| `release_tag` | `string` | No | `main` |
+| `gradle_task` | `string` | No | `jar` |
+| `gradle_task_two0aao` | `string` | No | `jar3` |
 
-## 📤 Outputs
-- output A
-- output B
 
-## 🔐 Secrets
-- SECRET_A
-- SECRET_B
+## 🧪 Outputs
+
+| Name | Description |
+| ---- | ----------- |
+| `jar_cache_key` | Cache key for restored JAaaaaaaaaaaaaR |
+
