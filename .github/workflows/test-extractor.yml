@@ -13,6 +13,19 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Verify workflow file exists and show first 20 lines
+        run: |
+          echo "📂 Checking if workflow file exists..."
+          if [ -f .github/workflows/ci-build-jar.yml ]; then
+            echo "✅ File exists!"
+            echo ""
+            echo "📄 First 20 lines of the file:"
+            head -n 20 .github/workflows/ci-build-jar.yml
+          else
+            echo "❌ File not found!"
+            exit 1
+          fi
+
       - name: Install PyYAML
         run: pip install pyyaml
 
@@ -27,8 +40,10 @@ jobs:
 
       - name: Check generated README
         run: |
-          echo "📄 README content:"
-          cat docs/README-build-jar.md
+          echo "📄 README content (first 50 lines):"
+          head -n 50 docs/README-test.md
+          echo ""
+          echo "✅ Full README created at docs/README-test.md"
 
       - name: Commit and push if changed
         run: |
