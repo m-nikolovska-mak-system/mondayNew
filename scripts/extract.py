@@ -84,7 +84,51 @@ def main():
     workflow_type = ' + '.join(workflow_types) if workflow_types else 'Standard Workflow'
     
     # ========== FORMAT TRIGGERS ==========
-    triggers_text = '\n'.join([f"- **`{t}`**" for t in triggers]) if triggers else '_No triggers defined._'
+    if triggers:
+        triggers_text = ""
+        for trigger in triggers:
+            triggers_text += f"- **`{trigger}`**\n"
+            
+            # Add details for specific triggers
+            trigger_config = on_section.get(trigger, {})
+            if trigger_config and isinstance(trigger_config, dict):
+                # Handle push/pull_request branches
+                if 'branches' in trigger_config:
+                    branches = trigger_config['branches']
+                    if isinstance(branches, list):
+                        triggers_text += f"  - Branches: `{', '.join(branches)}`\n"
+                    else:
+                        triggers_text += f"  - Branches: `{branches}`\n"
+                
+                # Handle paths
+                if 'paths' in trigger_config:
+                    paths = trigger_config['paths']
+                    if isinstance(paths, list):
+                        includes = [p for p in paths if not p.startswith('!')]
+                        excludes = [p[1:] for p in paths if p.startswith('!')]
+                        if includes:
+                            triggers_text += f"  - Paths (includes): `{', '.join(includes)}`\n"
+                        if excludes:
+                            triggers_text += f"  - Paths (excludes): `{', '.join(excludes)}`\n"
+                    else:
+                        triggers_text += f"  - Paths: `{paths}`\n"
+                
+                # Handle types (for pull_request)
+                if 'types' in trigger_config:
+                    types = trigger_config['types']
+                    if isinstance(types, list):
+                        triggers_text += f"  - Types: `{', '.join(types)}`\n"
+                    else:
+                        triggers_text += f"  - Types: `{types}`\n"
+                
+                # Handle schedule (cron)
+                if trigger == 'schedule' and isinstance(trigger_config, list):
+                    triggers_text += f"  - Cron schedules:\n"
+                    for schedule in trigger_config:
+                        if 'cron' in schedule:
+                            triggers_text += f"    - `{schedule['cron']}`\n"
+    else:
+        triggers_text = '_No triggers defined._'
     
     # ========== FORMAT INPUTS ==========
     if inputs:
