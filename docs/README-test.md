@@ -1,14 +1,16 @@
 # Build JAR this is a duplicate with a differenect name to HELLOO aaaaaaaaaaa testing 22aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaahhhhhhaaaaaa hi testing hello hello again once more a testaaaaaaaaaaaaaaaaaaaa
 
-## Description
-{{DESCRIPTION}}
+## 📋 Overview
+Generated on: 2025-11-28
 
-## Info
-- Generated on: 2025-11-28
-- Status: ✅ Working
-- Version: {{VERSION}}
+## 🎯 Triggers
+_None_
 
-## Details
-This README was generated from a template!
+## 📥 Inputs
+_None_
 
-Custom content goes here.
+## 📤 Outputs
+_None_
+
+## 🔐 Secrets
+_None_
