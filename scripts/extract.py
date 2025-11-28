@@ -1,92 +1,82 @@
 #!/usr/bin/env python3
 import yaml
 import sys
-from pathlib import Path
 
-def load_yaml(path):
-    with open(path, "r", encoding="utf-8") as f:
-        return yaml.safe_load(f)
-
-def extract_workflow_call_section(workflow):
-    """
-    Returns the workflow_call section no matter if 'on' is parsed normally or as True.
-    """
-    on_section = workflow.get("on")
+def main():
+    # Get arguments
+    workflow_file = sys.argv[1]  # e.g., .github/workflows/ci-build-jar.yml
+    output_file = sys.argv[2]    # e.g., docs/ci-build-jar.md
     
-    # Normal case
-    if isinstance(on_section, dict) and "workflow_call" in on_section:
-        return on_section["workflow_call"]
+    print(f"📖 Reading: {workflow_file}")
     
-    # Fallback if PyYAML parsed it strangely (e.g., {True: {...}})
-    if isinstance(on_section, dict):
-        for key, value in on_section.items():
-            if isinstance(value, dict) and "workflow_call" in value:
-                return value["workflow_call"]
+    # Load YAML
+    with open(workflow_file, 'r') as f:
+        workflow = yaml.safe_load(f)
     
-    # Nothing found
-    return {}
+    # Get workflow name
+    workflow_name = workflow.get('name', 'Unnamed Workflow')
+    print(f"✅ Workflow: {workflow_name}")
+    
+    # Get 'on' section
+    on_section = workflow.get('on', {})
+    
+    # Extract inputs
+    inputs = {}
+    if 'workflow_call' in on_section and on_section['workflow_call']:
+        inputs = on_section['workflow_call'].get('inputs', {})
+    if 'workflow_dispatch' in on_section and on_section['workflow_dispatch']:
+        inputs.update(on_section['workflow_dispatch'].get('inputs', {}))
+    
+    print(f"✅ Found {len(inputs)} input(s): {list(inputs.keys())}")
+    
+    # Extract outputs
+    outputs = {}
+    if 'workflow_call' in on_section and on_section['workflow_call']:
+        outputs = on_section['workflow_call'].get('outputs', {})
+    
+    print(f"✅ Found {len(outputs)} output(s): {list(outputs.keys())}")
+    
+    # Format inputs table
+    if inputs:
+        inputs_text = "| Name | Type | Required | Default |\n"
+        inputs_text += "| ---- | ---- | -------- | ------- |\n"
+        for name, props in inputs.items():
+            inp_type = props.get('type', 'string')
+            required = 'Yes' if props.get('required', False) else 'No'
+            default = props.get('default', '')
+            inputs_text += f"| `{name}` | `{inp_type}` | {required} | `{default}` |\n"
+    else:
+        inputs_text = "_No inputs defined._"
+    
+    # Format outputs table
+    if outputs:
+        outputs_text = "| Name | Description |\n"
+        outputs_text += "| ---- | ----------- |\n"
+        for name, props in outputs.items():
+            desc = props.get('description', '')
+            outputs_text += f"| `{name}` | {desc} |\n"
+    else:
+        outputs_text = "_No outputs defined._"
+    
+    # Create README content
+    readme = f"""# 📘 Workflow Documentation
 
-def extract_inputs(workflow):
-    wf_call = extract_workflow_call_section(workflow)
-    return wf_call.get("inputs", {})
+Generated from: {workflow_name}
 
-def extract_outputs(workflow):
-    wf_call = extract_workflow_call_section(workflow)
-    return wf_call.get("outputs", {})
+## 🧩 Inputs
 
-def format_inputs(inputs):
-    """Convert inputs dict into Markdown string"""
-    if not inputs:
-        return "*(none)*"
-    lines = []
-    for name, data in inputs.items():
-        lines.append(f"- {name}:")
-        for k, v in data.items():
-            lines.append(f"    {k}: {v}")
-    return "\n".join(lines)
+{inputs_text}
 
-def format_outputs(outputs):
-    """Convert outputs dict into Markdown string"""
-    if not outputs:
-        return "*(none)*"
-    lines = []
-    for name, data in outputs.items():
-        lines.append(f"- {name}:")
-        for k, v in data.items():
-            lines.append(f"    {k}: {v}")
-    return "\n".join(lines)
+## 🧪 Outputs
 
-if __name__ == "__main__":
-    if len(sys.argv) != 3:
-        print("Usage: python extract.py <workflow.yml> <output.md>")
-        sys.exit(1)
+{outputs_text}
+"""
+    
+    # Write output
+    with open(output_file, 'w') as f:
+        f.write(readme)
+    
+    print(f"✅ Created: {output_file}")
 
-    workflow_path = sys.argv[1]
-    output_path = sys.argv[2]
-
-    workflow = load_yaml(workflow_path)
-
-    workflow_name = workflow.get("name", "Unnamed Workflow")
-    inputs = extract_inputs(workflow)
-    outputs = extract_outputs(workflow)
-
-    inputs_md = format_inputs(inputs)
-    outputs_md = format_outputs(outputs)
-
-    # Load template
-    template_path = Path("docs/workflow_readme.md.tpl")
-    if not template_path.exists():
-        print(f"Template not found: {template_path}")
-        sys.exit(1)
-    template_text = template_path.read_text(encoding="utf-8")
-
-    # Replace placeholders
-    final_md = (
-        template_text
-        .replace("{{WORKFLOW_NAME}}", workflow_name)
-        .replace("{{INPUTS}}", inputs_md)
-        .replace("{{OUTPUTS}}", outputs_md)
-    )
-
-    Path(output_path).write_text(final_md, encoding="utf-8")
-    print(f"✅ README generated → {output_path}")
+if __name__ == '__main__':
+    main()
