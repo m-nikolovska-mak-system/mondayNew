@@ -1,0 +1,24 @@
+name: Test Extractor
+
+on:
+  workflow_dispatch:
+
+jobs:
+  run-extractor:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install PyYAML
+        run: pip install pyyaml
+
+      - name: Run extractor script
+        run: |
+          python scripts/extract.py .github/workflows/ci-build-jar.yml
