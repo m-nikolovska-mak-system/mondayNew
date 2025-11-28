@@ -5,7 +5,7 @@ import sys
 def main():
     # Get arguments
     workflow_file = sys.argv[1]  # e.g., .github/workflows/ci-build-jar.yml
-    output_file = sys.argv[2]    # e.g., docs/README-ci-build-jar.md
+    output_file = sys.argv[2]    # e.g., docs/ci-build-jar.md
     
     print(f"📖 Reading: {workflow_file}")
     
@@ -20,17 +20,18 @@ def main():
         print(f"   - {repr(key)}: {type(workflow[key])}")
     print()
     
-    # Try to find 'on' key (might have weird characters)
+    # Try to find 'on' key - it might be parsed as boolean True!
     on_key = None
-    for key in workflow.keys():
-        if 'on' in key.lower():
-            on_key = key
-            print(f"🔍 Found 'on'-like key: {repr(key)}")
-            break
-    
-    if on_key is None:
+    if 'on' in workflow:
+        on_key = 'on'
+        print(f"🔍 Found 'on' key as string")
+    elif True in workflow:
+        on_key = True
+        print(f"🔍 Found 'on' key as boolean True (YAML quirk!)")
+    else:
         print("❌ Could not find 'on' key in workflow!")
-        on_key = 'on'  # fallback
+        print("Available keys:", list(workflow.keys()))
+        sys.exit(1)
     
     # Get workflow name
     workflow_name = workflow.get('name', 'Unnamed Workflow')
