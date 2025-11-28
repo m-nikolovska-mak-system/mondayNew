@@ -17,7 +17,7 @@ def extract_workflow_call_section(workflow):
     if isinstance(on_section, dict) and "workflow_call" in on_section:
         return on_section["workflow_call"]
     
-    # Fallback if PyYAML parsed it as {True: {...}}
+    # Fallback if PyYAML parsed it strangely (e.g., {True: {...}})
     if isinstance(on_section, dict):
         for key, value in on_section.items():
             if isinstance(value, dict) and "workflow_call" in value:
@@ -56,8 +56,6 @@ def format_outputs(outputs):
             lines.append(f"    {k}: {v}")
     return "\n".join(lines)
 
-
-
 if __name__ == "__main__":
     if len(sys.argv) != 3:
         print("Usage: python extract.py <workflow.yml> <output.md>")
@@ -68,7 +66,7 @@ if __name__ == "__main__":
 
     workflow = load_yaml(workflow_path)
 
-    name = workflow.get("name", "Unnamed Workflow")
+    workflow_name = workflow.get("name", "Unnamed Workflow")
     inputs = extract_inputs(workflow)
     outputs = extract_outputs(workflow)
 
@@ -77,15 +75,18 @@ if __name__ == "__main__":
 
     # Load template
     template_path = Path("docs/workflow_readme.md.tpl")
+    if not template_path.exists():
+        print(f"Template not found: {template_path}")
+        sys.exit(1)
     template_text = template_path.read_text(encoding="utf-8")
 
+    # Replace placeholders
     final_md = (
         template_text
-        .replace("{{WORKFLOW_NAME}}", name)
+        .replace("{{WORKFLOW_NAME}}", workflow_name)
         .replace("{{INPUTS}}", inputs_md)
         .replace("{{OUTPUTS}}", outputs_md)
     )
 
     Path(output_path).write_text(final_md, encoding="utf-8")
-
-    print(f"README generated → {output_path}")
+    print(f"✅ README generated → {output_path}")
