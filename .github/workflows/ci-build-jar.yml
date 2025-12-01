@@ -17,7 +17,7 @@ on:
         default: "jar33333"
     outputs:
       jar_cache_key:
-        description: "Cache key for restored JAR"
+        description: "Cache key for restored JARrrrr hello test"
         value: ${{ jobs.build-jar.outputs.jar_cache_key }}
     secrets:
       TEST_SECRETT:
