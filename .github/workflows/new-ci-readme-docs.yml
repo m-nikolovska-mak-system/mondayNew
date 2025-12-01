@@ -34,7 +34,6 @@ jobs:
         id: detect
         uses: tj-actions/changed-files@v44
         with:
-          base: ${{ github.event.pull_request.base.ref || 'main' }}
           files: |
             .github/workflows/*.yml
             .github/workflows/*.yaml
@@ -59,7 +58,7 @@ jobs:
         run: |
           if [ "${{ steps.detect.outputs.any_changed }}" == "false" ]; then
             echo "has_changes=false" >> $GITHUB_OUTPUT
-            echo "matrix={\"include\":[]}" >> $GITHUB_OUTPUT
+            echo "matrix=[]" >> $GITHUB_OUTPUT   # ✅ empty array, not include mapping
             echo "⚠️ No workflow changes detected."
             exit 0
           fi
@@ -71,18 +70,15 @@ jobs:
             base="${base%.yaml}"
             json=$(echo "$json" | jq --arg wf "$f" --arg b "$base" '. += [{"workflow":$wf,"basename":$b}]')
           done
-          echo "matrix=$(echo "$json" | jq -c '.')" >> $GITHUB_OUTPUT
-
-
-           
+          
           count=$(echo "$json" | jq 'length')
           if [ "$count" -eq 0 ]; then
             echo "has_changes=false" >> $GITHUB_OUTPUT
-            echo "matrix={\"include\":[]}" >> $GITHUB_OUTPUT
+            echo "matrix=[]" >> $GITHUB_OUTPUT          # ✅ empty array
             echo "⚠️ No valid workflows to process."
           else
             echo "has_changes=true" >> $GITHUB_OUTPUT
-            echo "matrix={\"include\":$(echo "$json" | jq -c '.')}" >> $GITHUB_OUTPUT
+            echo "matrix=$(echo "$json" | jq -c '.')" >> $GITHUB_OUTPUT
             echo "✅ Matrix prepared with $count workflows"
           fi
 
