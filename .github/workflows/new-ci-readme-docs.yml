@@ -111,6 +111,8 @@ jobs:
         uses: actions/cache@v4
         with:
           path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-pyyaml
+
       
       - name: Install dependencies
         run: pip install pyyaml
