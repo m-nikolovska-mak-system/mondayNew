@@ -2,9 +2,11 @@ name: 📝 Generate/Update README Documentation
 
 on:
   workflow_dispatch:
-#  pull_request:
- #   paths:
-  #    - ".github/workflows/*.yml"
+  pull_request:
+    branches-ignore:
+      - 'auto-doc/**' 
+    paths:
+      - ".github/workflows/*.yml"
 
 permissions:
   contents: write
@@ -86,6 +88,9 @@ jobs:
           fetch-depth: 0 # Needed to push changes back to the repository
           token: ${{ env.GITHUB_USER_TOKEN }}
 
+
+      
+
       # ------------------------------
       # 3. Create missing READMEs
       # ------------------------------
@@ -124,12 +129,20 @@ jobs:
           echo "Current workflow file: ${{ matrix.item.workflow }}"
           echo "Current readme file: docs/${{ matrix.item.basename }}"
 
-      - name: Auto-doc for workflow
-        uses: tj-actions/auto-doc@v3
-        with:
-          filename: ./${{ matrix.item.workflow }}
-          reusable: true
-          output: docs/README-${{ matrix.item.basename }}.md
+    #  - name: Auto-doc for workflow
+     #   uses: tj-actions/auto-doc@v3
+      #  with:
+        #  filename: ./${{ matrix.item.workflow }}
+       #   reusable: true
+         # output: docs/README-${{ matrix.item.basename }}.md
+
+      - name: Run custom Python doc generator
+        run: |
+          python3 .github/scripts/extract-v2.py \
+            "${{ matrix.item.workflow }}" \
+            "docs/README-${{ matrix.item.basename }}.md" \
+            "docs/README-reusable.md"
+
 
       # ------------------------------
       # Verify README changes for this workflow
