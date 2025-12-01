@@ -159,6 +159,8 @@ jobs:
           body: |
             This PR updates the documentation for:
             **${{ matrix.item.basename }}**
+            🔗 Changes detected in commit: [${{ github.sha }}](${{ github.server_url }}/${{ github.repository }}/commit/${{ github.sha }})
+
           branch: "auto-doc/update-readme-${{ matrix.item.basename }}"
           committer: ${{ env.GITHUB_USER_NAME }} <${{ env.GITHUB_USER_EMAIL }}>
           token: ${{ env.GITHUB_USER_TOKEN }}
