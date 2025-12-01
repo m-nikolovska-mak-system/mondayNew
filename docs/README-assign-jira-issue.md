@@ -1,23 +1,26 @@
-# Assign Jira Issue hiaaaaaaaaaaaaaaaasssaaaaaaaaaaaaaa
+# Assign Jira Issue hello test!!! hi hello testing hi
 
-> **Type:** Standard Workflow  
+> **Type:** Manual Dispatch  
 > **Source:** `assign-jira-issue.yml`
 
 ## 📋 Overview
 
-This document provides comprehensive documentation for the `Assign Jira Issue hiaaaaaaaaaaaaaaaasssaaaaaaaaaaaaaa` workflow.
+This document provides comprehensive documentation for the `Assign Jira Issue hello test!!! hi hello testing hi` workflow.
 
 ---
 
 ## 🎯 Triggers
 
-_This workflow has no triggers defined._
+- **`workflow_dispatch`**
 
 ---
 
 ## 📥 Inputs
 
-_This workflow does not accept any inputs._
+| Name | Type | Required | Default | Description |
+| ---- | ---- | -------- | ------- | ----------- |
+| `issue_key` | `string` | ✅ Yes | `_not set_` | Jira issue key (e.g. ABC-123) |
+| `assignee_email` | `string` | ✅ Yes | `_not set_` | Assignee email in Jira |
 
 ---
 
@@ -39,13 +42,10 @@ _This workflow does not require any secrets._
 
 **Runs on:** `ubuntu-latest`
 
-
-
-| Step | Uses | Run Command |
-| ---- | ---- | ----------- |
+| Step | Uses | Run |
+| ---- | ---- | --- |
 | Install jq and python3 |  | `sudo apt-get update -y sudo apt-get install -y jq python3` |
-| Assign issue in Jira |  | ✅ Yes (see YAML) |
-
+| Assign issue in Jira |  | ✅ Yes (see full YAML) |
 
 
 ---
@@ -56,8 +56,7 @@ _This workflow does not require any secrets._
 <summary>Click to expand full YAML definition</summary>
 
 ```yaml
-name: Assign Jira Issue hiaaaaaaaaaaaaaaaasssaaaaaaaaaaaaaa
-
+name: Assign Jira Issue hello test!!! hi hello testing hi 
 on:
   workflow_dispatch:
     inputs:
@@ -121,5 +120,4 @@ jobs:
 
 ---
 
-**Generated on:** 2025-11-27 12:32:55  
-**Last Updated:** Check the workflow file history for the most recent changes.
+**Generated on:** 2025-12-01 13:13:48 UTC
