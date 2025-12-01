@@ -1,17 +1,14 @@
 # 📝 Auto-Generate Workflow Documentation
 
-> **Type:** Manual Dispatch  
-> **Source:** `test-auto-generate-docs.yml`
-
 ## 📋 Overview
 
-This document provides comprehensive documentation for the `📝 Auto-Generate Workflow Documentation` workflow.
+This document provides comprehensive documentation for the **📝 Auto-Generate Workflow Documentation** workflow.
 
 ---
 
 ## 🎯 Triggers
 
-- **`workflow_dispatch`**
+
 
 ---
 
@@ -35,38 +32,37 @@ _This workflow does not require any secrets._
 
 ## 💼 Jobs
 
-### 🔧 `detect-changes`
+### `detect-changes`
 
 **Runs on:** `ubuntu-latest`
 
-| Step | Uses | Run |
-| ---- | ---- | --- |
-| Checkout | `actions/checkout@v4` | `` |
-| Detect changed workflow files | `tj-actions/changed-files@v44` | `` |
-| List changed workflows |  | ✅ Yes (see full YAML) |
+| Step | Uses | Run Command |
+| ---- | ---- | ----------- |
+| Checkout | `actions/checkout@v4` |  |
+| Detect changed workflow files | `tj-actions/changed-files@v44` |  |
+| List changed workflows |  | ✅ Yes (see YAML) |
 
-### 🔧 `generate-docs`
+### `generate-docs`
 
 **Runs on:** `ubuntu-latest`
 
-| Step | Uses | Run |
-| ---- | ---- | --- |
-| Checkout | `actions/checkout@v4` | `` |
-| Set up Python | `actions/setup-python@v5` | `` |
+| Step | Uses | Run Command |
+| ---- | ---- | ----------- |
+| Checkout | `actions/checkout@v4` |  |
+| Set up Python | `actions/setup-python@v5` |  |
 | Install PyYAML |  | `pip install pyyaml` |
 | Create docs directory |  | `mkdir -p docs` |
-| Generate READMEs for changed workflows |  | ✅ Yes (see full YAML) |
-| Check for changes |  | ✅ Yes (see full YAML) |
-| Commit and push changes |  | ✅ Yes (see full YAML) |
+| Generate READMEs for changed workflows |  | ✅ Yes (see YAML) |
+| Check for changes |  | ✅ Yes (see YAML) |
+| Commit and push changes |  | ✅ Yes (see YAML) |
 
-### 🔧 `summary`
+### `summary`
 
 **Runs on:** `ubuntu-latest`
 
-| Step | Uses | Run |
-| ---- | ---- | --- |
-| Create summary |  | ✅ Yes (see full YAML) |
-
+| Step | Uses | Run Command |
+| ---- | ---- | ----------- |
+| Create summary |  | ✅ Yes (see YAML) |
 
 ---
 
@@ -225,4 +221,4 @@ jobs:
 
 ---
 
-**Generated on:** 2025-12-01 10:24:29 UTC
+**Generated on:** 2025-12-01 10:28:26
