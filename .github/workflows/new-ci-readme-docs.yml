@@ -38,8 +38,6 @@ jobs:
             .github/workflows/*.yml
             .github/workflows/*.yaml
             !.github/workflows/new-ci-readme-docs.yml
-          since_last_remote_commit: ${{ github.event_name == 'push' }}
-
 
       - name: Debug - Print all changed files
         run: |
@@ -58,7 +56,7 @@ jobs:
         run: |
           if [ "${{ steps.detect.outputs.any_changed }}" == "false" ]; then
             echo "has_changes=false" >> $GITHUB_OUTPUT
-            echo "matrix=[]" >> $GITHUB_OUTPUT   # ✅ empty array, not include mapping
+            echo "matrix=[]" >> $GITHUB_OUTPUT  
             echo "⚠️ No workflow changes detected."
             exit 0
           fi
@@ -108,6 +106,12 @@ jobs:
         with:
           python-version: "3.11"
 
+
+      - name: Cache Python dependencies
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+      
       - name: Install dependencies
         run: pip install pyyaml
 
