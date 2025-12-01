@@ -1,4 +1,4 @@
-name: Everything Workflow this is for testing like all of it hi
+name: Everything Workflow this is for testing like all of it hi testing once again
 
 on:
   push:
@@ -10,7 +10,7 @@ on:
       mode:
         type: string
         required: false
-        default: "default"
+        default: "default2222"
   workflow_call:
     inputs:
       caller_input:
