@@ -141,7 +141,6 @@ jobs:
           python3 scripts/extract-v2.py \
             "${{ matrix.item.workflow }}" \
             "docs/README-${{ matrix.item.basename }}.md" \
-            "docs/README-reusable.md"
 
 
       # ------------------------------
