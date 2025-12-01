@@ -103,7 +103,7 @@ jobs:
       # ------------------------------
       - name: Generate documentation (Python extractor)
         run: |
-          python3 scripts/extract.py \
+          python3 scripts/extract-v2.py \
             "${{ matrix.item.workflow }}" \
             "docs/README-${{ matrix.item.basename }}.md"
 
