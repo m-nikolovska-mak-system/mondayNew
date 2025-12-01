@@ -185,3 +185,4 @@ jobs:
           token: ${{ env.GITHUB_USER_TOKEN }}
           committer: ${{ env.GITHUB_USER_NAME }} <${{ env.GITHUB_USER_EMAIL }}>
           base: ${{ needs.detect-changes.outputs.pr_source_branch || github.event.pull_request.base.ref }}
+          delete-branch: true
