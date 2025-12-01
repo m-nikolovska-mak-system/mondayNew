@@ -1,63 +1,51 @@
-# Build JAR this is a duplicate with a differenect name to HELLOO aaaaaaaaaaa testing 22aag hello hello again once more a this is me testing it hello hi!
-
-> **Type:** Reusable Workflow  
-> **Source:** `ci-build-jar.yml`
+# Build JAR new test
 
 ## 📋 Overview
 
-This document provides comprehensive documentation for the `Build JAR this is a duplicate with a differenect name to HELLOO aaaaaaaaaaa testing 22aag hello hello again once more a this is me testing it hello hi!` workflow.
+This document provides comprehensive documentation for the **Build JAR new test** workflow.
 
 ---
 
 ## 🎯 Triggers
 
-- **`workflow_call`**
+
 
 ---
 
 ## 📥 Inputs
 
-| Name | Type | Required | Default | Description |
-| ---- | ---- | -------- | ------- | ----------- |
-| `release_tag` | `string` | ❌ No | `main` | _No description provided_ |
-| `gradle_task` | `string` | ❌ No | `jar` | _No description provided_ |
-| `gradle_task_two0aao` | `string` | ❌ No | `jar33333` | _No description provided_ |
+_This workflow does not accept any inputs._
 
 ---
 
 ## 📤 Outputs
 
-| Name | Description | Value |
-| ---- | ----------- | ----- |
-| `jar_cache_key` | Cache key for restored JARrrrr hello test | `${{ jobs.build-jar.outputs.jar_cache_key }}` |
+_This workflow does not expose any outputs._
 
 ---
 
 ## 🔐 Secrets
 
-| Name | Required | Description |
-| ---- | -------- | ----------- |
-| `TEST_SECRETT` | ✅ Yes | _No description provided_ |
+_This workflow does not require any secrets._
 
 ---
 
 ## 💼 Jobs
 
-### 🔧 `build-jar`
+### `build-jar`
 
 **Runs on:** `ubuntu-latest`
 
-| Step | Uses | Run |
-| ---- | ---- | --- |
-| Checkout code | `actions/checkout@v4` | `` |
-| Set up Java 17 | `actions/setup-java@v3` | `` |
+| Step | Uses | Run Command |
+| ---- | ---- | ----------- |
+| Checkout code | `actions/checkout@v4` |  |
+| Set up Java 17 | `actions/setup-java@v3` |  |
 | Make Gradle wrapper executable |  | `chmod +x gradlew` |
-| Cache Gradle dependencies | `actions/cache@v3` | `` |
+| Cache Gradle dependencies | `actions/cache@v3` |  |
 | Build JAR |  | `./gradlew ${{ inputs.gradle_task }} --no-daemon` |
-| Validate JAR |  | ✅ Yes (see full YAML) |
-| Generate cache key |  | ✅ Yes (see full YAML) |
-| Cache built JAR | `actions/cache/save@v3` | `` |
-
+| Validate JAR |  | ✅ Yes (see YAML) |
+| Generate cache key |  | ✅ Yes (see YAML) |
+| Cache built JAR | `actions/cache/save@v3` |  |
 
 ---
 
@@ -67,7 +55,7 @@ This document provides comprehensive documentation for the `Build JAR this is a 
 <summary>Click to expand full YAML definition</summary>
 
 ```yaml
-name: Build JAR this is a duplicate with a differenect name to HELLOO aaaaaaaaaaa testing 22aag hello hello again once more a this is me testing it hello hi!
+name: Build JAR new test
 
 on:
   workflow_call:
@@ -151,4 +139,4 @@ jobs:
 
 ---
 
-**Generated on:** 2025-12-01 09:36:33 UTC
+**Generated on:** 2025-12-01 12:09:46
