@@ -1,4 +1,4 @@
-name: Build JAR this me changing things again hi
+name: Build JAR this me changing things again hi hi hi
 
 on:
   workflow_call:
@@ -11,7 +11,7 @@ on:
         required: false
         type: string
         default: "jar"
-      gradle_task_two0aao:
+      gradle_task_two:
         required: false
         type: string
         default: "jar33333"
