@@ -24,6 +24,7 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       matrix: ${{ steps.prep_matrix.outputs.matrix }}
+      has_changes: ${{ steps.prep_matrix.outputs.has_changes }}
       pr_source_branch: ${{ steps.get_source_branch.outputs.pr_source_branch }}
     steps:
       - name: Checkout
@@ -36,7 +37,17 @@ jobs:
           files: |
             .github/workflows/*.yml
             .github/workflows/*.yaml
-            !.github/workflows/ci-readme-docs.yml
+            !.github/workflows/new-ci-readme-docs.yml
+          since_last_remote_commit: ${{ github.event_name == 'push' }}
+
+
+      - name: Debug - Print all changed files
+        run: |
+          echo "Any changed: ${{ steps.detect.outputs.any_changed }}"
+          echo "Changed files:"
+          for f in ${{ steps.detect.outputs.all_changed_files }}; do
+            echo " - $f"
+          done    
 
       - name: Stop if no workflow changes
         if: steps.detect.outputs.any_changed == 'false'
@@ -45,6 +56,13 @@ jobs:
       - name: Prepare matrix JSON
         id: prep_matrix
         run: |
+          if [ "${{ steps.detect.outputs.any_changed }}" == "false" ]; then
+            echo "has_changes=false" >> $GITHUB_OUTPUT
+            echo "matrix={\"include\":[]}" >> $GITHUB_OUTPUT
+            echo "⚠️ No workflow changes detected."
+            exit 0
+          fi
+        
           json="[]"
           for f in ${{ steps.detect.outputs.all_changed_files }}; do
             base=$(basename "$f")
@@ -54,6 +72,19 @@ jobs:
           done
           echo "matrix=$(echo "$json" | jq -c '.')" >> $GITHUB_OUTPUT
 
+
+           
+          count=$(echo "$json" | jq 'length')
+          if [ "$count" -eq 0 ]; then
+            echo "has_changes=false" >> $GITHUB_OUTPUT
+            echo "matrix={\"include\":[]}" >> $GITHUB_OUTPUT
+            echo "⚠️ No valid workflows to process."
+          else
+            echo "has_changes=true" >> $GITHUB_OUTPUT
+            echo "matrix={\"include\":$(echo "$json" | jq -c '.')}" >> $GITHUB_OUTPUT
+            echo "✅ Matrix prepared with $count workflows"
+          fi
+
       - name: Get PR source branch
         id: get_source_branch
         run: echo "pr_source_branch=${{ github.head_ref }}" >> $GITHUB_OUTPUT
@@ -61,6 +92,7 @@ jobs:
   update-doc:
     name: 📝 Generate & Update Workflow READMEs
     needs: detect-changes
+    if: needs.detect-changes.outputs.has_changes == 'true'
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -134,3 +166,4 @@ jobs:
           committer: ${{ env.GITHUB_USER_NAME }} <${{ env.GITHUB_USER_EMAIL }}>
           token: ${{ env.GITHUB_USER_TOKEN }}
           base: ${{ needs.detect-changes.outputs.pr_source_branch || github.event.pull_request.base.ref }}
+          delete-branch: true
