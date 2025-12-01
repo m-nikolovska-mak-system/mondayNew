@@ -1,9 +1,9 @@
 name: Test – Mixed Triggers
 on:
-  push:
-    branches: ["main", "dev"]
-  pull_request:
-    types: ["opened", "synchronize"]
+#  push:
+ #   branches: ["main", "dev"]
+#  pull_request:
+#    types: ["opened", "synchronize"]
   workflow_dispatch:
 
 jobs:
