@@ -92,7 +92,7 @@ jobs:
   update-doc:
     name: 📝 Generate & Update Workflow READMEs
     needs: detect-changes
-    if: needs.detect-changes.outputs.has_changes == 'true'
+    if: ${{ needs.detect-changes.outputs.matrix != '[]' && needs.detect-changes.outputs.has_changes == 'true' }}
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
