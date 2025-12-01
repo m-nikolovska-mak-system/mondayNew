@@ -1,18 +1,17 @@
-# Build JAR this is a duplicate with a differenect name to HELLOO aaaaaaaaaaa testing 22aag hello hello again once more a this is me testing it
+# Build JAR this is a duplicate with a differenect name to HELLOO aaaaaaaaaaa testing 22aag hello hello again once more a this is me testing it hello hi!
 
 > **Type:** Reusable Workflow  
 > **Source:** `ci-build-jar.yml`
 
 ## 📋 Overview
 
-This document provides comprehensive documentation for the `Build JAR this is a duplicate with a differenect name to HELLOO aaaaaaaaaaa testing 22aag hello hello again once more a this is me testing it` workflow.
+This document provides comprehensive documentation for the `Build JAR this is a duplicate with a differenect name to HELLOO aaaaaaaaaaa testing 22aag hello hello again once more a this is me testing it hello hi!` workflow.
 
 ---
 
 ## 🎯 Triggers
 
 - **`workflow_call`**
-
 
 ---
 
@@ -24,15 +23,13 @@ This document provides comprehensive documentation for the `Build JAR this is a 
 | `gradle_task` | `string` | ❌ No | `jar` | _No description provided_ |
 | `gradle_task_two0aao` | `string` | ❌ No | `jar33333` | _No description provided_ |
 
-
 ---
 
 ## 📤 Outputs
 
 | Name | Description | Value |
 | ---- | ----------- | ----- |
-| `jar_cache_key` | Cache key for restored JAR | `${{ jobs.build-jar.outputs.jar_cache_key }}` |
-
+| `jar_cache_key` | Cache key for restored JARrrrr hello test | `${{ jobs.build-jar.outputs.jar_cache_key }}` |
 
 ---
 
@@ -42,7 +39,6 @@ This document provides comprehensive documentation for the `Build JAR this is a 
 | ---- | -------- | ----------- |
 | `TEST_SECRETT` | ✅ Yes | _No description provided_ |
 
-
 ---
 
 ## 💼 Jobs
@@ -51,17 +47,16 @@ This document provides comprehensive documentation for the `Build JAR this is a 
 
 **Runs on:** `ubuntu-latest`
 
-| Step | Uses | Run Command |
-| ---- | ---- | ----------- |
-| Checkout code | `actions/checkout@v4` |  |
-| Set up Java 17 | `actions/setup-java@v3` |  |
+| Step | Uses | Run |
+| ---- | ---- | --- |
+| Checkout code | `actions/checkout@v4` | `` |
+| Set up Java 17 | `actions/setup-java@v3` | `` |
 | Make Gradle wrapper executable |  | `chmod +x gradlew` |
-| Cache Gradle dependencies | `actions/cache@v3` |  |
+| Cache Gradle dependencies | `actions/cache@v3` | `` |
 | Build JAR |  | `./gradlew ${{ inputs.gradle_task }} --no-daemon` |
-| Validate JAR |  | ✅ Yes (see YAML) |
-| Generate cache key |  | ✅ Yes (see YAML) |
-| Cache built JAR | `actions/cache/save@v3` |  |
-
+| Validate JAR |  | ✅ Yes (see full YAML) |
+| Generate cache key |  | ✅ Yes (see full YAML) |
+| Cache built JAR | `actions/cache/save@v3` | `` |
 
 
 ---
@@ -72,7 +67,7 @@ This document provides comprehensive documentation for the `Build JAR this is a 
 <summary>Click to expand full YAML definition</summary>
 
 ```yaml
-name: Build JAR this is a duplicate with a differenect name to HELLOO aaaaaaaaaaa testing 22aag hello hello again once more a this is me testing it
+name: Build JAR this is a duplicate with a differenect name to HELLOO aaaaaaaaaaa testing 22aag hello hello again once more a this is me testing it hello hi!
 
 on:
   workflow_call:
@@ -91,7 +86,7 @@ on:
         default: "jar33333"
     outputs:
       jar_cache_key:
-        description: "Cache key for restored JAR"
+        description: "Cache key for restored JARrrrr hello test"
         value: ${{ jobs.build-jar.outputs.jar_cache_key }}
     secrets:
       TEST_SECRETT:
@@ -156,5 +151,4 @@ jobs:
 
 ---
 
-**Generated on:** 2025-12-01 09:27:59  
-**Last Updated:** Check the workflow file history for the most recent changes.
+**Generated on:** 2025-12-01 09:36:33 UTC
