@@ -6,6 +6,11 @@ on:
     paths:
       - 'docs/**'
 
+  pull_request:
+    paths:
+      - 'docs/**'
+
+
 jobs:
   sync-docs:
     runs-on: ubuntu-latest
