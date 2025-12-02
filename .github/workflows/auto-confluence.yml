@@ -1,14 +1,15 @@
 name: Sync Docs to Confluence
 on:
-  push:
-    branches:
-      - main
-    paths:
-      - 'docs/**'
+#  push:
+ #   branches:
+  #    - main
+   # paths:
+    #  - 'docs/**'
 
-  pull_request:
-    paths:
-      - 'docs/**'
+#  pull_request:
+ #   paths:
+  #    - 'docs/**'
+    workflow_dispatch:
 
 
 jobs:
