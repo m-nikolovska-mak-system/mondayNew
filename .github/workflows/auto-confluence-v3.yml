@@ -1,0 +1,89 @@
+name: Sync Docs to Confluence
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'docs/**'
+
+jobs:
+  sync-docs:
+    runs-on: ubuntu-latest
+    # Prevent concurrent syncs
+    concurrency:
+      group: confluence-sync
+      cancel-in-progress: false
+    
+    permissions:
+      contents: read
+    
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 2  
+      
+      - name: Check for actual doc changes
+        id: check_changes
+        run: |
+          if git diff HEAD^ HEAD --quiet -- docs/; then
+            echo "changed=false" >> $GITHUB_OUTPUT
+            echo "No actual changes in docs/"
+          else
+            echo "changed=true" >> $GITHUB_OUTPUT
+            echo "Changes detected in docs/"
+          fi
+
+      - name: List changed docs
+        if: steps.check_changes.outputs.changed == 'true'
+        run: |
+          changed_files=$(git diff --name-only HEAD^ HEAD -- docs/)
+          echo "Changed docs files:"
+          echo "$changed_files"
+      
+      - name: Warn on renamed/moved files
+        if: steps.check_changes.outputs.changed == 'true'
+        run: |
+          renamed=$(git diff --name-status HEAD^ HEAD | grep "^R" || true)
+          if [ -n "$renamed" ]; then
+            echo "::warning::Some files were renamed or moved. Confluence may create duplicate pages."
+            echo "$renamed"
+          fi
+
+      
+      - name: Verify docs folder exists
+        if: steps.check_changes.outputs.changed == 'true'
+        run: |
+          if [ ! -d "docs" ]; then
+            echo "Error: docs/ folder not found"
+            exit 1
+          fi
+          if [ -z "$(ls -A docs)" ]; then
+            echo "Error: docs/ folder is empty"
+            exit 1
+          fi
+      
+      - name: Publish Docs to Confluence
+        if: steps.check_changes.outputs.changed == 'true'
+        uses: Bhacaz/docs-as-code-confluence@v3
+        with:
+          folder: docs
+          username: ${{ secrets.CONFLUENCE_USER }}
+          password: ${{ secrets.CONFLUENCE_API_TOKEN }}
+          confluence-base-url: https://mihaelanikolovska183014.atlassian.net/wiki
+          space-key: DS
+          parent-page-id: 2785550
+        timeout-minutes: 10
+
+
+      - name: Notify success
+        if: steps.check_changes.outputs.changed == 'true' && success()
+        run: echo "::notice::Confluence sync completed successfully ✅"
+
+      
+      - name: Notify on failure
+        if: failure()
+        run: |
+          echo "::error::Confluence sync failed. Check the logs above for details."
+          echo "::notice::You may need to manually sync docs to Confluence"
