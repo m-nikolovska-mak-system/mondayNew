@@ -27,7 +27,7 @@ jobs:
       - name: Check for actual doc changes
         id: check_changes
         run: |
-          if git diff HEAD^ HEAD --quiet -- docs/; then
+          if git diff --quiet HEAD^ HEAD -- docs/ 2>/dev/null; then
             echo "changed=false" >> $GITHUB_OUTPUT
             echo "No actual changes in docs/"
           else
