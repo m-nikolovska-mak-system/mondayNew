@@ -23,34 +23,41 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 2  
-      
-      - name: Check for actual doc changes
+        
+      - name: Detect changed files
+        id: changed_files
+        uses: tj-actions/changed-files@v44
+        with:
+          files: docs/**
+          
+  
+      - name: Check if docs changed
         id: check_changes
         run: |
-          if git diff --quiet HEAD^ HEAD -- docs/ 2>/dev/null; then
-            echo "changed=false" >> $GITHUB_OUTPUT
-            echo "No actual changes in docs/"
-          else
+          if [ "${{ steps.changed_files.outputs.any_changed }}" == "true" ]; then
             echo "changed=true" >> $GITHUB_OUTPUT
-            echo "Changes detected in docs/"
+            echo "Docs changed!"
+          else
+            echo "changed=false" >> $GITHUB_OUTPUT
+            echo "No changes in docs/"
           fi
-
+      
+      
       - name: List changed docs
         if: steps.check_changes.outputs.changed == 'true'
         run: |
-          changed_files=$(git diff --name-only HEAD^ HEAD -- docs/)
           echo "Changed docs files:"
-          echo "$changed_files"
+          echo "${{ steps.changed_files.outputs.all_changed_files }}"
+      
       
       - name: Warn on renamed/moved files
         if: steps.check_changes.outputs.changed == 'true'
         run: |
-          renamed=$(git diff --name-status HEAD^ HEAD | grep "^R" || true)
-          if [ -n "$renamed" ]; then
-            echo "::warning::Some files were renamed or moved. Confluence may create duplicate pages."
-            echo "$renamed"
+          if [ -n "${{ steps.changed_files.outputs.renamed_files }}" ]; then
+            echo "::warning::Some files were renamed or moved. Confluence may create duplicates."
+            echo "${{ steps.changed_files.outputs.renamed_files }}"
           fi
-
+  
       
       - name: Verify docs folder exists
         if: steps.check_changes.outputs.changed == 'true'
