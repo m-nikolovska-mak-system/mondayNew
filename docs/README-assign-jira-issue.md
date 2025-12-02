@@ -1,4 +1,4 @@
-# Assign Jira Issue hiaaaaaaaaaaaaaaaasssaaaaaaaaaaaaaa
+# Assign Jira Issue heyy
 
 > **Type:** Standard Workflow  
 > **Source:** `assign-jira-issue.yml`
