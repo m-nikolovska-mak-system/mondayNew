@@ -6,7 +6,7 @@ on:
         description: 'Jira issue key (e.g. ABC-123)'
         required: true
       assignee_email:
-        description: 'Assignee email in Jira'
+        description: 'Assignee email in Jiraaaa'
         required: true
 
 jobs:
