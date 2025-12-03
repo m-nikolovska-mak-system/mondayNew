@@ -1,4 +1,6 @@
 name: Assign Jira Issue HELLO!!3
+
+on:
   workflow_dispatch:
     inputs:
       issue_key:
