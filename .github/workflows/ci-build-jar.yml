@@ -1,4 +1,4 @@
-name: Build JAR this me changing things again hi
+name: Build JAR this me changing things again hi and testing once again hello!
 
 on:
   workflow_call:
