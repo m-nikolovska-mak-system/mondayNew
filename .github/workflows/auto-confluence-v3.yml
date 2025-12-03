@@ -1,37 +1,34 @@
-name: Sync Docs to Confluence
+name: Sync Docs to Confluence v3
 
 on:
-#  push:
- #   branches:
-  #    - main
-   # paths:
-    #  - 'docs/**'
-    workflow_dispatch:
+  workflow_dispatch:
+  # push:
+  #   branches: [ main ]
+  #   paths: [ 'docs/**' ]
 
 jobs:
   sync-docs:
     runs-on: ubuntu-latest
-    # Prevent concurrent syncs
+
     concurrency:
       group: confluence-sync
       cancel-in-progress: false
-    
+
     permissions:
       contents: read
-    
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
         with:
-          fetch-depth: 2  
-        
+          fetch-depth: 2
+
       - name: Detect changed files
         id: changed_files
         uses: tj-actions/changed-files@v44
         with:
           files: docs/**
-          
-  
+
       - name: Check if docs changed
         id: check_changes
         run: |
@@ -40,40 +37,20 @@ jobs:
             echo "Docs changed!"
           else
             echo "changed=false" >> $GITHUB_OUTPUT
-            echo "No changes in docs/"
+            echo "No changes."
           fi
-      
-      
-      - name: List changed docs
+
+      - name: Extract workflow metadata
         if: steps.check_changes.outputs.changed == 'true'
+        id: meta
         run: |
-          echo "Changed docs files:"
-          echo "${{ steps.changed_files.outputs.all_changed_files }}"
-      
-      
-      - name: Warn on renamed/moved files
-        if: steps.check_changes.outputs.changed == 'true'
-        run: |
-          if [ -n "${{ steps.changed_files.outputs.renamed_files }}" ]; then
-            echo "::warning::Some files were renamed or moved. Confluence may create duplicates."
-            echo "${{ steps.changed_files.outputs.renamed_files }}"
-          fi
-  
-      
-      - name: Verify docs folder exists
-        if: steps.check_changes.outputs.changed == 'true'
-        run: |
-          if [ ! -d "docs" ]; then
-            echo "Error: docs/ folder not found"
-            exit 1
-          fi
-          if [ -z "$(ls -A docs)" ]; then
-            echo "Error: docs/ folder is empty"
-            exit 1
-          fi
-      
+          FILE="${{ fromJson(steps.changed_files.outputs.all_changed_files)[0] }}"
+          NAME=$(basename "$FILE" .md)
+          echo "workflow_name=$NAME" >> $GITHUB_OUTPUT
+
       - name: Publish Docs to Confluence
         if: steps.check_changes.outputs.changed == 'true'
+        id: publish
         uses: Bhacaz/docs-as-code-confluence@v3
         with:
           folder: docs
@@ -82,16 +59,34 @@ jobs:
           confluence-base-url: https://mihaelanikolovska183014.atlassian.net/wiki
           space-key: DS
           parent-page-id: 2785550
-        timeout-minutes: 10
 
+      - name: Get Confluence page ID
+        if: steps.check_changes.outputs.changed == 'true'
+        id: page
+        run: |
+          TITLE="${{ steps.meta.outputs.workflow_name }}"
+          RESPONSE=$(curl -s -u "${{ secrets.CONFLUENCE_USER }}:${{ secrets.CONFLUENCE_API_TOKEN }}" \
+            "https://mihaelanikolovska183014.atlassian.net/wiki/rest/api/content?title=$TITLE&spaceKey=DS")
+
+          PAGE_ID=$(echo "$RESPONSE" | jq -r '.results[0].id')
+          echo "page_id=$PAGE_ID" >> $GITHUB_OUTPUT
+
+      - name: Update Confluence Database
+        if: steps.check_changes.outputs.changed == 'true'
+        run: |
+          python scripts/update_confluence_database.py \
+            "${{ steps.meta.outputs.workflow_name }}" \
+            "${{ steps.page.outputs.page_id }}"
+        env:
+          CONFLUENCE_BASE: ${{ vars.CONFLUENCE_BASE }}
+          CONFLUENCE_USER: ${{ secrets.CONFLUENCE_USER }}
+          CONFLUENCE_API_TOKEN: ${{ secrets.CONFLUENCE_API_TOKEN }}
+          CONFLUENCE_DB_PAGE_ID: ${{ secrets.CONFLUENCE_DB_PAGE_ID }}
 
       - name: Notify success
         if: steps.check_changes.outputs.changed == 'true' && success()
-        run: echo "::notice::Confluence sync completed successfully ✅"
+        run: echo "::notice::Confluence sync completed successfully!"
 
-      
-      - name: Notify on failure
+      - name: Notify failure
         if: failure()
-        run: |
-          echo "::error::Confluence sync failed. Check the logs above for details."
-          echo "::notice::You may need to manually sync docs to Confluence"
+        run: echo "::error::Confluence sync failed."
