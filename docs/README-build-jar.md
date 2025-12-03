@@ -1,75 +1,70 @@
-# 📝 Reusable Workflow Documentation Template
+# Build JAR this is me testing hello
 
-This file is used as a base template when generating documentation for reusable workflows.
+> **Type:** Reusable Workflow  
+> **Source:** `build-jar.yml`
 
----
+## 📋 Overview
 
-## Overview
-
-This document provides usage instructions, inputs, outputs, and behavior for the selected workflow.
-
----
-
-## Usage
-
-(Add auto-generated documentation below. Do not modify this section manually.)
+This document provides comprehensive documentation for the `Build JAR this is me testing hello` workflow.
 
 ---
 
-## Notes
+## 🎯 Triggers
 
-* This README is auto-generated based on the workflow file.
-* Any changes below the **Usage** section may be overwritten automatically.
-* The header and sections above “Usage” remain intact.
+- **`workflow_call`**
 
 ---
 
-### Why this template works
+## 📥 Inputs
 
-✔ Has a **Usage** header — required for your `sed` to insert text under it.
-✔ Leaves clean room for auto-doc to inject its tables.
-✔ Minimal enough not to conflict with auto-generated content.
-✔ Works for all your workflows (ci-build, ci-upload, ci-install, etc.).
+| Name | Type | Required | Default | Description |
+| ---- | ---- | -------- | ------- | ----------- |
+| `release_tag` | `string` | ❌ No | `main` | _No description provided_ |
+| `gradle_task` | `string` | ❌ No | `jar` | _No description provided_ |
 
 ---
 
-# Build JAR
-**Source:** `build-jar.yml`
+## 📤 Outputs
 
-## Triggers
-- `workflow_call`
+| Name | Description | Value |
+| ---- | ----------- | ----- |
+| `jar_cache_key` | Cache key for restored JAR testing hello | `${{ jobs.build-jar.outputs.jar_cache_key }}` |
 
-## Inputs
-| name | type | required | default | description |
-| --- | --- | --- | --- | --- |
-| release_tag | string | no | main |  |
-| gradle_task | string | no | jar |  |
+---
 
-## Outputs
-| name | description |
-| --- | --- |
-| jar_cache_key | Cache key for restored JAR testing hello |
+## 🔐 Secrets
 
-## Secrets
-_None_
+_This workflow does not require any secrets._
 
-## Jobs
+---
 
-### build-jar
-| name | action | run |
-| --- | --- | --- |
-| Checkout code | actions/checkout@v4 |  |
-| Set up Java 17 | actions/setup-java@v3 |  |
-| Make Gradle wrapper executable |  | `run` command |
-| Cache Gradle dependencies | actions/cache@v3 |  |
-| Build JAR |  | `run` command |
-| Validate JAR |  | `run` command |
-| Generate cache key |  | `run` command |
-| Cache built JAR | actions/cache/save@v3 |  |
+## 💼 Jobs
 
-## Full YAML
+### 🔧 `build-jar`
+
+**Runs on:** `ubuntu-latest`
+
+| Step | Uses | Run |
+| ---- | ---- | --- |
+| Checkout code | `actions/checkout@v4` | `` |
+| Set up Java 17 | `actions/setup-java@v3` | `` |
+| Make Gradle wrapper executable |  | `chmod +x gradlew` |
+| Cache Gradle dependencies | `actions/cache@v3` | `` |
+| Build JAR |  | `./gradlew ${{ inputs.gradle_task }} --no-daemon` |
+| Validate JAR |  | ✅ Yes (see full YAML) |
+| Generate cache key |  | ✅ Yes (see full YAML) |
+| Cache built JAR | `actions/cache/save@v3` | `` |
+
+
+---
+
+## 📄 Full Workflow YAML
+
+<details>
+<summary>Click to expand full YAML definition</summary>
+
 ```yaml
-name: Build JAR
+name: Build JAR this is me testing hello
 
 on:
   workflow_call:
@@ -141,3 +136,9 @@ jobs:
           path: build/libs/*.jar
           key: ${{ steps.cache-key.outputs.key }}
 ```
+
+</details>
+
+---
+
+**Generated on:** 2025-12-03 11:19:48 UTC
