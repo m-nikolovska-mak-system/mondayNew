@@ -1,13 +1,18 @@
 name: 📝 Auto-Generate Workflow Documentation
 
 on:
-  workflow_dispatch:
-  pull_request:
-    branches-ignore:
-      - 'auto-doc/**' 
-    paths:
-      - ".github/workflows/*.yml"
-      - ".github/workflows/*.yaml"
+   workflow_call:  # Can be called by orchestrator
+    outputs:
+      changed_readmes:
+        description: "List of changed README files"
+        value: ${{ jobs.collect-changes.outputs.readmes }}
+   workflow_dispatch: 
+   pull_request:
+      branches-ignore:
+        - 'auto-doc/**' 
+      paths:
+        - ".github/workflows/*.yml"
+        - ".github/workflows/*.yaml"
 
 permissions:
   contents: write
@@ -144,6 +149,11 @@ jobs:
             "${{ matrix.item.workflow }}" \
             "docs/README-${{ matrix.item.basename }}.md"
 
+
+      - name: Set README path output
+        id: readme_path
+        run: echo "path=docs/README-${{ matrix.item.basename }}.md" >> $GITHUB_OUTPUT
+
       # ------------------------------
       #   3. Verify README changes
       # ------------------------------
@@ -172,3 +182,18 @@ jobs:
           token: ${{ env.GITHUB_USER_TOKEN }}
           base: ${{ needs.detect-changes.outputs.pr_source_branch || github.event.pull_request.base.ref }}
           delete-branch: true
+
+
+  collect-changes:
+    name: 📦 Collect Changed READMEs
+    needs: update-doc
+    if: needs.detect-changes.outputs.has_changes == 'true'
+    runs-on: ubuntu-latest
+    outputs:
+      readmes: ${{ steps.collect.outputs.files }}
+    steps:
+      - name: Collect all README paths
+        id: collect
+        run: |
+          # This will be used by the next workflow
+          echo "files=docs/README-*.md" >> $GITHUB_OUTPUT
