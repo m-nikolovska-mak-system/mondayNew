@@ -2,9 +2,9 @@ name: Sync Docs to Confluence v3
 
 on:
   workflow_dispatch:
-  # push:
-  #   branches: [ main ]
-  #   paths: [ 'docs/**' ]
+  push:
+     branches: [ main ]
+     paths: [ 'docs/**' ]
 
 jobs:
   sync-docs:
