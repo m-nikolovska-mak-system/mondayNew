@@ -35,6 +35,14 @@ jobs:
         uses: tj-actions/changed-files@v44
         with:
           files: docs/**
+          since_last_remote_commit: true
+
+
+      - name: Debug changed files
+        run: |
+          echo "any_changed=${{ steps.changed_files.outputs.any_changed }}"
+          echo "all_changed_files=${{ steps.changed_files.outputs.all_changed_files }}"
+
 
       - name: Check if docs changed
         id: check_changes
