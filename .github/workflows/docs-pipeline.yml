@@ -2,12 +2,12 @@ name: 🚀 Complete Docs Pipeline (Orchestrator)
 
 on:
   workflow_dispatch:  # Manual trigger
-  push:
-    branches: [ main ]
-    paths:
-      - 'docs/**'
-      - '.github/workflows/*.yml'
-      - '.github/workflows/*.yaml'
+#  push:
+ #   branches: [ main ]
+  #  paths:
+   #   - 'docs/**'
+    #  - '.github/workflows/*.yml'
+     # - '.github/workflows/*.yaml'
 
 permissions:
   contents: write
