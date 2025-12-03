@@ -59,7 +59,7 @@ jobs:
         if: steps.check_changes.outputs.changed == 'true'
         id: meta
         run: |
-          FILE="${{ fromJson(steps.changed_files.outputs.all_changed_files)[0] }}"
+          FILE=$(echo "${{ steps.changed_files.outputs.all_changed_files }}" | cut -d',' -f1)
           NAME=$(basename "$FILE" .md)
           echo "workflow_name=$NAME" >> $GITHUB_OUTPUT
 
