@@ -1,4 +1,4 @@
-name: Build JAR TESTS  
+name: Build JAR TESTing hello test
 
 on:
   workflow_call:
