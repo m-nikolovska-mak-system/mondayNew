@@ -7,7 +7,7 @@ jobs:
   create-row:
     runs-on: ubuntu-latest
     env:
-      BASE: ${{ secrets.CONFLUENCE_BASE }}     # e.g. https://mihaelanikolovska183014.atlassian.net
+      BASE: ${{ vars.CONFLUENCE_BASE }}     # e.g. https://mihaelanikolovska183014.atlassian.net
       EMAIL: ${{ secrets.CONFLUENCE_USER }}    # your Atlassian email
       TOKEN: ${{ secrets.CONFLUENCE_API_TOKEN }}
       DB_ID: ${{ secrets.CONFLUENCE_DB_PAGE_ID }}  # try with the 18153474 value you have
