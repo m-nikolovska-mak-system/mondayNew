@@ -1,0 +1,42 @@
+name: Test Confluence Update
+on:
+  workflow_dispatch:  # Manual trigger for testing
+
+jobs:
+  update-page:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Test - Add simple text to Confluence
+        env:
+          BASE: ${{ vars.CONFLUENCE_BASE }}
+          EMAIL: ${{ secrets.CONFLUENCE_USER }}
+          TOKEN: ${{ secrets.CONFLUENCE_API_TOKEN }}
+          PAGE_ID: ${{ secrets.CONFLUENCE_PAGE_ID }}
+        run: |
+          # Get current page version
+          echo "Getting current page version..."
+          CURRENT_VERSION=$(curl -s -u "$EMAIL:$TOKEN" \
+            "$BASE/wiki/rest/api/content/$PAGE_ID" \
+            | jq -r '.version.number')
+          
+          echo "Current version: $CURRENT_VERSION"
+          NEW_VERSION=$((CURRENT_VERSION + 1))
+          
+          # Update page with a simple table
+          echo "Updating page to version $NEW_VERSION..."
+          curl -s -u "$EMAIL:$TOKEN" \
+            -X PUT "$BASE/wiki/rest/api/content/$PAGE_ID" \
+            -H "Content-Type: application/json" \
+            -d "{
+              \"version\": {\"number\": $NEW_VERSION},
+              \"type\": \"page\",
+              \"title\": \"README Tracker\",
+              \"body\": {
+                \"storage\": {
+                  \"value\": \"<p>Last updated: $(date -u)</p><table><tbody><tr><th>Test Column</th><th>Status</th></tr><tr><td>Hello from GitHub Actions!</td><td>✅ Working</td></tr></tbody></table>\",
+                  \"representation\": \"storage\"
+                }
+              }
+            }" | jq .
+          
+          echo "✅ Page updated! Check: $BASE/wiki/spaces/DS/pages/$PAGE_ID"
