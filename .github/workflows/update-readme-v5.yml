@@ -1,5 +1,5 @@
 name: Update README Index in Confluence
-
+#not working?
 on:
   workflow_call:
     inputs:
@@ -8,10 +8,10 @@ on:
         required: false
         type: string
         default: 'docs/README-*.md'
-  push:
-    branches: [main]
-    paths:
-      - 'docs/README-*.md'
+#  push:
+ #   branches: [main]
+  #  paths:
+   #   - 'docs/README-*.md'
   workflow_dispatch:
 
 jobs:
