@@ -33,19 +33,16 @@ jobs:
         run: |
           curl -i -u "$EMAIL:$TOKEN" "$BASE/wiki/api/v2/databases/$DB_ID/rows?limit=1" | jq . || true
 
-      - name: Create test row (if supported)
+      - name: Create test row
         run: |
-          cat > payload.json <<'JSON'
-          {
-            "values": {
-              "col_plaintext": "Hello from GH Actions",
-              "col_link": "<a href=\"https://example.com\">example</a>",
-              "col_date": "2025-12-04",
-              "col_number": 123
-            }
-          }
-          JSON
-          echo "Posting row..."
-          curl -i -u "$EMAIL:$TOKEN" -H "Content-Type: application/json" \
+          curl -s -u "$EMAIL:$TOKEN" -H "Content-Type: application/json" \
             -X POST "$BASE/wiki/api/v2/databases/$DB_ID/rows" \
-            --data-binary @payload.json | jq . || true
+            --data '{
+              "values": {
+                "col_plaintext": "Hello from GH Actions",
+                "col_link": "https://example.com",
+                "col_date": "2025-12-04",
+                "col_number": 123
+              }
+            }' | jq .
+
