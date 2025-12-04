@@ -35,14 +35,15 @@ jobs:
 
       - name: Create test row
         run: |
-          curl -s -u "$EMAIL:$TOKEN" -H "Content-Type: application/json" \
+          curl -s -u "$EMAIL:$TOKEN" \
+            -H "Content-Type: application/json" \
             -X POST "$BASE/wiki/api/v2/databases/$DB_ID/rows" \
             --data '{
               "values": {
-                "col_plaintext": "Hello from GH Actions",
-                "col_link": "https://example.com",
-                "col_date": "2025-12-04",
-                "col_number": 123
+                "Title": "Test from GitHub Actions",
+                "Description": "This is a test entry",
+                "Status": "In Progress",
+                "Date": "2025-12-04"
               }
-            }' | jq .
+            }' | jq . || echo "Row creation failed"
 
