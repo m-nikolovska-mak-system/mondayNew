@@ -1,0 +1,51 @@
+name: Confluence DB test
+
+on:
+  workflow_dispatch:
+
+jobs:
+  create-row:
+    runs-on: ubuntu-latest
+    env:
+      BASE: ${{ secrets.CONFLUENCE_BASE }}     # e.g. https://mihaelanikolovska183014.atlassian.net
+      EMAIL: ${{ secrets.CONFLUENCE_USER }}    # your Atlassian email
+      TOKEN: ${{ secrets.CONFLUENCE_API_TOKEN }}
+      DB_ID: ${{ secrets.CONFLUENCE_DB_PAGE_ID }}  # try with the 18153474 value you have
+    steps:
+      - name: Install jq
+        run: sudo apt-get update && sudo apt-get install -y jq
+
+      - name: Show environment (for debug)
+        run: |
+          echo "BASE: $BASE"
+          echo "DB_ID: $DB_ID"
+
+      - name: List available databases (diagnose)
+        run: |
+          curl -i -u "$EMAIL:$TOKEN" "$BASE/wiki/api/v2/databases" | jq . || true
+
+      - name: Get database metadata (see what API returns for this DB_ID)
+        run: |
+          echo "GET /databases/$DB_ID"
+          curl -i -u "$EMAIL:$TOKEN" "$BASE/wiki/api/v2/databases/$DB_ID" | jq . || true
+
+      - name: Try listing rows for DB (check rows endpoint support)
+        run: |
+          curl -i -u "$EMAIL:$TOKEN" "$BASE/wiki/api/v2/databases/$DB_ID/rows?limit=1" | jq . || true
+
+      - name: Create test row (if supported)
+        run: |
+          cat > payload.json <<'JSON'
+          {
+            "values": {
+              "col_plaintext": "Hello from GH Actions",
+              "col_link": "<a href=\"https://example.com\">example</a>",
+              "col_date": "2025-12-04",
+              "col_number": 123
+            }
+          }
+          JSON
+          echo "Posting row..."
+          curl -i -u "$EMAIL:$TOKEN" -H "Content-Type: application/json" \
+            -X POST "$BASE/wiki/api/v2/databases/$DB_ID/rows" \
+            --data-binary @payload.json | jq . || true
