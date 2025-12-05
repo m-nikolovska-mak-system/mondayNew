@@ -9,7 +9,7 @@ jobs:
     runs-on: ubuntu-latest
     
     steps:
-      # Checkout THIS repo (product repo with App.java)
+      # Checkout THIS repo (product repo)
       - name: Checkout Product Repo
         uses: actions/checkout@v4
         with:
@@ -22,32 +22,96 @@ jobs:
           repository: m-nikolovska-mak-system/platform-repo
           token: ${{ secrets.PLATFORM_PAT }}
           path: platform
-          ref: main  # ⚠️ Change to 'master' if that's your default branch!
+          ref: main
       
-      # Copy your files to platform repo
+      # Let's see what we're working with
+      - name: Debug - Show Product Repo Structure
+        run: |
+          echo "📂 Product repo contents:"
+          ls -la product/
+          echo ""
+          echo "📂 Checking for Java projects:"
+          if [ -d "product/oneProjectWed" ]; then
+            echo "  ✅ Found oneProjectWed/"
+            ls -la product/oneProjectWed/ | head -10
+          fi
+          if [ -d "product/twoProjectWed" ]; then
+            echo "  ✅ Found twoProjectWed/"
+            ls -la product/twoProjectWed/ | head -10
+          fi
+      
+      # Copy files to platform repo
       - name: Copy Files to Platform
         run: |
-          echo "Copying files from product to platform..."
+          echo "📦 Starting file sync..."
           
-          # Create the target directory
+          # Clean and create target directory
+          rm -rf platform/deployments/production
           mkdir -p platform/deployments/production
           
-          # Copy source files (adjust paths based on YOUR structure)
-          if [ -d "product/src" ]; then
-            cp -r product/src platform/deployments/production/
-            echo "✅ Copied src/"
+          # Copy Java projects
+          if [ -d "product/oneProjectWed" ]; then
+            cp -r product/oneProjectWed platform/deployments/production/
+            echo "✅ Copied oneProjectWed/"
           fi
           
-          # Copy config files if they exist
-          if [ -d "product/config" ]; then
-            cp -r product/config platform/deployments/production/
-            echo "✅ Copied config/"
+          if [ -d "product/twoProjectWed" ]; then
+            cp -r product/twoProjectWed platform/deployments/production/
+            echo "✅ Copied twoProjectWed/"
           fi
           
-          # Copy any other files you need
-          # Add more cp commands here for other folders
+          # Copy Gradle build system
+          cp product/build.gradle platform/deployments/production/ 2>/dev/null && echo "✅ Copied build.gradle" || echo "⚠️  No build.gradle"
+          cp product/settings.gradle platform/deployments/production/ 2>/dev/null && echo "✅ Copied settings.gradle" || echo "⚠️  No settings.gradle"
+          cp product/gradlew platform/deployments/production/ 2>/dev/null && chmod +x platform/deployments/production/gradlew && echo "✅ Copied gradlew" || echo "⚠️  No gradlew"
+          cp product/gradlew.bat platform/deployments/production/ 2>/dev/null && echo "✅ Copied gradlew.bat" || echo "⚠️  No gradlew.bat"
           
-          echo "📦 Files copied successfully"
+          if [ -d "product/gradle" ]; then
+            cp -r product/gradle platform/deployments/production/
+            echo "✅ Copied gradle/ wrapper"
+          fi
+          
+          # Optional: Copy scripts if needed for deployment
+          if [ -d "product/scripts" ]; then
+            cp -r product/scripts platform/deployments/production/
+            echo "✅ Copied scripts/"
+          fi
+          
+          # Optional: Copy docs
+          if [ -d "product/docs" ]; then
+            cp -r product/docs platform/deployments/production/
+            echo "✅ Copied docs/"
+          fi
+          
+          # Create a deployment info file
+          cat > platform/deployments/production/DEPLOYMENT_INFO.md << EOF
+          # Deployment Information
+          
+          **Release Tag:** ${{ github.event.release.tag_name }}
+          **Release Date:** $(date)
+          **Source Repository:** ${{ github.repository }}
+          **Source Release:** ${{ github.event.release.html_url }}
+          
+          ## Files Synced
+          This deployment contains:
+          - oneProjectWed/ (Java project)
+          - twoProjectWed/ (Java project)
+          - Gradle build configuration
+          - Supporting scripts and documentation
+          
+          ## How to Deploy
+          \`\`\`bash
+          cd deployments/production
+          ./gradlew build
+          \`\`\`
+          EOF
+          
+          echo ""
+          echo "📋 Platform repo structure after copy:"
+          find platform/deployments/production -type f | head -20
+          echo "..."
+          echo ""
+          echo "✅ File sync complete!"
       
       # Commit changes to platform repo
       - name: Commit to Platform Repo
@@ -59,12 +123,16 @@ jobs:
           git add .
           
           if git diff --staged --quiet; then
-            echo "No changes to commit"
+            echo "❌ No changes detected - files might already be up to date"
             echo "HAS_CHANGES=false" >> $GITHUB_ENV
           else
-            git commit -m "🚀 Sync from product release ${{ github.event.release.tag_name }}
-            
-            Release: ${{ github.event.release.html_url }}"
+            echo "✅ Changes detected, committing..."
+            git status
+            git commit -m "🚀 Deploy release ${{ github.event.release.tag_name }}
+
+Synced from product repository
+Release: ${{ github.event.release.html_url }}
+Date: $(date)"
             git push
             echo "HAS_CHANGES=true" >> $GITHUB_ENV
             echo "✅ Changes pushed to platform repo"
@@ -84,12 +152,38 @@ jobs:
           # Create the release
           gh release create ${{ github.event.release.tag_name }} \
             --title "🚀 Release ${{ github.event.release.tag_name }}" \
-            --notes "Automated deployment from product repository
+            --notes "## Automated Deployment
             
-            **Source Release:** ${{ github.event.release.html_url }}
-            **Tag:** \`${{ github.event.release.tag_name }}\`
-            
-            ## Changes
-            ${{ github.event.release.body }}"
+**Synced from:** [${{ github.repository }}](${{ github.event.release.html_url }})
+**Release Tag:** \`${{ github.event.release.tag_name }}\`
+**Deployed:** $(date)
+
+### Original Release Notes
+${{ github.event.release.body }}
+
+### Deployment Contents
+- Java projects: \`oneProjectWed/\`, \`twoProjectWed/\`
+- Gradle build system
+- Supporting scripts and documentation
+
+### How to Use
+\`\`\`bash
+cd deployments/production
+./gradlew build
+\`\`\`
+"
           
-          echo "✅ Release created in platform repo"
+          echo "✅ Release ${{ github.event.release.tag_name }} created in platform repo"
+      
+      # Summary
+      - name: Job Summary
+        if: always()
+        run: |
+          echo "## 📊 Sync Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Item | Value |" >> $GITHUB_STEP_SUMMARY
+          echo "|------|-------|" >> $GITHUB_STEP_SUMMARY
+          echo "| Source Release | \`${{ github.event.release.tag_name }}\` |" >> $GITHUB_STEP_SUMMARY
+          echo "| Target Repo | \`m-nikolovska-mak-system/platform-repo\` |" >> $GITHUB_STEP_SUMMARY
+          echo "| Status | ${{ job.status }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Changes Synced | ${{ env.HAS_CHANGES }} |" >> $GITHUB_STEP_SUMMARY
