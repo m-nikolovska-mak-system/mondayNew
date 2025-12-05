@@ -1,0 +1,95 @@
+name: Sync to Platform Repo
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  sync-release:
+    runs-on: ubuntu-latest
+    
+    steps:
+      # Checkout THIS repo (product repo with App.java)
+      - name: Checkout Product Repo
+        uses: actions/checkout@v4
+        with:
+          path: product
+      
+      # Checkout the PLATFORM repo
+      - name: Checkout Platform Repo
+        uses: actions/checkout@v4
+        with:
+          repository: m-nikolovska-mak-system/platform-repo
+          token: ${{ secrets.PLATFORM_PAT }}
+          path: platform
+          ref: main  # ⚠️ Change to 'master' if that's your default branch!
+      
+      # Copy your files to platform repo
+      - name: Copy Files to Platform
+        run: |
+          echo "Copying files from product to platform..."
+          
+          # Create the target directory
+          mkdir -p platform/deployments/production
+          
+          # Copy source files (adjust paths based on YOUR structure)
+          if [ -d "product/src" ]; then
+            cp -r product/src platform/deployments/production/
+            echo "✅ Copied src/"
+          fi
+          
+          # Copy config files if they exist
+          if [ -d "product/config" ]; then
+            cp -r product/config platform/deployments/production/
+            echo "✅ Copied config/"
+          fi
+          
+          # Copy any other files you need
+          # Add more cp commands here for other folders
+          
+          echo "📦 Files copied successfully"
+      
+      # Commit changes to platform repo
+      - name: Commit to Platform Repo
+        working-directory: platform
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          
+          git add .
+          
+          if git diff --staged --quiet; then
+            echo "No changes to commit"
+            echo "HAS_CHANGES=false" >> $GITHUB_ENV
+          else
+            git commit -m "🚀 Sync from product release ${{ github.event.release.tag_name }}
+            
+            Release: ${{ github.event.release.html_url }}"
+            git push
+            echo "HAS_CHANGES=true" >> $GITHUB_ENV
+            echo "✅ Changes pushed to platform repo"
+          fi
+      
+      # Create release in platform repo
+      - name: Create Platform Release
+        if: env.HAS_CHANGES == 'true'
+        working-directory: platform
+        env:
+          GH_TOKEN: ${{ secrets.PLATFORM_PAT }}
+        run: |
+          # Create and push the tag
+          git tag ${{ github.event.release.tag_name }}
+          git push origin ${{ github.event.release.tag_name }}
+          
+          # Create the release
+          gh release create ${{ github.event.release.tag_name }} \
+            --title "🚀 Release ${{ github.event.release.tag_name }}" \
+            --notes "Automated deployment from product repository
+            
+            **Source Release:** ${{ github.event.release.html_url }}
+            **Tag:** \`${{ github.event.release.tag_name }}\`
+            
+            ## Changes
+            ${{ github.event.release.body }}"
+          
+          echo "✅ Release created in platform repo"
