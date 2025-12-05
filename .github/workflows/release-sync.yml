@@ -1,4 +1,4 @@
-name: Sync to Platform Repo
+name: Sync Changed Files to Platform Repo
 
 on:
   release:
@@ -7,183 +7,69 @@ on:
 jobs:
   sync-release:
     runs-on: ubuntu-latest
-    
+
     steps:
-      # Checkout THIS repo (product repo)
       - name: Checkout Product Repo
         uses: actions/checkout@v4
         with:
+          fetch-depth: 0   # IMPORTANT - lets us compare tags
           path: product
-      
-      # Checkout the PLATFORM repo
+
       - name: Checkout Platform Repo
         uses: actions/checkout@v4
         with:
           repository: m-nikolovska-mak-system/platform-repo
           token: ${{ secrets.PLATFORM_PAT }}
+          fetch-depth: 0
           path: platform
-          ref: main
-      
-      # Let's see what we're working with
-      - name: Debug - Show Product Repo Structure
+
+      - name: Detect Changed Files
+        working-directory: product
         run: |
-          echo "📂 Product repo contents:"
-          ls -la product/
-          echo ""
-          echo "📂 Checking for Java projects:"
-          if [ -d "product/oneProjectWed" ]; then
-            echo "  ✅ Found oneProjectWed/"
-            ls -la product/oneProjectWed/ | head -10
-          fi
-          if [ -d "product/twoProjectWed" ]; then
-            echo "  ✅ Found twoProjectWed/"
-            ls -la product/twoProjectWed/ | head -10
-          fi
-      
-      # Copy files to platform repo
-      - name: Copy Files to Platform
+          git fetch --tags
+
+          LATEST="${{ github.event.release.tag_name }}"
+          PREVIOUS=$(git describe --tags --abbrev=0 ${LATEST}^)
+
+          echo "Previous tag: $PREVIOUS"
+          echo "Latest tag: $LATEST"
+
+          git diff --name-only $PREVIOUS $LATEST > changed_files.txt
+
+          echo "CHANGED_FILES<<EOF" >> $GITHUB_ENV
+          cat changed_files.txt >> $GITHUB_ENV
+          echo "EOF" >> $GITHUB_ENV
+
+      - name: Sync Changed Files to Platform Repo
         run: |
-          echo "📦 Starting file sync..."
-          
-          # Clean and create target directory
-          rm -rf platform/deployments/production
-          mkdir -p platform/deployments/production
-          
-          # Copy Java projects
-          if [ -d "product/oneProjectWed" ]; then
-            cp -r product/oneProjectWed platform/deployments/production/
-            echo "✅ Copied oneProjectWed/"
-          fi
-          
-          if [ -d "product/twoProjectWed" ]; then
-            cp -r product/twoProjectWed platform/deployments/production/
-            echo "✅ Copied twoProjectWed/"
-          fi
-          
-          # Copy Gradle build system
-          cp product/build.gradle platform/deployments/production/ 2>/dev/null && echo "✅ Copied build.gradle" || echo "⚠️  No build.gradle"
-          cp product/settings.gradle platform/deployments/production/ 2>/dev/null && echo "✅ Copied settings.gradle" || echo "⚠️  No settings.gradle"
-          cp product/gradlew platform/deployments/production/ 2>/dev/null && chmod +x platform/deployments/production/gradlew && echo "✅ Copied gradlew" || echo "⚠️  No gradlew"
-          cp product/gradlew.bat platform/deployments/production/ 2>/dev/null && echo "✅ Copied gradlew.bat" || echo "⚠️  No gradlew.bat"
-          
-          if [ -d "product/gradle" ]; then
-            cp -r product/gradle platform/deployments/production/
-            echo "✅ Copied gradle/ wrapper"
-          fi
-          
-          # Optional: Copy scripts if needed for deployment
-          if [ -d "product/scripts" ]; then
-            cp -r product/scripts platform/deployments/production/
-            echo "✅ Copied scripts/"
-          fi
-          
-          # Optional: Copy docs
-          if [ -d "product/docs" ]; then
-            cp -r product/docs platform/deployments/production/
-            echo "✅ Copied docs/"
-          fi
-          
-          # Create a deployment info file
-          cat > platform/deployments/production/DEPLOYMENT_INFO.md << EOF
-          # Deployment Information
-          
-          **Release Tag:** ${{ github.event.release.tag_name }}
-          **Release Date:** $(date)
-          **Source Repository:** ${{ github.repository }}
-          **Source Release:** ${{ github.event.release.html_url }}
-          
-          ## Files Synced
-          This deployment contains:
-          - oneProjectWed/ (Java project)
-          - twoProjectWed/ (Java project)
-          - Gradle build configuration
-          - Supporting scripts and documentation
-          
-          ## How to Deploy
-          \`\`\`bash
-          cd deployments/production
-          ./gradlew build
-          \`\`\`
-          EOF
-          
-          echo ""
-          echo "📋 Platform repo structure after copy:"
-          find platform/deployments/production -type f | head -20
-          echo "..."
-          echo ""
-          echo "✅ File sync complete!"
-      
-      # Commit changes to platform repo
-      - name: Commit to Platform Repo
+          echo "Changed files:"
+          echo "$CHANGED_FILES"
+
+          cd product
+
+          while IFS= read -r f; do
+            mkdir -p "../platform/$(dirname "$f")"
+            cp "$f" "../platform/$f"
+            echo "Copied: $f"
+          done <<< "$CHANGED_FILES"
+
+      - name: Commit Changes to Platform Repo
         working-directory: platform
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          
-          git add .
-          
-          if git diff --staged --quiet; then
-            echo "❌ No changes detected - files might already be up to date"
-            echo "HAS_CHANGES=false" >> $GITHUB_ENV
-          else
-            echo "✅ Changes detected, committing..."
-            git status
-            git commit -m "🚀 Deploy release ${{ github.event.release.tag_name }}
 
-Synced from product repository
-Release: ${{ github.event.release.html_url }}
-Date: $(date)"
-            git push
-            echo "HAS_CHANGES=true" >> $GITHUB_ENV
-            echo "✅ Changes pushed to platform repo"
+          git add .
+          if git diff --staged --quiet; then
+            echo "No changes to commit"
+            exit 0
           fi
-      
-      # Create release in platform repo
-      - name: Create Platform Release
-        if: env.HAS_CHANGES == 'true'
+
+          git commit -m "Sync from release ${{ github.event.release.tag_name }}"
+          git push
+
+      - name: Tag Release in Platform Repo
         working-directory: platform
-        env:
-          GH_TOKEN: ${{ secrets.PLATFORM_PAT }}
         run: |
-          # Create and push the tag
           git tag ${{ github.event.release.tag_name }}
           git push origin ${{ github.event.release.tag_name }}
-          
-          # Create the release
-          gh release create ${{ github.event.release.tag_name }} \
-            --title "🚀 Release ${{ github.event.release.tag_name }}" \
-            --notes "## Automated Deployment
-            
-**Synced from:** [${{ github.repository }}](${{ github.event.release.html_url }})
-**Release Tag:** \`${{ github.event.release.tag_name }}\`
-**Deployed:** $(date)
-
-### Original Release Notes
-${{ github.event.release.body }}
-
-### Deployment Contents
-- Java projects: \`oneProjectWed/\`, \`twoProjectWed/\`
-- Gradle build system
-- Supporting scripts and documentation
-
-### How to Use
-\`\`\`bash
-cd deployments/production
-./gradlew build
-\`\`\`
-"
-          
-          echo "✅ Release ${{ github.event.release.tag_name }} created in platform repo"
-      
-      # Summary
-      - name: Job Summary
-        if: always()
-        run: |
-          echo "## 📊 Sync Summary" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "| Item | Value |" >> $GITHUB_STEP_SUMMARY
-          echo "|------|-------|" >> $GITHUB_STEP_SUMMARY
-          echo "| Source Release | \`${{ github.event.release.tag_name }}\` |" >> $GITHUB_STEP_SUMMARY
-          echo "| Target Repo | \`m-nikolovska-mak-system/platform-repo\` |" >> $GITHUB_STEP_SUMMARY
-          echo "| Status | ${{ job.status }} |" >> $GITHUB_STEP_SUMMARY
-          echo "| Changes Synced | ${{ env.HAS_CHANGES }} |" >> $GITHUB_STEP_SUMMARY
