@@ -5,5 +5,5 @@ on:
 
 jobs:
   run-update-db:
-    uses: m-nikolovska-mak-system/reusable-actions-library/.github/workflows/update-confluence-db.yml@main
+    uses: m-nikolovska-mak-system/reusable-actions-library/.github/workflows/sync-docs-to-confluence.yml@main
     secrets: inherit
