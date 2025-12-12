@@ -10,7 +10,6 @@ jobs:
   fake-deploy:
     runs-on: ubuntu-latest
     
-    # This creates the "test" environment in your repo!
     environment:
       name: test
       url: https://github.com/${{ github.repository }}
