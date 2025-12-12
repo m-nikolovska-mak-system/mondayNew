@@ -14,9 +14,3 @@ categories:
     label: fix
   - title: 🧰 Maintenance
     label: chore
-```
-
-### Step 2 (ONLY if using GitHub Action, not the App):
-Create another file at:
-```
-.github/workflows/release-drafter.yml
