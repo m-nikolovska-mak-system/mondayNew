@@ -1,12 +1,9 @@
 template: |
-  ## What’s Changed
+  ## What's Changed
   $CHANGES
 
 name-template: v$NEXT_PATCH_VERSION
 tag-template: v$NEXT_PATCH_VERSION
-change-template: "- $TITLE (#$NUMBER) @$AUTHOR"
-no-changes-template: "- No changes"
-
 change-template: "- $TITLE (#$NUMBER) @$AUTHOR"
 no-changes-template: "- No changes"
 
@@ -17,5 +14,9 @@ categories:
     label: fix
   - title: 🧰 Maintenance
     label: chore
+```
 
-
+### Step 2 (ONLY if using GitHub Action, not the App):
+Create another file at:
+```
+.github/workflows/release-drafter.yml
