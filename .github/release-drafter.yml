@@ -4,6 +4,8 @@ template: |
 
 name-template: v$NEXT_PATCH_VERSION
 tag-template: v$NEXT_PATCH_VERSION
+change-template: "- $TITLE (#$NUMBER) @$AUTHOR"
+no-changes-template: "- No changes"
 
 change-template: "- $TITLE (#$NUMBER) @$AUTHOR"
 no-changes-template: "- No changes"
@@ -15,3 +17,5 @@ categories:
     label: fix
   - title: 🧰 Maintenance
     label: chore
+
+
