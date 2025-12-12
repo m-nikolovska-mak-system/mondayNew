@@ -1,11 +1,11 @@
-# Assign Jira Issue ng this! again hi testing hi
+# Assign Jira Issue 🚀 hi testing hello testing again
 
 > **Type:** Manual Dispatch  
 > **Source:** `assign-jira-issue.yml`
 
 ## 📋 Overview
 
-This document provides comprehensive documentation for the `Assign Jira Issue ng this! again hi testing hi` workflow.
+This document provides comprehensive documentation for the `Assign Jira Issue 🚀 hi testing hello testing again` workflow.
 
 ---
 
@@ -56,7 +56,7 @@ _This workflow does not require any secrets._
 <summary>Click to expand full YAML definition</summary>
 
 ```yaml
-name: Assign Jira Issue ng this! again hi testing hi
+name: Assign Jira Issue 🚀 hi testing hello testing again
 on:
   workflow_dispatch:
     inputs:
@@ -120,4 +120,4 @@ jobs:
 
 ---
 
-**Generated on:** 2025-12-03 14:48:25 UTC
+**Generated on:** 2025-12-12 11:18:30 UTC
