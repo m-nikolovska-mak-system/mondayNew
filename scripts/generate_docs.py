@@ -2,7 +2,7 @@ import os
 import yaml
 from pathlib import Path
 
-# Paths
+# Paths this is a test
 ROOT = Path(".")
 WORKFLOWS_DIR = ROOT / ".github" / "workflows"
 ACTION_FILE = ROOT / "action.yml"
