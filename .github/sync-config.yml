@@ -1,0 +1,160 @@
+# ========================================
+# Matrix-Based File Sync Configuration
+# ========================================
+# Location: .github/sync-config.yml
+#
+# This approach uses a matrix to map source paths to
+# destination paths. Each mapping can have its own settings.
+#
+# Benefits:
+# - Map different folders to different destinations
+# - Different sync modes per mapping
+# - Different structure preservation per mapping
+# - One config, multiple sync operations
+# ========================================
+
+# ════════════════════════════════════════════════════════════════════
+# 🎯 GLOBAL SETTINGS
+# ════════════════════════════════════════════════════════════════════
+# These apply to all mappings unless overridden
+global:
+  # Default destination repository
+  destination_repo: m-nikolovska-mak-system/platform-repo
+  
+  # Default sync mode
+  sync_mode: changed
+  
+  # Default tag settings
+  create_tag: true
+  tag_prefix: mondayNew-
+
+# ════════════════════════════════════════════════════════════════════
+# 🗺️ FILE MAPPINGS MATRIX
+# ════════════════════════════════════════════════════════════════════
+# Each mapping defines: source → destination
+# You can have as many mappings as you need!
+#
+# Format for each mapping:
+#   - name: [descriptive name]
+#     source: [file pattern or folder]
+#     destination: [path in platform repo]
+#     preserve_structure: [true/false]
+#     sync_mode: [changed/all] (optional - overrides global)
+#
+# ════════════════════════════════════════════════════════════════════
+mappings:
+  # ────────────────────────────────────
+  # MAPPING 1: Source Code
+  # ────────────────────────────────────
+  - name: source-code
+    # What to sync
+    source:
+      - oneProjectWed/src/java/com/miha/app/App.java
+      - oneProjectWed/src/java/com/miha/app/Helper.java
+    
+    # Where it goes in platform repo
+    destination: products/mondayNew/source
+    
+    # Keep folder structure?
+    preserve_structure: true
+    
+    # Optional: Override global sync_mode for this mapping
+    # sync_mode: all
+  
+  # ────────────────────────────────────
+  # MAPPING 2: Documentation
+  # ────────────────────────────────────
+  - name: documentation
+    source:
+      - README.md
+      - docs/**
+      - CHANGELOG.md
+    
+    destination: products/mondayNew/docs
+    
+    preserve_structure: true
+    
+    # Always sync docs even if unchanged
+    sync_mode: all
+  
+  # ────────────────────────────────────
+  # MAPPING 3: Configuration Files
+  # ────────────────────────────────────
+  - name: configs
+    source:
+      - oneProjectWed/config/**
+      - oneProjectWed/*.properties
+    
+    destination: shared/configs/mondayNew
+    
+    preserve_structure: false  # Flatten configs into one folder
+    
+    sync_mode: all  # Always sync configs
+  
+  # ────────────────────────────────────
+  # MAPPING 4: Build Artifacts
+  # ────────────────────────────────────
+  - name: artifacts
+    source:
+      - oneProjectWed/build/libs/*.jar
+      - oneProjectWed/build/distributions/*.zip
+    
+    destination: artifacts/mondayNew
+    
+    preserve_structure: false  # Flatten artifacts
+    
+    sync_mode: all
+
+  # ────────────────────────────────────
+  # MAPPING 5: Scripts
+  # ────────────────────────────────────
+  - name: scripts
+    source:
+      - scripts/**
+      - oneProjectWed/bin/**
+    
+    destination: products/mondayNew/scripts
+    
+    preserve_structure: true
+
+# ════════════════════════════════════════════════════════════════════
+# 📝 EXAMPLES OF OTHER MAPPINGS
+# ════════════════════════════════════════════════════════════════════
+# Uncomment and customize as needed:
+
+# # Different destination repo for sensitive files
+# - name: sensitive-configs
+#   source:
+#     - config/secrets/*.enc
+#   destination: secure/mondayNew
+#   preserve_structure: false
+#   sync_mode: all
+#   # Override global destination_repo
+#   destination_repo: m-nikolovska-mak-system/secure-vault
+
+# # Sync to multiple destinations
+# - name: shared-utils
+#   source:
+#     - lib/utils/**
+#   destination: shared/utils/mondayNew
+#   preserve_structure: true
+
+# # Different tag prefix per mapping
+# - name: frontend-assets
+#   source:
+#     - frontend/dist/**
+#   destination: frontend/mondayNew
+#   preserve_structure: false
+#   tag_prefix: frontend-mondayNew-  # Override global tag_prefix
+
+# ════════════════════════════════════════════════════════════════════
+# 💡 TIPS
+# ════════════════════════════════════════════════════════════════════
+# 1. Each mapping runs independently
+# 2. Mappings run in parallel for speed
+# 3. Use descriptive names for easier debugging
+# 4. Test with one mapping first, then add more
+# 5. Different mappings can go to different destinations
+# 6. Use preserve_structure: false for build artifacts
+# 7. Use sync_mode: all for critical config files
+# ════════════════════════════════════════════════════════════════════
