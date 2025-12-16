@@ -25,8 +25,8 @@ on:
         required: false
         default: "jar"
 
-  release:
-    types: [created]
+#  release:
+ #   types: [created]
 
 # ---------------------------------------------------------------------
 # Concurrency ensures that only one execution runs per release tag
