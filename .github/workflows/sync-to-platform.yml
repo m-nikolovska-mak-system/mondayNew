@@ -15,8 +15,10 @@ name: Sync to Platform Repo
 
 # Trigger: Run whenever a GitHub release is published
 on:
-  release:
-    types: [published]
+ # release:
+    # types: [published]
+    workflow_dispatch:
+
 
 jobs:
   sync-to-platform:
