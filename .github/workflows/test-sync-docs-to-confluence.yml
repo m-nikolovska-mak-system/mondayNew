@@ -1,11 +1,14 @@
 name: Auto Sync Docs
 
 on:
-  push:
-    branches:
-      - main
-    paths:
-      - 'docs/**'
+#  push:
+ #   branches:
+  #    - main
+   # paths:
+    #  - 'docs/**'
+
+      workflow_dispatch:
+
 
 jobs:
   sync:
