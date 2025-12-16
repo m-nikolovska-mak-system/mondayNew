@@ -259,26 +259,31 @@ jobs:
         working-directory: destination
         run: |
           echo "💾 Committing changes for: ${{ matrix.mapping.name }}"
-          
+
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          
+
           git add .
-          
+
           if git diff --staged --quiet; then
             echo "  ℹ️  No changes detected (files identical)"
             exit 0
           fi
-          
-          # Create descriptive commit message
+
           TAG="${{ github.ref_name }}"
           REPO="${{ github.repository }}"
           MSG="🔄 Sync ${{ matrix.mapping.name }} from ${REPO} (${TAG})"
-          
+
           git commit -m "$MSG"
-          git push
+
+          # Pull remote changes and rebase our commit on top
+          git pull --rebase origin main || true
+
+          # Push our rebased commit
+          git push origin main
           
           echo "  ✅ Changes pushed successfully"
+
       
       - name: Generate summary
         if: always()
