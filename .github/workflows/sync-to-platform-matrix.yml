@@ -67,11 +67,11 @@ jobs:
         run: |
           CONFIG_FILE=".github/sync-config.yml"
           
-          # Convert YAML mappings to JSON
-          MATRIX=$(yq eval -o=json '.mappings' $CONFIG_FILE)
+          # Convert YAML mappings to compact JSON (one line)
+          MATRIX=$(yq eval -o=json '.mappings' "$CONFIG_FILE" | jq -c '.')
           
           # Validate matrix is not empty
-          if [ "$MATRIX" == "null" ] || [ "$MATRIX" == "[]" ]; then
+          if [ "$MATRIX" = "null" ] || [ "$MATRIX" = "[]" ]; then
             echo "❌ ERROR: No mappings found in config"
             exit 1
           fi
@@ -86,12 +86,14 @@ jobs:
             exit 1
           done
           
-          echo "matrix=$MATRIX" >> $GITHUB_OUTPUT
+          # Write matrix output (must be single-line key=value)
+          echo "matrix=$MATRIX" >> "$GITHUB_OUTPUT"
           
           # Display mappings
           echo ""
           echo "📋 Mappings to process:"
           echo "$MATRIX" | jq -r '.[] | "  ✓ \(.name): \(.source | length) file(s) → \(.destination)"'
+
 
   # ─────────────────────────────────────
   # JOB 2: Sync Files (Runs per mapping)
