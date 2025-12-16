@@ -15,8 +15,9 @@
 name: Sync to Platform Repo
 
 on:
-  release:
-    types: [published]
+#  release:
+ #   types: [published]
+  workflow_dispatch:
 
 jobs:
   # Load configuration from file
