@@ -326,18 +326,27 @@ jobs:
               TOTAL_FILES=$((TOTAL_FILES + FILE_COUNT))
             fi
             
-            # Copy all files (except metadata) to destination
+            # Copy all files (except metadata) to destination ROOT
             find "$staging_dir" -type f -not -name "metadata.json" | while read -r file; do
-              # Remove staging prefix from path
-              REL_PATH="${file#$staging_dir}"
-              DEST_FILE="$REL_PATH"
-              DEST_DIR=$(dirname "$DEST_FILE")
+              # Remove the entire staging prefix to get the actual destination path
+              # staging_dir is like: all-staged-files/staged-files-app-java/
+              # file is like: all-staged-files/staged-files-app-java/application/config/App.java
+              # We want: application/config/App.java
               
+              REL_PATH="${file#$staging_dir}"
+              
+              # Create directory structure if needed
+              DEST_DIR=$(dirname "$REL_PATH")
               mkdir -p "$DEST_DIR"
-              cp -v "$file" "$DEST_FILE"
+              
+              # Copy to the correct location in repo root
+              cp -v "$file" "$REL_PATH"
               echo "  ✓ Copied: $REL_PATH"
             done
           done
+          
+          # Remove the staging directory from git tracking
+          rm -rf all-staged-files/
           
           echo ""
           echo "📊 Summary:"
