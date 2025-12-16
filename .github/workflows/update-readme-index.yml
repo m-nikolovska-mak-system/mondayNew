@@ -1,10 +1,10 @@
 name: Update README Index in Confluence
 
 on:
-  push:
-    branches: [main]
-    paths:
-      - 'docs/README-*.md'  # Only triggers when README files in docs/ change
+ # push:
+  #  branches: [main]
+  #  paths:
+   #   - 'docs/README-*.md'  # Only triggers when README files in docs/ change
   workflow_dispatch:  # Manual trigger for testing
 
 jobs:
