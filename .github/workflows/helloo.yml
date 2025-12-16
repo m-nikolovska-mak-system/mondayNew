@@ -1,8 +1,7 @@
 name: Test – Push Trigger
 on:
-  push:
-    branches:
-      - main
+    workflow_dispatch:
+
 
 jobs:
   hello:
