@@ -174,7 +174,7 @@ jobs:
               grep -E "^${REGEX}$" all_files.txt >> files_to_sync.txt 2>/dev/null || true
             else
               # Specific file - exact match
-              grep -F "$pattern" all_files.txt >> files_to_sync.txt 2>/dev/null || true
+              grep -Fx "$pattern" all_files.txt >> files_to_sync.txt 2>/dev/null || true
             fi
           done
           
