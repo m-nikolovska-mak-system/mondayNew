@@ -22,8 +22,8 @@ on:
           pom.xml
 
   # Also trigger on actual releases
-  release:
-    types: [published]
+ # release:
+  #  types: [published]
 
 jobs:
   test-detection:
