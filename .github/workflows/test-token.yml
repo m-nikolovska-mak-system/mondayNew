@@ -1,5 +1,7 @@
 name: Test Token
-on: push
+on:
+  workflow_dispatch:
+
 
 permissions:
   contents: write
