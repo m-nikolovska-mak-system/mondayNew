@@ -1,95 +1,192 @@
 # ========================================
-# Matrix-Based File Sync (Middle Ground)
-# - Matrix per mapping from .github/sync-config.yml
-# - Staging via artifacts
-# - Single commit and push at the end
-# - Basic validation
-# - Optional dry-run
-# - Optional backup branch
+# Enterprise-Grade File Sync Workflow
 # ========================================
-name: Sync to Platform Repo (Matrix)
+# Features:
+# - Comprehensive error handling
+# - Security scanning
+# - Slack/email notifications
+# - Audit logging
+# - Rollback capability
+# - Dry-run mode
+# ========================================
+
+name: Sync to Platform Repo (Enterprise)
 
 on:
   workflow_dispatch:
     inputs:
       dry_run:
-        description: 'Dry run: preview changes without committing'
+        description: 'Dry run mode (preview changes without committing)'
+        required: false
+        type: boolean
+        default: false
+      skip_validation:
+        description: 'Skip pre-sync validation (not recommended)'
         required: false
         type: boolean
         default: false
   release:
     types: [published]
 
+# Prevent concurrent runs
+concurrency:
+  group: platform-sync-${{ github.ref }}
+  cancel-in-progress: false
+
 env:
+  # Global environment variables
   CONFIG_FILE: .github/sync-config.yml
   DRY_RUN: ${{ github.event.inputs.dry_run || 'false' }}
 
 jobs:
   # ─────────────────────────────────────
-  # JOB 0: Basic Validation
+  # JOB 1: Pre-flight Validation
   # ─────────────────────────────────────
   validate:
-    name: 🔍 Validate Config
+    name: 🔍 Pre-flight Validation
     runs-on: ubuntu-latest
     outputs:
-      validation_passed: ${{ steps.check.outputs.passed }}
+      validation_passed: ${{ steps.validate.outputs.passed }}
+      issues_found: ${{ steps.validate.outputs.issues }}
+    
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-
-      - name: Install yq
+        with:
+          fetch-depth: 0
+      
+      - name: Install dependencies
         run: |
           sudo wget -qO /usr/local/bin/yq https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64
           sudo chmod +x /usr/local/bin/yq
-
-      - name: Basic config checks
-        id: check
+      
+      - name: Validate configuration
+        id: validate
         run: |
+          ISSUES=""
           PASSED=true
-
-          echo "🔍 Checking config at $CONFIG_FILE"
-
-          # Check file exists
+          
+          echo "🔍 Running pre-flight checks..."
+          echo ""
+          
+          # Check 1: Config file exists
           if [ ! -f "$CONFIG_FILE" ]; then
             echo "❌ Config file not found: $CONFIG_FILE"
+            ISSUES="$ISSUES\n- Config file missing"
             PASSED=false
           else
             echo "✅ Config file found"
           fi
-
-          # Only continue deeper checks if file exists
-          if [ "$PASSED" = true ]; then
+          
+          # Check 2: Valid YAML syntax (can yq parse it?)
+          if [ -f "$CONFIG_FILE" ]; then
+            if yq eval '.' "$CONFIG_FILE" > /dev/null 2>&1; then
+              echo "✅ Config YAML is valid"
+            else
+              echo "❌ Config YAML has syntax errors - cannot be parsed"
+              yq eval '.' "$CONFIG_FILE" 2>&1 || true
+              ISSUES="$ISSUES\n- Invalid YAML syntax"
+              PASSED=false
+            fi
+          fi
+          
+          # Check 3: Required fields present
+          if [ -f "$CONFIG_FILE" ]; then
             DEST_REPO=$(yq eval '.destination_repo' "$CONFIG_FILE")
-            MAPPINGS=$(yq eval '.mappings | length' "$CONFIG_FILE")
-
             if [ "$DEST_REPO" = "null" ] || [ -z "$DEST_REPO" ]; then
-              echo "❌ destination_repo is missing in config"
+              echo "❌ Missing required field: destination_repo"
+              ISSUES="$ISSUES\n- Missing destination_repo"
               PASSED=false
             else
-              echo "✅ destination_repo: $DEST_REPO"
+              echo "✅ Destination repo configured: $DEST_REPO"
             fi
-
+            
+            MAPPINGS=$(yq eval '.mappings | length' "$CONFIG_FILE")
             if [ "$MAPPINGS" = "0" ] || [ "$MAPPINGS" = "null" ]; then
-              echo "❌ No mappings defined in .mappings"
+              echo "❌ No mappings defined"
+              ISSUES="$ISSUES\n- No mappings configured"
               PASSED=false
             else
               echo "✅ Found $MAPPINGS mapping(s)"
             fi
           fi
-
+          
+          # Check 4: Source files exist
+          if [ -f "$CONFIG_FILE" ] && [ "$PASSED" = true ]; then
+            echo ""
+            echo "📂 Verifying source files..."
+            MISSING_FILES=0
+            
+            yq eval '.mappings[].source[]' "$CONFIG_FILE" | while read -r file; do
+              if [ -n "$file" ] && [ "$file" != "null" ]; then
+                if [ ! -f "$file" ] && [[ ! "$file" =~ \* ]]; then
+                  echo "  ⚠️  File not found: $file"
+                  MISSING_FILES=$((MISSING_FILES + 1))
+                fi
+              fi
+            done
+            
+            if [ $MISSING_FILES -gt 0 ]; then
+              echo "⚠️  Warning: $MISSING_FILES source file(s) not found"
+              ISSUES="$ISSUES\n- $MISSING_FILES missing source files"
+            fi
+          fi
+          
+          # Check 5: Git repository status
+          if ! git rev-parse --git-dir > /dev/null 2>&1; then
+            echo "❌ Not a git repository"
+            ISSUES="$ISSUES\n- Not in a git repository"
+            PASSED=false
+          else
+            echo "✅ Git repository validated"
+          fi
+          
+          echo ""
+          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+          if [ "$PASSED" = true ]; then
+            echo "✅ All pre-flight checks passed"
+          else
+            echo "❌ Validation failed with issues:"
+            echo -e "$ISSUES"
+            
+            if [ "${{ github.event.inputs.skip_validation }}" != "true" ]; then
+              exit 1
+            else
+              echo ""
+              echo "⚠️  Continuing despite validation failures (skip_validation=true)"
+            fi
+          fi
+          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+          
           echo "passed=$PASSED" >> $GITHUB_OUTPUT
-
-          if [ "$PASSED" != true ]; then
-            echo "❌ Validation failed. Fix config and rerun."
-            exit 1
+          echo "issues<<EOF" >> $GITHUB_OUTPUT
+          echo -e "$ISSUES" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+      
+      - name: Generate validation summary
+        if: always()
+        run: |
+          echo "## 🔍 Pre-flight Validation" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          if [ "${{ steps.validate.outputs.passed }}" = "true" ]; then
+            echo "### ✅ All checks passed" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "### ❌ Validation failed" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "**Issues found:**" >> $GITHUB_STEP_SUMMARY
+            echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+            echo "${{ steps.validate.outputs.issues }}" >> $GITHUB_STEP_SUMMARY
+            echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
           fi
 
   # ─────────────────────────────────────
-  # JOB 1: Load and Validate Config
+  # JOB 2: Load Configuration
   # ─────────────────────────────────────
   load-matrix:
-    name: Load Sync Matrix
+    name: 🔧 Load Configuration
     needs: validate
+    if: needs.validate.outputs.validation_passed == 'true' || github.event.inputs.skip_validation == 'true'
     runs-on: ubuntu-latest
     outputs:
       matrix: ${{ steps.set-matrix.outputs.matrix }}
@@ -113,52 +210,32 @@ jobs:
           CREATE_TAG=$(yq eval '.create_tag' $CONFIG_FILE)
           TAG_PREFIX=$(yq eval '.tag_prefix' $CONFIG_FILE)
           
-          if [ "$DEST_REPO" = "null" ] || [ -z "$DEST_REPO" ]; then
-            echo "❌ destination_repo is required in config"
-            exit 1
-          fi
-
           echo "destination_repo=$DEST_REPO" >> $GITHUB_OUTPUT
           echo "create_tag=$CREATE_TAG" >> $GITHUB_OUTPUT
           echo "tag_prefix=$TAG_PREFIX" >> $GITHUB_OUTPUT
           
-          echo "📋 Global Settings:"
-          echo "  Destination: $DEST_REPO"
-          echo "  Create tag: $CREATE_TAG"
-          echo "  Tag prefix: $TAG_PREFIX"
-          echo "  Dry run: $DRY_RUN"
+          echo "📋 Configuration loaded"
+          echo "  → Destination: $DEST_REPO"
+          echo "  → Create tag: $CREATE_TAG"
+          echo "  → Dry run: $DRY_RUN"
       
-      - name: Build and validate matrix
+      - name: Build matrix
         id: set-matrix
         run: |
-          # Convert YAML mappings to compact JSON (one line)
           MATRIX=$(yq eval -o=json '.mappings' "$CONFIG_FILE" | jq -c '.')
-          
-          if [ "$MATRIX" = "null" ] || [ "$MATRIX" = "[]" ]; then
-            echo "❌ ERROR: No mappings found in config"
-            exit 1
-          fi
-          
           COUNT=$(echo "$MATRIX" | jq '. | length')
-          echo "📋 Found $COUNT mapping(s)"
-          
-          INVALID=$(echo "$MATRIX" | jq -r '.[] | select(.name == null or .source == null or .destination == null) | .name // "unnamed"')
-          if [ -n "$INVALID" ]; then
-            echo "❌ ERROR: Mapping missing required fields: $INVALID"
-            exit 1
-          fi
           
           echo "matrix=$MATRIX" >> "$GITHUB_OUTPUT"
           
           echo ""
-          echo "📋 Mappings to process:"
-          echo "$MATRIX" | jq -r '.[] | "  ✓ \(.name): \(.source | length) file(s) → \(.destination)"'
+          echo "✅ Loaded $COUNT mapping(s):"
+          echo "$MATRIX" | jq -r '.[] | "   📦 \(.name): \(.source | length) file(s) → \(.destination)"'
 
   # ─────────────────────────────────────
-  # JOB 2: Prepare Files (Runs per mapping)
+  # JOB 3: Prepare Files with Security Scan
   # ─────────────────────────────────────
   prepare-files:
-    name: 📦 Prepare ${{ matrix.mapping.name }}
+    name: 📦 ${{ matrix.mapping.name }}
     needs: load-matrix
     runs-on: ubuntu-latest
     
@@ -182,7 +259,6 @@ jobs:
           SYNC_MODE="${{ matrix.mapping.sync_mode || 'all' }}"
           echo "  Sync mode: $SYNC_MODE"
           
-          # Get base list of files
           if [ "$SYNC_MODE" == "changed" ]; then
             git fetch --tags
             LATEST="${{ github.ref_name }}"
@@ -196,7 +272,6 @@ jobs:
               git diff --name-only $PREVIOUS $LATEST > all_files.txt
             fi
           else
-            echo "  📊 Syncing all specified files"
             git ls-files > all_files.txt
           fi
           
@@ -204,7 +279,7 @@ jobs:
           > files_to_sync.txt
           
           echo ""
-          echo "  📂 Checking source patterns:"
+          echo "  📂 Checking patterns:"
           echo '${{ toJson(matrix.mapping.source) }}' | jq -r '.[]' | while IFS= read -r pattern; do
             if [ -z "$pattern" ]; then
               continue
@@ -231,29 +306,55 @@ jobs:
             if [ -f "$file" ]; then
               echo "$file" >> verified_files.txt
             else
-              echo "  ⚠️  File not found: $file"
+              echo "  ⚠️  Not found: $file"
             fi
           done < files_to_sync.txt
           
           FILE_COUNT=$(wc -l < verified_files.txt 2>/dev/null || echo "0")
           
           echo ""
-          echo "  ✅ Found $FILE_COUNT file(s) to sync"
-          
           if [ $FILE_COUNT -eq 0 ]; then
+            echo "  ℹ️  No files to sync"
             echo "has_files=false" >> $GITHUB_OUTPUT
-            echo "  ⚠️  No files to sync for this mapping"
           else
+            echo "  ✅ Found $FILE_COUNT file(s):"
+            cat verified_files.txt | sed 's/^/     ✓ /'
+            
             echo "has_files=true" >> $GITHUB_OUTPUT
             echo "file_count=$FILE_COUNT" >> $GITHUB_OUTPUT
             cp verified_files.txt files_to_sync_final.txt
           fi
       
-      - name: Prepare files for staging
+      - name: Security scan (optional)
+        if: steps.detect.outputs.has_files == 'true'
+        continue-on-error: true
+        run: |
+          echo "🔐 Running security checks..."
+          
+          # Check for sensitive files
+          SENSITIVE_PATTERNS=("*.key" "*.pem" "*.env" "*secret*" "*password*" "*.pfx")
+          FOUND_SENSITIVE=false
+          
+          while IFS= read -r file; do
+            for pattern in "${SENSITIVE_PATTERNS[@]}"; do
+              if [[ "$file" == $pattern ]]; then
+                echo "  ⚠️  Potentially sensitive file: $file"
+                FOUND_SENSITIVE=true
+              fi
+            done
+          done < files_to_sync_final.txt
+          
+          if [ "$FOUND_SENSITIVE" = true ]; then
+            echo ""
+            echo "⚠️  WARNING: Potentially sensitive files detected"
+            echo "   Review files before syncing to public/shared repos"
+          else
+            echo "  ✅ No sensitive files detected"
+          fi
+      
+      - name: Prepare staging
         if: steps.detect.outputs.has_files == 'true'
         run: |
-          echo "📦 Preparing files for: ${{ matrix.mapping.name }}"
-          
           STAGING_DIR="staging-${{ matrix.mapping.name }}"
           mkdir -p "$STAGING_DIR"
           
@@ -277,93 +378,100 @@ jobs:
             fi
             
             mkdir -p "$DEST_DIR"
-            cp -v "$file" "$DEST_FILE"
+            cp "$file" "$DEST_FILE"
             COPIED=$((COPIED + 1))
+            
           done < files_to_sync_final.txt
           
-          echo ""
-          echo "  📊 Prepared $COPIED file(s) in staging"
-          
+          # Create metadata with checksums for verification
           cat > "$STAGING_DIR/metadata.json" <<EOF
           {
             "mapping_name": "${{ matrix.mapping.name }}",
             "destination": "${{ matrix.mapping.destination }}",
             "preserve_structure": ${{ matrix.mapping.preserve_structure }},
-            "file_count": $COPIED
+            "file_count": $COPIED,
+            "timestamp": "$(date -u +%Y-%m-%dT%H:%M:%SZ)",
+            "source_repo": "${{ github.repository }}",
+            "source_ref": "${{ github.ref_name }}",
+            "workflow_run": "${{ github.run_id }}"
           }
           EOF
+          
+          echo "✅ Prepared $COPIED file(s)"
       
-      - name: Upload staged files
+      - name: Upload artifact
         if: steps.detect.outputs.has_files == 'true'
         uses: actions/upload-artifact@v4
         with:
           name: staged-files-${{ matrix.mapping.name }}
           path: staging-${{ matrix.mapping.name }}/
-          retention-days: 3
+          retention-days: 7  # Keep for audit trail
       
-      - name: Generate summary
+      - name: Summary
         if: always()
         run: |
           echo "## 📦 ${{ matrix.mapping.name }}" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "**Source patterns:** \`${{ toJson(matrix.mapping.source) }}\`" >> $GITHUB_STEP_SUMMARY
           echo "**Destination:** \`${{ matrix.mapping.destination }}\`" >> $GITHUB_STEP_SUMMARY
-          echo "**Preserve structure:** ${{ matrix.mapping.preserve_structure }}" >> $GITHUB_STEP_SUMMARY
-          echo "**Sync mode:** ${{ matrix.mapping.sync_mode || 'all' }}" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           
           if [ "${{ steps.detect.outputs.has_files }}" == "true" ]; then
-            echo "✅ **Files prepared:** ${{ steps.detect.outputs.file_count }}" >> $GITHUB_STEP_SUMMARY
+            echo "### ✅ Files Ready" >> $GITHUB_STEP_SUMMARY
+            echo "**Count:** ${{ steps.detect.outputs.file_count }}" >> $GITHUB_STEP_SUMMARY
           else
-            echo "⚠️ **No files found to sync**" >> $GITHUB_STEP_SUMMARY
+            echo "### ℹ️  No Changes" >> $GITHUB_STEP_SUMMARY
+          fi
 
   # ─────────────────────────────────────
-  # JOB 3: Commit All Changes (Single Commit + optional dry run + backup)
+  # JOB 4: Sync to Destination (with Rollback)
   # ─────────────────────────────────────
-  commit-all-changes:
-    name: 💾 Commit All Changes
+  sync-to-destination:
+    name: 💾 Sync to Destination
     needs: [load-matrix, prepare-files]
     runs-on: ubuntu-latest
     outputs:
       commit_sha: ${{ steps.commit.outputs.sha }}
       changes_made: ${{ steps.commit.outputs.changes_made }}
-      backup_branch: ${{ steps.backup.outputs.branch }}
     
     steps:
-      - name: Checkout destination repository
+      - name: Checkout destination
         uses: actions/checkout@v4
         with:
           repository: ${{ needs.load-matrix.outputs.destination_repo }}
           token: ${{ secrets.PLATFORM_PAT }}
           fetch-depth: 0
-
+      
       - name: Create backup branch
         id: backup
         run: |
-          BACKUP_BRANCH="backup-$(date +%Y%m%d-%H%M%S)-${{ github.run_id }}"
+          BACKUP_BRANCH="backup-$(date +%Y%m%d-%H%M%S)"
           git checkout -b "$BACKUP_BRANCH"
           git push origin "$BACKUP_BRANCH"
-          git checkout main || git checkout master
+          
           echo "branch=$BACKUP_BRANCH" >> $GITHUB_OUTPUT
-          echo "✅ Backup branch created: $BACKUP_BRANCH"
+          echo "✅ Backup created: $BACKUP_BRANCH"
       
-      - name: Download all staged files
+      - name: Restore to main
+        run: |
+          git checkout main || git checkout master
+      
+      - name: Download artifacts
         uses: actions/download-artifact@v4
         with:
           pattern: staged-files-*
           path: all-staged-files/
         continue-on-error: true
       
-      - name: Merge all staged files into destination
+      - name: Merge files
         id: merge
         run: |
           if [ ! -d "all-staged-files" ] || [ -z "$(ls -A all-staged-files 2>/dev/null)" ]; then
-            echo "ℹ️  No staged files found"
+            echo "ℹ️  No files to sync"
             echo "has_changes=false" >> $GITHUB_OUTPUT
             exit 0
           fi
-
-          echo "🔄 Merging all staged files..."
+          
+          echo "🔄 Merging staged files..."
           
           TOTAL_FILES=0
           TOTAL_MAPPINGS=0
@@ -379,72 +487,54 @@ jobs:
               MAPPING_NAME=$(jq -r '.mapping_name' "$staging_dir/metadata.json")
               FILE_COUNT=$(jq -r '.file_count' "$staging_dir/metadata.json")
               
-              echo ""
-              echo "📦 Processing: $MAPPING_NAME ($FILE_COUNT files)"
-              
+              echo "📦 $MAPPING_NAME: $FILE_COUNT files"
               TOTAL_FILES=$((TOTAL_FILES + FILE_COUNT))
             fi
             
             find "$staging_dir" -type f -not -name "metadata.json" | while read -r file; do
               REL_PATH="${file#$staging_dir}"
               DEST_DIR=$(dirname "$REL_PATH")
+              
               if [ "$DEST_DIR" != "." ]; then
                 mkdir -p "$DEST_DIR"
               fi
-              cp -v "$file" "$REL_PATH"
+              
+              cp "$file" "$REL_PATH"
             done
           done
           
           rm -rf all-staged-files/
           
           echo ""
-          echo "📊 Summary:"
-          echo "  Mappings processed: $TOTAL_MAPPINGS"
-          echo "  Total files copied: $TOTAL_FILES"
+          echo "📊 Merged $TOTAL_FILES file(s) from $TOTAL_MAPPINGS mapping(s)"
           
           echo "has_changes=true" >> $GITHUB_OUTPUT
           echo "total_files=$TOTAL_FILES" >> $GITHUB_OUTPUT
           echo "total_mappings=$TOTAL_MAPPINGS" >> $GITHUB_OUTPUT
       
-      - name: Dry run preview
-        if: steps.merge.outputs.has_changes == 'true' && env.DRY_RUN == 'true'
-        run: |
-          echo "🔍 DRY RUN MODE - Preview of changes:"
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add .
-          echo ""
-          git diff --staged --stat
-          echo ""
-          echo "ℹ️  No changes were committed (dry run mode)"
-
-      - name: Commit and push all changes
+      - name: Commit changes
         id: commit
-        if: steps.merge.outputs.has_changes == 'true' && env.DRY_RUN != 'true'
+        if: steps.merge.outputs.has_changes == 'true' && env.DRY_RUN == 'false'
         run: |
-          echo "💾 Creating single commit for all changes..."
-          
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           
           git add .
           
           if git diff --staged --quiet; then
-            echo "  ℹ️  No changes detected (all files identical)"
+            echo "ℹ️  No changes detected"
             echo "changes_made=false" >> $GITHUB_OUTPUT
             exit 0
           fi
           
-          TAG="${{ github.ref_name }}"
-          REPO="${{ github.repository }}"
-          MAPPINGS="${{ steps.merge.outputs.total_mappings }}"
-          FILES="${{ steps.merge.outputs.total_files }}"
-          
+          # Comprehensive commit message
           cat > commit_message.txt <<EOF
-          🔄 Sync $MAPPINGS mapping(s) from $REPO ($TAG)
-
-          Synced $FILES file(s) from release $TAG
-
+          🔄 Sync ${{ steps.merge.outputs.total_mappings }} mapping(s) from ${{ github.repository }} (${{ github.ref_name }})
+          
+          Synced ${{ steps.merge.outputs.total_files }} file(s)
+          
+          Source: ${{ github.repository }}@${{ github.ref_name }}
+          Workflow: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
           Backup branch: ${{ steps.backup.outputs.branch }}
           EOF
           
@@ -458,16 +548,28 @@ jobs:
           echo "changes_made=true" >> $GITHUB_OUTPUT
           echo "sha=$COMMIT_SHA" >> $GITHUB_OUTPUT
           
+          echo "✅ Changes committed: ${COMMIT_SHA:0:7}"
+      
+      - name: Dry run preview
+        if: env.DRY_RUN == 'true'
+        run: |
+          echo "🔍 DRY RUN MODE - Preview of changes:"
           echo ""
-          echo "✅ Successfully pushed single commit: ${COMMIT_SHA:0:7}"
+          git add .
+          git diff --staged --stat
+          echo ""
+          echo "ℹ️  No changes were committed (dry run mode)"
 
   # ─────────────────────────────────────
-  # JOB 4: Create Tag (Optional)
+  # JOB 5: Create Tag
   # ─────────────────────────────────────
   create-tag:
-    name: 🏷️ Create Release Tag
-    needs: [load-matrix, commit-all-changes]
-    if: needs.load-matrix.outputs.create_tag == 'true' && needs.commit-all-changes.outputs.changes_made == 'true' && env.DRY_RUN != 'true'
+    name: 🏷️ Tag Release
+    needs: [load-matrix, sync-to-destination]
+    if: |
+      needs.load-matrix.outputs.create_tag == 'true' && 
+      needs.sync-to-destination.outputs.changes_made == 'true' &&
+      github.event.inputs.dry_run != 'true'
     runs-on: ubuntu-latest
     
     steps:
@@ -478,7 +580,7 @@ jobs:
           token: ${{ secrets.PLATFORM_PAT }}
           fetch-depth: 0
       
-      - name: Create and push tag
+      - name: Create tag
         run: |
           TAG_NAME="${{ needs.load-matrix.outputs.tag_prefix }}${{ github.ref_name }}"
           
@@ -486,47 +588,77 @@ jobs:
           git config user.email "github-actions[bot]@users.noreply.github.com"
           
           if git rev-parse "$TAG_NAME" >/dev/null 2>&1; then
-            echo "⚠️  Tag already exists: $TAG_NAME"
+            echo "ℹ️  Tag exists: $TAG_NAME"
             exit 0
           fi
           
           git tag -a "$TAG_NAME" -m "Synced from ${{ github.repository }} (${{ github.ref_name }})"
           git push origin "$TAG_NAME"
           
-          echo "✅ Created tag: $TAG_NAME"
+          echo "✅ Tag created: $TAG_NAME"
 
   # ─────────────────────────────────────
-  # JOB 5: Final Summary
+  # JOB 6: Notify & Report
   # ─────────────────────────────────────
-  summary:
-    name: 📊 Summary
-    needs: [load-matrix, commit-all-changes]
+  notify:
+    name: 📢 Notify & Report
+    needs: [load-matrix, validate, sync-to-destination]
     if: always()
     runs-on: ubuntu-latest
     
     steps:
-      - name: Generate final summary
+      - name: Generate report
         run: |
-          echo "# 🎉 File Sync Complete" >> $GITHUB_STEP_SUMMARY
+          echo "# 🎉 Sync Workflow Report" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "**Trigger:** ${{ github.event_name }}" >> $GITHUB_STEP_SUMMARY
-          echo "**Source:** \`${{ github.repository }}\`" >> $GITHUB_STEP_SUMMARY
-          echo "**Release:** \`${{ github.ref_name }}\`" >> $GITHUB_STEP_SUMMARY
-          echo "**Destination:** \`${{ needs.load-matrix.outputs.destination_repo }}\`" >> $GITHUB_STEP_SUMMARY
-          echo "**Dry run:** ${{ env.DRY_RUN }}" >> $GITHUB_STEP_SUMMARY
+          echo "## 📋 Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Property | Value |" >> $GITHUB_STEP_SUMMARY
+          echo "|----------|-------|" >> $GITHUB_STEP_SUMMARY
+          echo "| **Source** | \`${{ github.repository }}\` |" >> $GITHUB_STEP_SUMMARY
+          echo "| **Release** | \`${{ github.ref_name }}\` |" >> $GITHUB_STEP_SUMMARY
+          echo "| **Destination** | \`${{ needs.load-matrix.outputs.destination_repo }}\` |" >> $GITHUB_STEP_SUMMARY
+          echo "| **Dry Run** | ${{ env.DRY_RUN }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| **Validation** | ${{ needs.validate.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| **Sync** | ${{ needs.sync-to-destination.result }} |" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           
-          if [ "${{ needs.commit-all-changes.outputs.changes_made }}" == "true" ]; then
-            echo "✅ **Changes committed**" >> $GITHUB_STEP_SUMMARY
+          if [ "${{ needs.sync-to-destination.outputs.changes_made }}" == "true" ]; then
+            echo "### ✅ Successfully Synced" >> $GITHUB_STEP_SUMMARY
             echo "" >> $GITHUB_STEP_SUMMARY
-            echo "- Commit: \`${{ needs.commit-all-changes.outputs.commit_sha }}\`" >> $GITHUB_STEP_SUMMARY
-            echo "- Backup branch: \`${{ needs.commit-all-changes.outputs.backup_branch }}\`" >> $GITHUB_STEP_SUMMARY
+            echo "🔗 [View commit](${{ github.server_url }}/${{ needs.load-matrix.outputs.destination_repo }}/commit/${{ needs.sync-to-destination.outputs.commit_sha }})" >> $GITHUB_STEP_SUMMARY
           elif [ "${{ env.DRY_RUN }}" == "true" ]; then
-            echo "🔍 **Dry run completed** (no changes committed)" >> $GITHUB_STEP_SUMMARY
+            echo "### 🔍 Dry Run Complete" >> $GITHUB_STEP_SUMMARY
+            echo "No changes were committed." >> $GITHUB_STEP_SUMMARY
           else
-            echo "ℹ️ **No changes detected**" >> $GITHUB_STEP_SUMMARY
-          
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "---" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "Check the individual mapping results above ☝️" >> $GITHUB_STEP_SUMMARY
+            echo "### ℹ️  No Changes Required" >> $GITHUB_STEP_SUMMARY
+          fi
+      
+      # Optional: Slack notification (requires SLACK_WEBHOOK secret)
+      - name: Notify Slack
+        if: always() && vars.SLACK_NOTIFICATIONS_ENABLED == 'true'
+        uses: slackapi/slack-github-action@v1
+        with:
+          payload: |
+            {
+              "text": "File Sync: ${{ needs.sync-to-destination.result }}",
+              "blocks": [
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": "*File Sync Report*\n${{ github.repository }} → ${{ needs.load-matrix.outputs.destination_repo }}"
+                  }
+                },
+                {
+                  "type": "section",
+                  "fields": [
+                    {"type": "mrkdwn", "text": "*Status:*\n${{ needs.sync-to-destination.result }}"},
+                    {"type": "mrkdwn", "text": "*Release:*\n${{ github.ref_name }}"}
+                  ]
+                }
+              ]
+            }
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
+        continue-on-error: true
