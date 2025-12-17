@@ -6,8 +6,8 @@ name: Sync to Platform Repo (Matrix)
 
 on:
   workflow_dispatch:  # Manual testing
-  release:
-    types: [published]
+#  release:
+ #   types: [published]
 
 jobs:
   # ─────────────────────────────────────
