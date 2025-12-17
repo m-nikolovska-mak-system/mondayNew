@@ -1,10 +1,9 @@
 # ========================================
-# Enterprise-Grade File Sync Workflow
+# File Sync Workflow
 # ========================================
 # Features:
 # - Comprehensive error handling
 # - Security scanning
-# - Slack/email notifications
 # - Audit logging
 # - Rollback capability
 # - Dry-run mode
@@ -324,34 +323,8 @@ jobs:
             echo "file_count=$FILE_COUNT" >> $GITHUB_OUTPUT
             cp verified_files.txt files_to_sync_final.txt
           fi
-      
-      - name: Security scan (optional)
-        if: steps.detect.outputs.has_files == 'true'
-        continue-on-error: true
-        run: |
-          echo "🔐 Running security checks..."
-          
-          # Check for sensitive files
-          SENSITIVE_PATTERNS=("*.key" "*.pem" "*.env" "*secret*" "*password*" "*.pfx")
-          FOUND_SENSITIVE=false
-          
-          while IFS= read -r file; do
-            for pattern in "${SENSITIVE_PATTERNS[@]}"; do
-              if [[ "$file" == $pattern ]]; then
-                echo "  ⚠️  Potentially sensitive file: $file"
-                FOUND_SENSITIVE=true
-              fi
-            done
-          done < files_to_sync_final.txt
-          
-          if [ "$FOUND_SENSITIVE" = true ]; then
-            echo ""
-            echo "⚠️  WARNING: Potentially sensitive files detected"
-            echo "   Review files before syncing to public/shared repos"
-          else
-            echo "  ✅ No sensitive files detected"
-          fi
-      
+    
+   
       - name: Prepare staging
         if: steps.detect.outputs.has_files == 'true'
         run: |
@@ -422,7 +395,7 @@ jobs:
             echo "### ℹ️  No Changes" >> $GITHUB_STEP_SUMMARY
           fi
 
-  # ─────────────────────────────────────
+ # ─────────────────────────────────────
   # JOB 4: Sync to Destination (with Rollback)
   # ─────────────────────────────────────
   sync-to-destination:
@@ -450,6 +423,37 @@ jobs:
           
           echo "branch=$BACKUP_BRANCH" >> $GITHUB_OUTPUT
           echo "✅ Backup created: $BACKUP_BRANCH"
+          
+          # Write rollback instructions to summary
+          echo "## 🛟 Rollback Instructions" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "A backup branch has been created: **\`$BACKUP_BRANCH\`**" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### If you need to rollback these changes:" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Option 1: Reset to backup (recommended)**" >> $GITHUB_STEP_SUMMARY
+          echo "\`\`\`bash" >> $GITHUB_STEP_SUMMARY
+          echo "# In the destination repository:" >> $GITHUB_STEP_SUMMARY
+          echo "git checkout main" >> $GITHUB_STEP_SUMMARY
+          echo "git reset --hard $BACKUP_BRANCH" >> $GITHUB_STEP_SUMMARY
+          echo "git push --force" >> $GITHUB_STEP_SUMMARY
+          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Option 2: Revert commit (safer for shared repos)**" >> $GITHUB_STEP_SUMMARY
+          echo "\`\`\`bash" >> $GITHUB_STEP_SUMMARY
+          echo "# In the destination repository:" >> $GITHUB_STEP_SUMMARY
+          echo "git checkout main" >> $GITHUB_STEP_SUMMARY
+          echo "git revert HEAD" >> $GITHUB_STEP_SUMMARY
+          echo "git push" >> $GITHUB_STEP_SUMMARY
+          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Option 3: Restore from backup branch**" >> $GITHUB_STEP_SUMMARY
+          echo "\`\`\`bash" >> $GITHUB_STEP_SUMMARY
+          echo "# In the destination repository:" >> $GITHUB_STEP_SUMMARY
+          echo "git checkout main" >> $GITHUB_STEP_SUMMARY
+          echo "git merge $BACKUP_BRANCH" >> $GITHUB_STEP_SUMMARY
+          echo "git push" >> $GITHUB_STEP_SUMMARY
+          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
       
       - name: Restore to main
         run: |
@@ -559,7 +563,6 @@ jobs:
           git diff --staged --stat
           echo ""
           echo "ℹ️  No changes were committed (dry run mode)"
-
   # ─────────────────────────────────────
   # JOB 5: Create Tag
   # ─────────────────────────────────────
@@ -634,31 +637,4 @@ jobs:
             echo "### ℹ️  No Changes Required" >> $GITHUB_STEP_SUMMARY
           fi
       
-      # Optional: Slack notification (requires SLACK_WEBHOOK secret)
-      - name: Notify Slack
-        if: always() && vars.SLACK_NOTIFICATIONS_ENABLED == 'true'
-        uses: slackapi/slack-github-action@v1
-        with:
-          payload: |
-            {
-              "text": "File Sync: ${{ needs.sync-to-destination.result }}",
-              "blocks": [
-                {
-                  "type": "section",
-                  "text": {
-                    "type": "mrkdwn",
-                    "text": "*File Sync Report*\n${{ github.repository }} → ${{ needs.load-matrix.outputs.destination_repo }}"
-                  }
-                },
-                {
-                  "type": "section",
-                  "fields": [
-                    {"type": "mrkdwn", "text": "*Status:*\n${{ needs.sync-to-destination.result }}"},
-                    {"type": "mrkdwn", "text": "*Release:*\n${{ github.ref_name }}"}
-                  ]
-                }
-              ]
-            }
-        env:
-          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
-        continue-on-error: true
+   
