@@ -1,0 +1,30 @@
+# ========================================
+# File Sync Configuration (Matrix Mode) - TEMPLATE
+# ========================================
+
+# ────────────────────────────────────
+# Global Settings (apply to all mappings)
+# ────────────────────────────────────
+destination_repo: "<FILL_ME>"   # e.g., user-org/repo
+sync_mode: all                 # options: all, changed
+create_tag: true
+tag_prefix: "<FILL_ME>"        # e.g., platform-
+
+# ────────────────────────────────────
+# Mappings: source → destination
+# ────────────────────────────────────
+mappings:
+  - name: "<mapping-name>"
+    source:
+      - "<path/to/source/file_or_folder>"
+    destination: "<target/path/in/destination>"
+    preserve_structure: false
+    # sync_mode: all  # optional override
+
+# Add more mappings as needed:
+# - name: "<mapping-name>"
+#   source:
+#     - "<path/to/source/file_or_folder>"
+#   destination: "<target/path/in/destination>"
+#   preserve_structure: true
+#   sync_mode: changed
