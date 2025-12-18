@@ -3,7 +3,7 @@
 # ========================================
 # 
 # This approach separates configuration from workflow logic.
-# All team-specific settings are in a separate config file.
+# All team-specific settings are in a separate config file..
 # 
 # Benefits:
 # - Easier to review (config is separate from workflow code)
