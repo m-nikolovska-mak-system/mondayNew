@@ -1,0 +1,150 @@
+# =====================================================================
+# Template: Build & Release Java App
+# Version : 1.0.0
+# Purpose : Enterprise-grade pipeline for:
+#           - Building a Java JAR with Gradle
+#           - Packaging a Windows installer
+#           - Uploading the installer to a GitHub Release
+#           - Sending success/failure notifications to Microsoft Teams
+# Last Updated: 2025-12-23
+#
+# Designed for:
+# - Product teams building Java desktop/server apps
+# - Repos that publish Windows installers per release tag
+# - Organizations standardizing on shared reusable workflows
+#
+# Behavior:
+# - Triggered on:
+#   - Manual runs (workflow_dispatch) with optional inputs
+#   - Release creation events (release: types: [created])
+# - Delegates heavy lifting to reusable workflows in:
+#   maksystem-labs/playground-ci-hub/.github/workflows/
+#
+# Customization:
+# - Adjust Teams webhook secret name if needed (TEAMS_WEBHOOK_URL).
+# - Optionally override java_version, java_distribution, gradle_task.
+# =====================================================================
+
+name: Build & Release Java App 
+
+on:
+  workflow_dispatch:
+    inputs:
+      java_version:
+        description: Java version to use
+        required: false
+        default: "17"
+
+      java_distribution:
+        description: Java distribution (temurin, zulu, etc.)
+        required: false
+        default: "temurin"
+
+      gradle_task:
+        description: Gradle task to run
+        required: false
+        default: "jar"
+
+  release:
+    types: [created]
+
+# ---------------------------------------------------------------------
+# Concurrency ensures that only one execution runs per release tag
+# ---------------------------------------------------------------------
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.release.tag_name || github.run_id }}
+  cancel-in-progress: false
+
+# =====================================================================
+# JOB: Build JAR
+# =====================================================================
+jobs:
+  build_jar:
+    name: Build JAR
+    uses: maksystem-labs/playground-ci-hub/.github/workflows/build-jar.yml@main
+    with:
+      release_tag: ${{ github.event.release.tag_name }}
+      gradle_task: ${{ inputs.gradle_task || 'jar' }}
+      java_version: ${{ inputs.java_version || '17' }}
+      java_distribution: ${{ inputs.java_distribution || 'temurin' }}
+
+  # ===================================================================
+  # JOB: Detect .iss installer script
+  # ===================================================================
+  detect_iss:
+    name: Detect Setup Script
+    uses: maksystem-labs/playground-ci-hub/.github/workflows/detect-setup-script.yml@main
+    with:
+      pattern: "**/*.iss"
+      fail_if_missing: true
+
+  # ===================================================================
+  # JOB: Validate Inputs
+  # Ensures build_jar produced a non-empty cache key
+  # ===================================================================
+  validate_inputs:
+    name: Validate JAR Cache Key
+    needs: build_jar
+    runs-on: ubuntu-latest
+    steps:
+      - name: Validate jar_cache_key
+        run: |
+          if [ -z "${{ needs.build_jar.outputs.jar_cache_key }}" ]; then
+            echo "::error::JAR cache key is empty!"
+            exit 1
+          fi
+
+  # ===================================================================
+  # JOB: Build Windows Installer using Inno Setup
+  # ===================================================================
+  build_installer:
+    name: Build Windows Installer
+    needs: [build_jar, detect_iss, validate_inputs]
+    uses: maksystem-labs/playground-ci-hub/.github/workflows/build-installer.yml@main
+    with:
+      setup_script: ${{ needs.detect_iss.outputs.setup_script }}
+      jar_path: ${{ needs.build_jar.outputs.jar_path }}
+      jar_cache_key: ${{ needs.build_jar.outputs.jar_cache_key }}
+      app_name: ${{ github.event.repository.name }}
+      app_version: ${{ github.event.release.tag_name }}
+      output_name: "Setup-${{ github.event.release.tag_name }}"
+
+  # ===================================================================
+  # JOB: Upload installer to GitHub Release
+  # ===================================================================
+  upload_release:
+    name: Upload Release Asset
+    needs: build_installer
+    uses: maksystem-labs/playground-ci-hub/.github/workflows/upload-release.yml@main
+    with:
+      tag_name: ${{ github.event.release.tag_name }}
+      artifact_name: ${{ needs.build_installer.outputs.installer_artifact_name }}
+
+  # ===================================================================
+  # JOB: Notify Success (Microsoft Teams)
+  # Only runs on actual release events
+  # ===================================================================
+  notify_success:
+    name: Notify Success
+    if: success() && github.event_name == 'release'
+    needs: [build_jar, detect_iss, validate_inputs, build_installer, upload_release]
+    uses: maksystem-labs/playground-ci-hub/.github/workflows/teams-notifier.yml@main
+    with:
+      notification_title: "✅ Build & Release Succeeded!"
+      action_required_message: "Release ${{ github.event.release.tag_name }} is ready. View: ${{ github.event.release.html_url }}"
+    secrets:
+      teams_webhook_url: ${{ secrets.TEAMS_WEBHOOK_URL }}
+
+  # ===================================================================
+  # JOB: Notify Failure
+  # ===================================================================
+  notify_failure:
+    name: Notify Failure
+    if: failure()
+    needs: [build_jar, detect_iss, validate_inputs, build_installer, upload_release]
+    uses: maksystem-labs/playground-ci-hub/.github/workflows/teams-notifier.yml@main
+    with:
+      notification_title: "🚨 Build & Release Failed!"
+      action_required_message: "Check logs: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+    secrets:
+      teams_webhook_url: ${{ secrets.TEAMS_WEBHOOK_URL }}
